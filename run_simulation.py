@@ -5,7 +5,7 @@ import os
 
 
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst):
 
     dir = "DataMules/"              #Starting Directory
     num_messages = 100
@@ -20,8 +20,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     generate_link_exists = Gen_LE
     T = t                         #Length of Simulation
     V = v                          #Number of dataMules
-    NoOfSources = 6
-    NoOfDataCenters = 3
+    NoOfSources = src_dst[0]
+    NoOfDataCenters = src_dst[1]
     start_time = ts
     max_nodes = Max_Nodes                  #All nodes include src and des
 
@@ -60,7 +60,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
         elif dataset == "Lexington":
             os.system("python3 readLexingtonData_Fixed.py")
-            os.system("python3 create_pickles")
+            os.system("python3 create_pickles_Lex.py")
             os.system("python3 computeLINKEXISTS_Lex.py")
             os.system("python3 STB_main_path.py")
 
@@ -72,15 +72,14 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         os.system("python3 metrics.py")
 
 
-# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge)
+# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr)
 
 
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False)
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False)
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, True)
-run_simulation("UMass", "2007-11-06", 1, "Epidemic", "ALL", 180, 840, 10, False, 19, 2, False)
-run_simulation("UMass", "2007-11-06", 1, "SprayNWait", "ALL", 180, 840, 10, False, 19, 2, False)
-# run_simulation("UMass", "2007-11-06", 1, "HotPotato", "ALL", 180, 840, 10, False, 19, 2, False)
+# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3])
+
+
+run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 1, False, [8,4])
+run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 180, 8, True, 20, 2, False, [8,4])
 
 
 

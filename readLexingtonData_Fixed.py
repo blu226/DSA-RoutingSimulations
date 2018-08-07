@@ -6,7 +6,7 @@ from shutil import copyfile
 from STB_help import *
 
 def readTrajectoryFile(DMTrajectories):
-    filepath = "../Lexington/primaryRoads.osm.wkt"
+    filepath = "Lexington/primaryRoads.osm.wkt"
     with open(filepath) as fp:
         lines = fp.readlines()
 
@@ -25,16 +25,17 @@ def readTrajectoryFile(DMTrajectories):
 
 
 def getSourceDesCoordinates(src_start, src_end, des_end):
-    bus_routes = pickle.load(open(lex_data_directory + "bus_route_ids.pkl", "rb"))
+    bus_routes = pickle.load(open(DataMule_path + "bus_route_ids.pkl", "rb"))
     village_coors = [0 for x in range(des_end + 1)]
     bus_routes = list(set(bus_routes))
 
-    print(bus_routes)
+    print("bus_routes", bus_routes)
     print(src_start, src_end, des_end)
     for srcID in range(src_start, src_end, 1):
         #Choose src and des from bus routes
         route_id = random.choice(bus_routes)
         #bus_routes.remove(route_id)
+        print("routeID:", route_id)
         src = random.choice(DMTrajectories[route_id])
 
         if srcID + src_end >= des_end:
@@ -87,14 +88,15 @@ def getBusRoutes(bus_start, bus_end):
     for srcID in range(bus_start, bus_end, 1):
         bus_routes.append(random.randint(0, len(DMTrajectories)-1))
 
-    f = open(lex_data_directory +  "bus_route_ids.pkl", 'wb')
+    f = open(DataMule_path +  "bus_route_ids.pkl", 'wb')
     pickle.dump(bus_routes, f)
     f.close()
-    print(bus_routes)
 
 def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
     # create file for Sources. Though the source location are fixed, the spectrum bandwidth changes over time
     # Hence, it is important to save it as a file
+    if not os.path.exists(DataMule_path + "Day" + str(day_num)):
+        os.makedirs(DataMule_path + "Day" + str(day_num))
 
     villageCoor = pickle.load(open(lex_data_directory + "village_coor.pkl", "rb"))
     for srcID in range(startIndex, endIndex, 1):
@@ -104,7 +106,7 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
         srcLocationY = villageCoor[srcID].strip().split(" ")[1]
         # print("Location: " + villageCoor[srcID] + " " + srcLocationX + " " + srcLocationY)
 
-        with open(lex_data_directory_day + str(srcID) + ".txt", "w") as srcP:
+        with open(DataMule_path + "Day" + str(day_num) + "/" + str(srcID) + ".txt", "w") as srcP:
             srcP.write("T X Y ")
             for s in S:
                 srcP.write("S" + str(s) + " ")
@@ -124,7 +126,7 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
 
 def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
     dmID = startIndex + NoOfSources + NoOfDataCenters - 1
-    bus_route_ids = pickle.load(open(lex_data_directory + "bus_route_ids.pkl", "rb"))
+    bus_route_ids = pickle.load(open(DataMule_path+ "bus_route_ids.pkl", "rb"))
 
     for ind in range(startIndex, endIndex, 1):
         dmID = dmID + 1
@@ -145,7 +147,7 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 
         # print("Trajectory " +  str(len(eachDM)) + " : " + str(eachDM))
 
-        with open(lex_data_directory_day + "/"+ str(dmID)+".txt", "w") as dmP:
+        with open(DataMule_path + "Day" + str(day_num) +"/"+ str(dmID)+".txt", "w") as dmP:
             # print ("For DM: " + str(dmID) + " Speed: " + str(dmSpeed))
             dmP.write("T X Y ");
             for s in S:
@@ -206,31 +208,30 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
                 dmP.write("\n")
         dmP.close()
 
-
-def copy_files():
-    # for run in range(1, 11, 1):
-    for i in range(V):
-        run = lex_data_directory_day.split("/")[2]
-        day = lex_data_directory_day.split("/")[3]
-        # print("Current run is: ", run)
-        src = "../Lexington" + str(max_nodes) + "/" + str(run) + "/" + day  + "/" + str(i) + ".txt"
-        dst = lex_data_directory_day + str(i) + ".txt"
-        copyfile(src, dst)
+#
+# def copy_files():
+#     # for run in range(1, 11, 1):
+#     for i in range(V):
+#         run = lex_data_directory_day.split("/")[2]
+#         day = lex_data_directory_day.split("/")[3]
+#         # print("Current run is: ", run)
+#         src = "../Lexington" + str(max_nodes) + "/" + str(run) + "/" + day  + "/" + str(i) + ".txt"
+#         dst = lex_data_directory_day + str(i) + ".txt"
+#         copyfile(src, dst)
 
 # Main starts here
 
 #change the directory to the parent one
 #We want same source, destination, and bus routes irrespective of number of runs and days
-lex_data_directory = lex_data_directory.split("/")[0] +"/" + lex_data_directory.split("/")[1] + "/"
 
 # This function is independent of tau
-LINK_EXISTS = numpy.empty(shape=(V, V, numSpec, int(T/dt), int(T/dt)))
+LINK_EXISTS = numpy.empty(shape=(V + NoOfSources + NoOfDataCenters, V + NoOfSources + NoOfDataCenters, numSpec, int(T/dt), int(T/dt)))
 LINK_EXISTS.fill(math.inf)
 
 T = T + 30
 
-if not os.path.exists(lex_data_directory_day):
-    os.makedirs(lex_data_directory_day)
+if not os.path.exists(DataMule_path):
+    os.makedirs(DataMule_path)
 
 DMTrajectories = []         #stores the coordinates for each data mule
 
@@ -240,20 +241,17 @@ readTrajectoryFile(DMTrajectories)
 
 print("Length of DM trajectories: ", len(DMTrajectories))
 
-#Just copy files, we don't have to generate the trajectories
-if V - NoOfDataCenters - NoOfSources < max_nodes:
-    copy_files()
+if V + NoOfDataCenters + NoOfSources == max_nodes:
 
-else:
     #TODO: Run it only for Day1
-    if "Day1" in lex_data_directory_day and lex_data_directory_day.split("/")[2] == str(run_start_time):
-        print("New locations generated\n")
-        getBusRoutes(0, NoOfDMs)
-        getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
+
+    print("New locations generated\n")
+    getBusRoutes(0, V + NoOfSources + NoOfDataCenters)
+    getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
 
     # Randomly place sources and destination nodes (index from 0 to S -1)
     getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
 
     # Place DMs on selected Routes (index from (S - DM)
-    getLocationsOfDMs(DMTrajectories, 0, NoOfDMs)
+    getLocationsOfDMs(DMTrajectories, 0, V)
 

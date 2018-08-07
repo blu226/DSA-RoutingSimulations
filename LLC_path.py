@@ -117,7 +117,6 @@ def LLC_PATH_ADJ_2(ADJ_T, ADJ_E, Parent, Spectrum, V, T, M):
 
 def PRINT_LLC_PATH_FILE_3(LLC_PATH, ELC_PATH, Parent, Spectrum, ADJ_T):
 
-
     file = open(path_to_folder + "LLC_PATH.txt", "w")
     file2 = open(path_to_folder + "LLC_PATH_Spectrum.txt", "w")
     file3 = open(path_to_folder + "LLC_Spectrum.txt", "w")
@@ -134,7 +133,6 @@ def PRINT_LLC_PATH_FILE_3(LLC_PATH, ELC_PATH, Parent, Spectrum, ADJ_T):
                 for j in range(V+ NoOfDataCenters + NoOfSources):
                     if i == j:
                         continue
-
                     if LLC_PATH[i, j, t, m] != math.inf:
                         par_u = int(Parent[i, j, t, m])
 

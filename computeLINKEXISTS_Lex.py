@@ -3,7 +3,6 @@ import math
 
 from STB_help import *
 from constants import *
-from computeHarvesine import *
 
 def getIndex(ts, currTimeInFile1, currTimeInFile2, currIndexInFile1, currIndexInFile2, linesInFile1, linesInFile2):
     while currTimeInFile1 < ts and currIndexInFile1 < len(linesInFile1):
@@ -118,8 +117,12 @@ def CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts, te):
 
 def createLinkExistenceADJ():
     pkl_files = []
-    fileList = findfiles(pkl_folder)
-    fileList.sort()
+    # fileList = findfiles(DataMule_path + pkl_folder)
+    # fileList.sort()
+    fileList = []
+    file_nums = [i for i in range(V + NoOfDataCenters + NoOfSources)]
+    for i in range(len(file_nums)):
+        fileList.append(str(i) + ".pkl")
 
 
 
@@ -133,10 +136,10 @@ def createLinkExistenceADJ():
     for ts in range(0, T - dt, dt):
         for te in range(ts + dt, ts + maxTau, dt):
             for file1 in fileList:
-                file1_pkl = pickle.load(open(pkl_folder + file1, "rb"))
+                file1_pkl = pickle.load(open(DataMule_path + pkl_folder + file1, "rb"))
 
                 for file2 in fileList:
-                    file2_pkl = pickle.load(open(pkl_folder + file2, "rb"))
+                    file2_pkl = pickle.load(open(DataMule_path + pkl_folder + file2, "rb"))
 
                     for s in S:
                         if te < T:
@@ -166,7 +169,7 @@ def createLinkExistenceADJ():
 # Main starts here
 
 # This function is independent of tau
-LINK_EXISTS = numpy.empty(shape=(V, V, numSpec, int(T/dt), int(T/dt)))
+LINK_EXISTS = numpy.empty(shape=(V + NoOfDataCenters + NoOfSources, V + NoOfDataCenters + NoOfSources, numSpec, int(T/dt), int(T/dt)))
 LINK_EXISTS.fill(math.inf)
 
 # if not os.path.exists(lex_data_directory):
@@ -187,7 +190,7 @@ save_in_file(link_exists_folder + "LINK_EXISTS.txt", LINK_EXISTS)
 
 
 print("Spectrum bandwidth assigned: ")
-specBW = getSpecBW(validate_data_directory, V, S, T)             # Get the dynamic spectrum bandwidth
+specBW = getSpecBW(V + NoOfDataCenters + NoOfSources, S, T)             # Get the dynamic spectrum bandwidth
 
 specBW_file = open(link_exists_folder + "specBW.pkl", 'wb')
 pickle.dump(specBW, specBW_file, protocol = 4)
