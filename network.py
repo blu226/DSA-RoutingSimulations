@@ -183,6 +183,8 @@ class Network(object):
 
                 while len(node.buf) > 0 and isVisited > 0:
                     msg = node.buf[isVisited - 1]
+                    if msg.ID == debug_message:
+                        print("curr:", msg.curr, "PATH:", msg.path)
                     node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
                     # the message gets deleted from the current node, and buffer gets shrinked
                     # isVisited is to get to the end of the node buffer even if it is not empty

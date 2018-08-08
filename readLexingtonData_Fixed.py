@@ -1,12 +1,12 @@
 import re
 import random
 import pickle
-from shutil import copyfile
+import shutil
 
 from STB_help import *
 
 def readTrajectoryFile(DMTrajectories):
-    filepath = "Lexington/primaryRoads.osm.wkt"
+    filepath = "primaryRoads.osm.wkt"
     with open(filepath) as fp:
         lines = fp.readlines()
 
@@ -25,63 +25,66 @@ def readTrajectoryFile(DMTrajectories):
 
 
 def getSourceDesCoordinates(src_start, src_end, des_end):
-    bus_routes = pickle.load(open(DataMule_path + "bus_route_ids.pkl", "rb"))
-    village_coors = [0 for x in range(des_end + 1)]
-    bus_routes = list(set(bus_routes))
 
-    print("bus_routes", bus_routes)
-    print(src_start, src_end, des_end)
-    for srcID in range(src_start, src_end, 1):
-        #Choose src and des from bus routes
-        route_id = random.choice(bus_routes)
-        #bus_routes.remove(route_id)
-        print("routeID:", route_id)
-        src = random.choice(DMTrajectories[route_id])
+    if day_num == 1:
 
-        if srcID + src_end >= des_end:
-            village_coors[srcID] = src
-            print("SRC Route ID", route_id, srcID, src)
+        bus_routes = pickle.load(open(DataMule_path + "bus_route_ids.pkl", "rb"))
+        village_coors = [0 for x in range(des_end + 1)]
+        bus_routes = list(set(bus_routes))
 
-        else:
-            des = random.choice(DMTrajectories[route_id])
-            dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(des).split()[0]), float(str(des).split()[1]))
-            count = 0
-            adequate_dist = random.randint(1000, 2500)
-            while dist < adequate_dist:
-                count = count + 1
-                if count > len(DMTrajectories[route_id]):
-                    route_id = random.choice(bus_routes)
-                    # print(route_id)
-                    count = 0
+        print("bus_routes", bus_routes)
+        print(src_start, src_end, des_end)
+        for srcID in range(src_start, src_end, 1):
+            #Choose src and des from bus routes
+            route_id = random.choice(bus_routes)
+            #bus_routes.remove(route_id)
+            print("routeID:", route_id)
+            src = random.choice(DMTrajectories[route_id])
 
-                src = random.choice(DMTrajectories[route_id])
+            if srcID + src_end >= des_end:
+                village_coors[srcID] = src
+                print("SRC Route ID", route_id, srcID, src)
+
+            else:
                 des = random.choice(DMTrajectories[route_id])
-                dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(des).split()[0]),
-                                         float(str(des).split()[1]))
-                # print(route_id, dist)
+                dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(des).split()[0]), float(str(des).split()[1]))
+                count = 0
+                adequate_dist = random.randint(1000, 2500)
+                while dist < adequate_dist:
+                    count = count + 1
+                    if count > len(DMTrajectories[route_id]):
+                        route_id = random.choice(bus_routes)
+                        # print(route_id)
+                        count = 0
 
-            print("SRC Route ID", route_id, srcID, src)
-            print("DES Route ID", route_id, srcID + src_end, des, "dist: ", dist, "\n")
-            village_coors[srcID] = src
-            village_coors[srcID + src_end] = des
+                    src = random.choice(DMTrajectories[route_id])
+                    des = random.choice(DMTrajectories[route_id])
+                    dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(des).split()[0]),
+                                             float(str(des).split()[1]))
+                    # print(route_id, dist)
+
+                print("SRC Route ID", route_id, srcID, src)
+                print("DES Route ID", route_id, srcID + src_end, des, "dist: ", dist, "\n")
+                village_coors[srcID] = src
+                village_coors[srcID + src_end] = des
 
 
-    # for desID in range(0, des_end - src_end, 1):
-    #     rand_location = random.choice(DMTrajectories[chosen_bus_route[desID]])
-    #     village_coors.append(rand_location)
-    #     # print(village_coors[desID].split()[0], village_coors[desID + src_end].split()[0])
-    #     count = 0
-    #     while count< len(DMTrajectories[chosen_bus_route[desID]]) and euclideanDistance(float(village_coors[desID].split()[0]), float(village_coors[desID].split()[1]), float(village_coors[desID + src_end].split()[0]), float(village_coors[desID + src_end].split()[1])) < 2000:
-    #         count = count + 1
-    #         rand_location = random.choice(DMTrajectories[chosen_bus_route[desID]])
-    #         village_coors[src_end + desID] = rand_location
 
-            # print("DES Route ID", chosen_bus_route[desID - src_end], rand_location, euclideanDistance(float(village_coors[desID].split()[0]), float(village_coors[desID].split()[1]), float(village_coors[desID + src_end].split()[0]), float(village_coors[desID + src_end].split()[1])))
+        f = open(DataMule_path + "village_coor.pkl", 'wb')
+        pickle.dump(village_coors, f)
+        f.close()
 
-
-    f = open(lex_data_directory + "village_coor.pkl", 'wb')
-    pickle.dump(village_coors, f)
-    f.close()
+    else:
+        dir1 = DataMule_path + "Day1/"
+        dir2 = DataMule_path + "Day2/"
+        if not os.path.exists(dir1):
+            os.makedirs(dir1)
+        if not os.path.exists(dir2):
+            os.makedirs(dir2)
+        for i in range(des_end):
+            curr_dir = DataMule_path + "Day1/" + str(i) + ".txt"
+            new_dir = DataMule_path + "Day2/" + str(i) + ".txt"
+            shutil.copyfile(curr_dir, new_dir)
 
 def getBusRoutes(bus_start, bus_end):
     bus_routes = []
@@ -98,7 +101,7 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
     if not os.path.exists(DataMule_path + "Day" + str(day_num)):
         os.makedirs(DataMule_path + "Day" + str(day_num))
 
-    villageCoor = pickle.load(open(lex_data_directory + "village_coor.pkl", "rb"))
+    villageCoor = pickle.load(open(DataMule_path + "village_coor.pkl", "rb"))
     for srcID in range(startIndex, endIndex, 1):
 
         # villageCoor = random.choice(DMTrajectories[srcID%len(DMTrajectories)])
@@ -112,7 +115,7 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
                 srcP.write("S" + str(s) + " ")
             srcP.write("\n")
 
-            for t in range(0, T, dt):
+            for t in range(0, 2*T, dt):
                 srcP.write(str(t) + " " + str(srcLocationX) + " " + str(srcLocationY) + " ")
 
                 # Change the bandwidth of each spectrum at each DSA node at each time epoch
@@ -140,7 +143,7 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
         chosen_trajectory_id  = bus_route_ids[ind]
         eachDM = DMTrajectories[chosen_trajectory_id]
 
-        villageCoor = pickle.load(open(lex_data_directory + "village_coor.pkl", "rb"))
+        villageCoor = pickle.load(open(DataMule_path + "village_coor.pkl", "rb"))
 
         # print("Village coors", villageCoor)
         # print("Bus route ", bus_route_ids[ind], DMTrajectories[bus_route_ids[ind]], "\n")

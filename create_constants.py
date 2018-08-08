@@ -74,8 +74,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
 
     if dataset == "Lexington":
         f.write("\nVMIN = 400\n")
-        f.write("VMAX = 600\n")
-        f.write("wait_time = [2,7]\n")
-        f.write("route_start_time1 = 0\nroute_start_time2 = 5\n")
+        f.write("VMAX = 410\n")
+        f.write("wait_time = [2,3]\n")
+        f.write("route_start_time1 = 0\nroute_start_time2 = 1\n")
         f.write("lex_data_directory = \'Lexington/\'\n")
         f.write("day_num = " + str(pkl_folder_num) + "\n")

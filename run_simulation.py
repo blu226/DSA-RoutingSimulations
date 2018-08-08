@@ -9,7 +9,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
     dir = "DataMules/"              #Starting Directory
     num_messages = 100
-    debug_message = 2
+    debug_message = 98
     generate_messages = True
 
     dataset = DataSet               #UMass or Lexington
@@ -25,13 +25,27 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     start_time = ts
     max_nodes = Max_Nodes                  #All nodes include src and des
 
-    dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
-    link_exists_path = dataMule_path + "Link_Exists/" + "LE_" + str(start_time) + "_" + str(T) + "/"
-    metrics_path = link_exists_path + protocol + "/" + band + "/" + str(V) + "/"
-    if pkl_fold_num == 1:
-        path_to_day1_LLC = metrics_path
-    else:
-        path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - T) + "_" + str(T) + "/" + protocol + "/" + band + "/" + str(V) + "/"
+
+    if dataset == "UMass":
+        dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
+        link_exists_path = dataMule_path + "Link_Exists/" + "LE_" + str(start_time) + "_" + str(T) + "/"
+        metrics_path = link_exists_path + protocol + "/" + band + "/" + str(V) + "/"
+        if pkl_fold_num == 1:
+            path_to_day1_LLC = metrics_path
+        else:
+            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - T) + "_" + str(T) + "/" + protocol + "/" + band + "/" + str(V) + "/"
+
+    elif dataset == "Lexington":
+        dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
+        if pkl_fold_num == 1:
+            link_exists_path = dataMule_path + "Link_Exists/" + "LE_1_"  + str(T) + "/"
+            metrics_path = link_exists_path + protocol + "/" + band + "/" + str(V) + "/"
+            path_to_day1_LLC = metrics_path
+        else:
+            link_exists_path = dataMule_path + "Link_Exists/" + "LE_2_" + str(T) + "/"
+            metrics_path = link_exists_path + protocol + "/" + band + "/" + str(V) + "/"
+            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_1_" + str(
+                T) + "/" + protocol + "/" + band + "/" + str(V) + "/"
 
     if band == "ALL":
         S = [0, 1, 2, 3]  # Spectrums to use
@@ -78,8 +92,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 # run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3])
 
 
-run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 1, False, [8,4])
-run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 180, 8, True, 20, 2, False, [8,4])
+run_simulation("Lexington", "50", 1, "XChant", "ALL", 180, 0, 38, True, 50, 1, False, [8,4])
+run_simulation("Lexington", "50", 1, "XChant", "ALL", 180, 0, 38, True, 50, 2, False, [8,4])
 
 
 

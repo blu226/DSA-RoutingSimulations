@@ -286,7 +286,6 @@ class Node(object):                                                             
                 # print("curr: ", message.curr, "next: ", next)
                 # if self.is_in_communication_range(nodes[message.curr], nodes[next], ts, te, s, message) == True:
                 if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1 and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr):
-
                     nodes[next].can_receive = message.curr
                     self.mes_fwd_time_limit += transfer_time
                     if self.mes_fwd_time_limit <= num_sec_per_tau:
@@ -310,8 +309,7 @@ class Node(object):                                                             
 
                     else:
                         self.mes_fwd_time_limit -= transfer_time
-                        if int(debug_message) == int(message.ID):
-                            print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", message.ID)
+                        print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", message.ID)
 
             elif message.curr == next and message.last_sent <= ts:
                 message.path.pop()
