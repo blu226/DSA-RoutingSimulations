@@ -5,7 +5,7 @@ import os
 
 
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed):
 
     dir = "DataMules/"              #Starting Directory
     num_messages = 100
@@ -62,7 +62,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         print("Invalid Band Type")
 
 
-    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge)
+    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed)
 
     print(protocol)
 
@@ -86,14 +86,14 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         os.system("python3 metrics.py")
 
 
-# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr)
+# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr)
 
 
 # run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3])
 
 
-run_simulation("Lexington", "50", 1, "XChant", "ALL", 180, 0, 38, True, 50, 1, False, [8,4])
-run_simulation("Lexington", "50", 1, "XChant", "ALL", 180, 0, 38, True, 50, 2, False, [8,4])
+run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 1, False, [8,4], [400, 450])
+run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 2, False, [8,4], [400, 500])
 
 
 

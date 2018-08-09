@@ -74,17 +74,17 @@ def getSourceDesCoordinates(src_start, src_end, des_end):
         pickle.dump(village_coors, f)
         f.close()
 
-    else:
-        dir1 = DataMule_path + "Day1/"
-        dir2 = DataMule_path + "Day2/"
-        if not os.path.exists(dir1):
-            os.makedirs(dir1)
-        if not os.path.exists(dir2):
-            os.makedirs(dir2)
-        for i in range(des_end):
-            curr_dir = DataMule_path + "Day1/" + str(i) + ".txt"
-            new_dir = DataMule_path + "Day2/" + str(i) + ".txt"
-            shutil.copyfile(curr_dir, new_dir)
+    # else:
+    #     dir1 = DataMule_path + "Day1/"
+    #     dir2 = DataMule_path + "Day2/"
+    #     if not os.path.exists(dir1):
+    #         os.makedirs(dir1)
+    #     if not os.path.exists(dir2):
+    #         os.makedirs(dir2)
+    #     for i in range(des_end):
+    #         curr_dir = DataMule_path + "Day1/" + str(i) + ".txt"
+    #         new_dir = DataMule_path + "Day2/" + str(i) + ".txt"
+    #         shutil.copyfile(curr_dir, new_dir)
 
 def getBusRoutes(bus_start, bus_end):
     bus_routes = []
@@ -248,13 +248,14 @@ if V + NoOfDataCenters + NoOfSources == max_nodes:
 
     #TODO: Run it only for Day1
 
-    print("New locations generated\n")
-    getBusRoutes(0, V + NoOfSources + NoOfDataCenters)
-    getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
+    if day_num == 1:
+        print("New locations generated\n")
+        getBusRoutes(0, V + NoOfSources + NoOfDataCenters)
+        getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
 
     # Randomly place sources and destination nodes (index from 0 to S -1)
     getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
 
     # Place DMs on selected Routes (index from (S - DM)
-    getLocationsOfDMs(DMTrajectories, 0, V)
+    getLocationsOfDMs(DMTrajectories, 0, V + NoOfSources + NoOfDataCenters)
 

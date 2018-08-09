@@ -1,6 +1,6 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge):
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed):
     f = open("constants.py", "w")
 
     T_line = "T = " + str(T) + "\n"
@@ -73,9 +73,9 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("protocol = \'" + protocol + "\'\n")
 
     if dataset == "Lexington":
-        f.write("\nVMIN = 400\n")
-        f.write("VMAX = 410\n")
-        f.write("wait_time = [2,3]\n")
-        f.write("route_start_time1 = 0\nroute_start_time2 = 1\n")
+        f.write("\nVMIN = " + str(speed[0]) + "\n")
+        f.write("VMAX = " + str(speed[1]) +"\n")
+        f.write("wait_time = [2,7]\n")
+        f.write("route_start_time1 = 0\nroute_start_time2 = 5\n")
         f.write("lex_data_directory = \'Lexington/\'\n")
         f.write("day_num = " + str(pkl_folder_num) + "\n")
