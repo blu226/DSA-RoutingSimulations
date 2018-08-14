@@ -41,6 +41,22 @@ class Node(object):                                                             
 
                         if (dist1 < spectRange[s] or dist2 < spectRange[s]) and other_node.channels[s][j] != -1:
                             available = False
+                for p_user in net.primary_users:
+                    if p_user.active == True and s == p_user.band and j == p_user.channel:
+                        if dataset == "UMass":
+                            dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
+                                                 float(p_user.y), float(p_user.x))
+                            dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
+                                                 float(p_user.y), float(p_user.x))
+                        elif dataset == "Lexington":
+                            dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
+                                                      float(p_user.x), float(p_user.y))
+                            dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
+                                                      float(p_user.x), float(p_user.y))
+                        if (dist1 < spectRange[s] or dist2 < spectRange[s]):
+                            node1.channels[s][j] = -1
+                            node2.channels[s][j] = -1
+                            available = False
 
             if available == True:
                 node1.channels[s][j] = int(node2.ID) + 1
@@ -75,7 +91,7 @@ class Node(object):                                                             
         self.coord = pickle.load(open(link_exists_folder + self.ID + ".pkl", "rb"))
 
     def compute_transfer_time(self, msg, s, specBW, i, j, t):
-        numerator = math.ceil(int(msg.size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
+        numerator = math.ceil(int(packet_size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
         time_to_transfer = tau * math.ceil(numerator / tau)
         return time_to_transfer
 
@@ -120,7 +136,7 @@ class Node(object):                                                             
                         spec_to_use.append(s)
 
                 for s in spec_to_use:
-                    if self.can_transfer(mes.size, spec_to_use[s], (te - ts), specBW, self.ID, des_node.ID, ts):
+                    if self.can_transfer(packet_size, spec_to_use[s], (te - ts), specBW, self.ID, des_node.ID, ts):
                         if des_node.can_receive == np.inf or des_node.can_receive == mes.curr:
                             des_node.can_receive = mes.curr
 
@@ -161,7 +177,7 @@ class Node(object):                                                             
                         spec_to_use.append(s)
 
                 for spec in range(len(spec_to_use)):
-                    if self.can_transfer(mes.size, spec_to_use[spec], (te - ts), specBW, self.ID, des_node.ID, ts):
+                    if self.can_transfer(packet_size, spec_to_use[spec], (te - ts), specBW, self.ID, des_node.ID, ts):
 
                         if des_node.can_receive == np.inf or des_node.can_receive == mes.curr:
                             des_node.can_receive = mes.curr
@@ -221,7 +237,7 @@ class Node(object):                                                             
                         spec_to_use.append(s)
 
                 for spec in range(len(spec_to_use)):
-                    if self.can_transfer(mes.size, spec_to_use[spec], (te - ts), specBW, self.ID, des_node.ID, ts):
+                    if self.can_transfer(packet_size, spec_to_use[spec], (te - ts), specBW, self.ID, des_node.ID, ts):
 
                         # create list of messages to send
                         mes_to_send = self.choose_messages_to_send(mes.ID)
@@ -280,6 +296,7 @@ class Node(object):                                                             
 
                 transfer_time = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
                 te = ts + transfer_time
+                # print("TS:", ts, "TE:", te)
 
                 if te >= T:
                     te = T - 1
@@ -317,19 +334,19 @@ class Node(object):                                                             
                 message.last_sent += 1
 
         # This is else to the len(message.path) > 0
-        else:  # Message has been delivered
-            nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
-
-            # if message has reached its destination
-            # if len(message.path) == 0: #and message.src != message.des: # and message.T  + message.totalDelay <= T:
-            if ts <= T:  # delivered time is less than the allowed TTL deadline
-                output_file = open(path_to_folder + delivered_file, "a")  # print confirmation to output file
-                band_usage_str = str(message.band_usage[0]) + '\t' + str(message.band_usage[1]) + '\t' + str(message.band_usage[2]) + "\t" + str(message.band_usage[3])
-
-                output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
-                    message.genT) + "\t" + str(int(message.last_sent)) + "\t" + str(
-                    int(message.last_sent - message.genT)) +  "\t" + str(message.size) +  "\t" + str(message.totalEnergy) + "\t" + band_usage_str +"\n"
-
-                output_file.write(output_msg)
-                output_file.close()
+        # else:  # Message has been delivered
+        #     nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
+        #
+        #     # if message has reached its destination
+        #     # if len(message.path) == 0: #and message.src != message.des: # and message.T  + message.totalDelay <= T:
+        #     if ts <= T:  # delivered time is less than the allowed TTL deadline
+        #         output_file = open(path_to_metrics + delivered_file, "a")  # print confirmation to output file
+        #         band_usage_str = str(message.band_usage[0]) + '\t' + str(message.band_usage[1]) + '\t' + str(message.band_usage[2]) + "\t" + str(message.band_usage[3])
+        #
+        #         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
+        #             message.genT) + "\t" + str(int(message.last_sent)) + "\t" + str(
+        #             int(message.last_sent - message.genT)) +  "\t" + str(message.size) +  "\t" + str(message.totalEnergy) + "\t" + band_usage_str +"\n"
+        #
+        #         output_file.write(output_msg)
+        #         output_file.close()
 

@@ -15,6 +15,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     st_line = "StartTime = " + str(start_time) + "\n"
     dm_line = "debug_message = " + str(debug_message) + "\n"
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
+    ptm_line = "path_to_metrics = path_to_folder + str(num_messages) + \'/\'\n"
 
     generated_messages_file = "generated_messages.txt"
     gen_LE_line = "generate_link_exists = " + str(generate_link_exists) + "\n"
@@ -42,9 +43,9 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         num_reps_line = "num_replicas = 1\n"
 
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
-    f.write("minBW = [6,20,30,60]\nmaxBW = [6,20,30,60]\nspectRange = [3600,920,2400,700]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
+    f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [6133,780,3750,1400]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\nM = [1,10,25,50,100,500,750]\nnum_sec_per_tau = 60\nactive_channel_prob = 0.3\n")
+    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\nnum_channels = 10\nnum_primary_users = 30\nM = [60,600,1500,3000,6000,30000,45000]\npacket_size = 60\nnum_sec_per_tau = 60\nactive_channel_prob = 0.3\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -60,6 +61,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(num_mes_line)
     f.write(dmd_line)
     f.write(ptf_line)
+    f.write(ptm_line)
     f.write(pkl_line)
     f.write(LLC_line)
     f.write(num_reps_line)

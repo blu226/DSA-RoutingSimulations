@@ -1,17 +1,21 @@
 from constants import *
 from message import *
 from node import *
+from primary_user import *
 
 
 
 class Network(object):
     def __init__(self):
         self.nodes = []                 #list of nodes in network
+        self.primary_users = []            #list of primary users
         self.message_num = 0
         self.time = 0
 
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
+
+
 
     def network_status(self):                          #console output for debugging (prints all messages in each nodes buffer)
         for i in range(len(self.nodes)):
@@ -22,9 +26,20 @@ class Network(object):
         for node in self.nodes:
             node.clear_channels()
 
-    def use_channels(self):
-        for node in self.nodes:
-            node.use_random_channels()
+        for p_user in self.primary_users:
+            p = random.uniform(0,1)
+
+            if p < active_channel_prob:
+                p_user.active = True
+            else:
+                p_user.active = False
+
+    def create_primary_users(self):
+        for x in range(num_primary_users):
+            p_user = PrimaryUser()
+            p_user.place()
+            self.primary_users.append(p_user)
+
 
     def fill_network(self, num_nodes):  # quickly fill network and randomly place nodes
         for i in range(num_nodes):  # create and add nodes to network
@@ -41,7 +56,7 @@ class Network(object):
 
         avg_energy = total_energy / (V +NoOfDataCenters + NoOfSources)
 
-        f = open(path_to_folder + consumed_energy_file, 'a')
+        f = open(path_to_metrics + consumed_energy_file, 'a')
         f.write(str(time) + "\t" + str(avg_energy) + "\n")
         f.close()
 
@@ -66,14 +81,24 @@ class Network(object):
         for node in self.nodes:
             for mes in node.buf:
                 if int(mes.des) == int(node.ID):
-                    f = open(path_to_folder + delivered_file, "a")
-                    band_usage_str = str(mes.band_usage[0]) + '\t' + str(mes.band_usage[1]) + '\t' + str(mes.band_usage[2]) + '\t' + str(mes.band_usage[3])
+                    num_packets = mes.size / packet_size
+                    num_packets_recieved = 0
+                    for msg in node.buf:
+                        if msg.ID == mes.ID:
+                            num_packets_recieved += 1
 
-                    line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) +"\t\t" + str(mes.replica) + '\t' + band_usage_str + "\n"
+                    if num_packets_recieved == num_packets:
+                        f = open(path_to_metrics + delivered_file, "a")
+                        band_usage_str = str(mes.band_usage[0]) + '\t' + str(mes.band_usage[1]) + '\t' + str(mes.band_usage[2]) + '\t' + str(mes.band_usage[3])
 
-                    f.write(line)
-                    f.close()
-                    node.buf.remove(mes)
+                        line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) +"\t\t" + str(mes.replica) + '\t' + band_usage_str + "\n"
+
+                        f.write(line)
+                        f.close()
+
+                        for msg in node.buf:
+                            if msg.ID == mes.ID:
+                                node.buf.remove(msg)
 
     def other_add_messages(self, lines, time):
         for line in lines:
@@ -86,7 +111,7 @@ class Network(object):
                     self.nodes[src].buf.append(new_mes)
 
     def all_messages(self):
-        f = open(path_to_folder + not_delivered_file, "a")
+        f = open(path_to_metrics + not_delivered_file, "a")
         for node in self.nodes:
             for mes in node.buf:
                 line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t\t" + str(mes.replica) + "\n"
@@ -109,16 +134,18 @@ class Network(object):
                 des = msg_line_arr[2]
                 size = msg_line_arr[4]
 
-                band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
+                num_packets = int(size) / int(packet_size)
+                for packet_id in range(int(num_packets)):
+                    band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
 
-                message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band,0)  # create the message
-                curr = int(message.curr)
+                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band,0, packet_id)  # create the message
+                    curr = int(message.curr)
 
-                # If a path exists for this message
-                if len(message.path) > 0:
-                    self.nodes[curr].buf.append(message)  # put the message in the source nodes buffer
-                    self.nodes[curr].buf_size += 1
-                    self.message_num += 1
+                    # If a path exists for this message
+                    if len(message.path) > 0:
+                        self.nodes[curr].buf.append(message)  # put the message in the source nodes buffer
+                        self.nodes[curr].buf_size += 1
+                        self.message_num += 1
 
     def try_forwarding_message_to_all1(self,src_node, message, t, LINK_EXISTS, specBW):
         replica = 0
@@ -168,7 +195,6 @@ class Network(object):
     def network_GO(self, t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS):  # function that sends all messages at a given tau
 
         self.clear_all_channels()
-        self.use_channels()
 
     #Calculate energy consumption
         if t % 15 == 0 or t == T - 1:
@@ -181,14 +207,20 @@ class Network(object):
                 node = self.nodes[i]
                 isVisited = len(node.buf)  # Get the initial buffer size
 
-                while len(node.buf) > 0 and isVisited > 0:
-                    msg = node.buf[isVisited - 1]
-                    if msg.ID == debug_message:
-                        print("curr:", msg.curr, "PATH:", msg.path)
-                    node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
-                    # the message gets deleted from the current node, and buffer gets shrinked
-                    # isVisited is to get to the end of the node buffer even if it is not empty
-                    isVisited -= 1
+                if len(node.buf) > 0:
+                    msg_ID_to_send = node.buf[0].ID
+
+
+
+                    while len(node.buf) > 0 and isVisited > 0:
+                        msg = node.buf[isVisited - 1]
+                        if msg.ID == msg_ID_to_send:
+                            if msg.ID == debug_message:
+                                print("curr:", msg.curr, "PATH:", msg.path)
+                            node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+                        # the message gets deleted from the current node, and buffer gets shrinked
+                        # isVisited is to get to the end of the node buffer even if it is not empty
+                        isVisited -= 1
         else:
             self.other_add_messages(msg_lines,t)
 
@@ -201,8 +233,9 @@ class Network(object):
                             self.try_forwarding_message_to_all2(node,mes,t,LINK_EXISTS,specBW)
                         else:
                             self.try_forwarding_message_to_all1(node, mes, t, LINK_EXISTS, specBW)
-            # Handle messages that got delivered
-            self.messages_delivered()
+
+        # Handle messages that got delivered
+        self.messages_delivered()
 
 
 

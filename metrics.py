@@ -6,12 +6,12 @@ def compute_overhead(time):
         return 1
 
     with open( DataMule_path + "Link_Exists/" + generated_messages_file, "r") as f:
-        generated_lines = f.readlines()[1:]
+        generated_lines = f.readlines()[1:num_messages]
 
-    with open(path_to_folder + delivered_file, 'r') as f:
+    with open(path_to_metrics + delivered_file, 'r') as f:
         delivered_lines = f.readlines()[2:]
 
-    with open(path_to_folder + not_delivered_file, 'r') as f:
+    with open(path_to_metrics + not_delivered_file, 'r') as f:
         NotDelivered_lines = f.readlines()[2:]
 
     num_mes_gen = 0
@@ -49,7 +49,7 @@ def compute_overhead(time):
 
 def find_avg_energy(time):
 
-    with open(path_to_folder + consumed_energy_file, 'r') as f:
+    with open(path_to_metrics + consumed_energy_file, 'r') as f:
         lines = f.readlines()[1:]
 
     for line in lines:
@@ -140,11 +140,10 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
     return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage
 
 #Main starts here
-msg_file = open(DataMule_path + "Link_Exists/" + generated_messages_file, "r")
-total_messages = len(msg_file.readlines()[1:])
+total_messages = num_messages
 
-metric_file = open(path_to_folder + metrics_file, "w")
-with open(path_to_folder + delivered_file, "r") as f:
+metric_file = open(path_to_metrics + metrics_file, "w")
+with open(path_to_metrics + delivered_file, "r") as f:
     lines = f.readlines()[2:]
 
 if protocol == "XChant":
@@ -154,7 +153,7 @@ else:
     spec_lines = []
 
 
-fsorted = open(path_to_folder + "sorted_delivery.txt", "w")
+fsorted = open(path_to_metrics + "sorted_delivery.txt", "w")
 #sort the lines based on LLC i.e., column 5
 
 fsorted.write("ID	s	d	ts	te	LLC	size	parent	parentTime	replica\n")
@@ -177,7 +176,7 @@ for t in delivery_times:
 metric_file.close()
 # print("Delivered messages", sorted(mes_IDs))
 
-with open(path_to_folder + "unique_messages.txt", "w") as f:
+with open(path_to_metrics + "unique_messages.txt", "w") as f:
     f.write("ID\ts\td\tts\tte\tLLC\tsize\n")
     f.write("------------------------------\n")
 

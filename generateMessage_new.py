@@ -30,15 +30,15 @@ while count_messages < num_messages:
             if int(nodeId) > NoOfSources + NoOfDataCenters:
                 generateMessage = True
 
-    t = random.randint(int(0.1 * T), int(0.25 * T))
+    t = random.randint(int(0.1 * T), int(0.5 * T))
 
     #rand = random.uniform(0, 1)
 
-    if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.25 * T:
+    if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.5 * T:
 
         p = random.uniform(0, 1)
 
-        if p < 0.1:
+        if p < 0.05:
             message_file.write(
                 str(id) + "\t" + str(src) + "\t" + str(des) + "\t" + str(desired_TTL) + "\t" + str(size) + "\t" + str(
                     t) + "\n")
