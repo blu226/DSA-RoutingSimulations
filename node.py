@@ -4,6 +4,7 @@ import numpy as np
 from constants import *
 from message import *
 from STB_help import *
+from misc_sim_funcs import *
 
 
 
@@ -67,7 +68,7 @@ class Node(object):                                                             
         return False
 
     def clear_channels(self):
-        self.channels = np.zeros(shape=(len(S), 10))
+        self.channels = np.zeros(shape=(len(S), num_channels))
         self.can_receive = np.inf
         self.mes_fwd_time_limit = 0
 
@@ -91,15 +92,19 @@ class Node(object):                                                             
         self.coord = pickle.load(open(link_exists_folder + self.ID + ".pkl", "rb"))
 
     def compute_transfer_time(self, msg, s, specBW, i, j, t):
-        numerator = math.ceil(int(packet_size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
-        time_to_transfer = tau * math.ceil(numerator / tau)
-        return time_to_transfer
+        # numerator = math.ceil(int(packet_size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
+        # time_to_transfer = tau * math.ceil(numerator / tau)
+        transmission_time = packet_size / specBW[i, j, s, t]  # in seconds
+        time_to_transfer = math.ceil(transmission_time / num_sec_per_tau)  # in tau
+
+        return  time_to_transfer, transmission_time
 
     def can_transfer(self, size, s, seconds, specBW, i, j, t):
-        numerator = math.ceil(int(size) / specBW[int(i), int(j), int(s), int(t)]) * (t_sd + idle_channel_prob * t_td)
-        time_to_transfer = tau * math.ceil(numerator / tau)
+        # numerator = math.ceil(int(size) / specBW[int(i), int(j), int(s), int(t)]) * (t_sd + idle_channel_prob * t_td)
+        # time_to_transfer = tau * math.ceil(numerator / tau)
         # if msg.ID == 1:
         #     print("Message : ", msg.ID, msg.src, msg.des, " Int: ", i, j)
+        time_to_transfer = math.ceil(packet_size / specBW[i, j, s, t])
 
         if time_to_transfer <= seconds:
             return True
@@ -108,7 +113,7 @@ class Node(object):                                                             
 
     def calculate_energy_consumption(self, message, next, s, ts, specBW):
         curr = int(message.curr)
-        size = int(message.size)
+        size = packet_size
         bw = (specBW[curr, int(next), s, ts])
         sensing_energy = math.ceil(size / bw) * t_sd * sensing_power
         switching_energy = math.ceil(size / (specBW[curr, int(next), int(s), int(ts)])) * idle_channel_prob * switching_delay
@@ -284,69 +289,68 @@ class Node(object):                                                             
         if len(message.path) > 0 and '' not in message.path:  # if the message still has a valid path
             next = int(message.path[len(message.path) - 1])  # get next node in path
 
-            s = int(message.bands[len(message.bands) - 1])
+            s = int(message.bands[len(message.bands) - 1])  # get band to use
 
             # Change s in between 0 and S
             if s > 9:
                 s = s % 10
             s = s - 1
 
-            # self.is_in_communication_range(message.curr, next, t, s - 1)
-            if message.curr != next and message.last_sent <= ts:
+            # #Check if the message has reached the destination
+            # if message.des != next:
 
-                transfer_time = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
-                te = ts + transfer_time
-                # print("TS:", ts, "TE:", te)
+            transfer_time, transfer_time_in_secs = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
+            te = ts + transfer_time
+            # print("TS:", ts, "TE:", te)
 
-                if te >= T:
-                    te = T - 1
-                # print("curr: ", message.curr, "next: ", next)
-                # if self.is_in_communication_range(nodes[message.curr], nodes[next], ts, te, s, message) == True:
-                if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1 and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr):
-                    nodes[next].can_receive = message.curr
-                    self.mes_fwd_time_limit += transfer_time
-                    if self.mes_fwd_time_limit <= num_sec_per_tau:
+            if te >= T:
+                te = T - 1
+            # print("curr: ", message.curr, "next: ", next)
+            # if self.is_in_communication_range(nodes[message.curr], nodes[next], ts, te, s, message) == True:
+            # self.check_for_available_channel(self, nodes[next], ts, net, s)
+            # and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr)
+            if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1:
+                nodes[next].can_receive = message.curr
+                # if message.ID == debug_message:
+                #     print("msg fwd lim:", self.mes_fwd_time_limit, "transfer time:", transfer_time)
+                self.mes_fwd_time_limit += transfer_time_in_secs
+                if self.mes_fwd_time_limit <= num_sec_per_tau:
+                    # if message.ID == debug_message:
+                    #     print("ID - packetID - Curr - Time:", message.ID, message.packet_id, message.curr, ts)
 
-                        # calculate energy consumed
-                        consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
+                    # calculate energy consumed
+                    consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
 
-                        self.energy += consumedEnergy
-                        net.nodes[next].energy += consumedEnergy
-                        message.path.pop()
-                        message.bands.pop()
-                        message.last_sent = ts + transfer_time
-                        message.band_used(s)
+                    self.energy += consumedEnergy
+                    net.nodes[next].energy += consumedEnergy
+                    message.path.pop()
+                    message.bands.pop()
+                    message.last_sent = ts + transfer_time
+                    message.band_used(s)
 
-                        if message.curr != next:
-                            # handle message transferred
-                            nodes[next].buf.append(message)  # add message to next node buffer
-                            nodes[message.curr].buf.remove(message)  # remove message from current node buffer
-                            message.curr = next  # update messages current node
-                            self.buf_size -= 1  # update current nodes buffer
+                    nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
+                    self.buf_size -= 1  # update current nodes buffer
+
+                    if message.des == next:
+                        #message is delivered, write to file
+                        write_delivered_msg_to_file(nodes,message, ts)
 
                     else:
-                        self.mes_fwd_time_limit -= transfer_time
-                        print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", message.ID)
+                        # handle message transferred
+                        nodes[next].buf.append(message)  # add message to next node buffer
+                        message.curr = next  # update messages current node
 
-            elif message.curr == next and message.last_sent <= ts:
-                message.path.pop()
-                message.bands.pop()
-                message.last_sent += 1
+
+                else:
+                    self.mes_fwd_time_limit -= transfer_time_in_secs
+                    # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "MSG:", message.ID, "Packet:", message.packet_id)
+
+            #This is to empty the message.path so that the source node knows that the message has been delivered
+            # elif int(message.des) == int(next):
+            #     message.path.pop()
+            #     message.bands.pop()
+            #     # message.last_sent += 1
+
 
         # This is else to the len(message.path) > 0
         # else:  # Message has been delivered
-        #     nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
-        #
-        #     # if message has reached its destination
-        #     # if len(message.path) == 0: #and message.src != message.des: # and message.T  + message.totalDelay <= T:
-        #     if ts <= T:  # delivered time is less than the allowed TTL deadline
-        #         output_file = open(path_to_metrics + delivered_file, "a")  # print confirmation to output file
-        #         band_usage_str = str(message.band_usage[0]) + '\t' + str(message.band_usage[1]) + '\t' + str(message.band_usage[2]) + "\t" + str(message.band_usage[3])
-        #
-        #         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
-        #             message.genT) + "\t" + str(int(message.last_sent)) + "\t" + str(
-        #             int(message.last_sent - message.genT)) +  "\t" + str(message.size) +  "\t" + str(message.totalEnergy) + "\t" + band_usage_str +"\n"
-        #
-        #         output_file.write(output_msg)
-        #         output_file.close()
-

@@ -221,7 +221,6 @@ def isFile(object):
 
 def findfiles(directory):
     # if directory is not 'DieselNet-2007/gps_logs/.DS_Store':
-    print (directory)
     objects = os.listdir(directory)  # find all objects in a dir
 
     files = []

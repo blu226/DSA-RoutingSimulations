@@ -43,8 +43,12 @@ def computeADJ_T_2(specBW, LINK_EXISTS):
                         for s in S:
                             #bandwidth = 0 means there does not exist a link over that spectrum band
                             if specBW[i, j, s, t] > 0:
-                                numerator = math.ceil(M[m] / specBW[i, j, s, t]) * (t_sd + idle_channel_prob * t_td)
-                                consumedTime = tau * math.ceil(numerator/tau)
+                                # numerator = math.ceil(M[m] / (60* specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
+                                # consumedTime = tau * math.ceil(numerator/tau)
+
+                                transmission_time = M[m]/specBW[i, j, s, t] #in seconds
+                                consumedTime = math.ceil(transmission_time/num_sec_per_tau) #in minutes
+
 
                                 sensing_energy = math.ceil(M[m] / (specBW[i, j, s, t])) * t_sd * sensing_power
                                 switching_energy = math.ceil(M[m] / (specBW[i, j, s, t])) * idle_channel_prob * switching_delay

@@ -32,7 +32,9 @@ while count_messages < num_messages:
 
     t = random.randint(int(0.1 * T), int(0.5 * T))
 
-    #rand = random.uniform(0, 1)
+    prob_message_size = random.uniform(0, 1)
+    if prob_message_size < 0.7 and size >= M[4]:
+        size = random.choice(M[:3])
 
     if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.5 * T:
 

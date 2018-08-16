@@ -10,8 +10,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes
-    debug_message = -1
-    generate_messages = True
+    debug_message = 6
+
+    generate_messages = True if pkl_fold_num == 1 else False
 
     dataset = DataSet               #UMass or Lexington
     day_or_numMules = Day_Or_NumMules#date (UMass) or number of mules (Lexington)
@@ -48,6 +49,10 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
             path_to_day1_LLC = dataMule_path + "Link_Exists/LE_1_" + str(
                 T) + "/" + protocol + "/" + band + "/" + str(V) + "/"
 
+    else:
+        print("Invalid Dataset")
+        return -1
+
     if band == "ALL":
         S = [0, 1, 2, 3]  # Spectrums to use
     elif band == "TV":
@@ -67,6 +72,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 
     if generate_link_exists == True and max_nodes == V + NoOfSources + NoOfDataCenters:
+
         if dataset == "UMass":
             os.system("python3 create_pickles.py")
             os.system("python3 computeLINKEXISTS_UMass.py")
@@ -81,8 +87,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
             os.makedirs(path_to_metrics)
         os.system("python3 STB_main_path.py")
 
-    if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
-        os.system("python3 generateMessage_new.py")
+    # if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
+    #     os.system("python3 generateMessage_new.py")
 
 
 
@@ -92,17 +98,31 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     os.system("python3 metrics.py")
 
 
-# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr)
+# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr, num messages)
+#Day 1
+run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0],10)
+#Day 2
+run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0],10)
 
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0])
-# run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 1, False, [8,4], [400, 450])
-# run_simulation("Lexington", "20", 1, "XChant", "ALL", 180, 0, 8, True, 20, 2, False, [8,4], [400, 500])
 
-dataset = "UMass"
-# days = ["2007-11-01", "2007-11-06", "2007-11-07"]
-days = ["2007-11-06", "2007-11-07"]
-round = 1
-protocols = ["XChant", "Epidemic", "SprayNWait", "HotPotato"]
+
+
+
+
+
+
+
+
+
+
+
+#RUN ALL UMASS SIMULATIONS
+
+# dataset = "UMass"
+# # days = ["2007-11-01", "2007-11-06", "2007-11-07"]
+# days = ["2007-11-06", "2007-11-07"]
+# round = 1
+# protocols = ["XChant", "Epidemic", "SprayNWait", "HotPotato"]
 
 # print("Bootstrap Round\n")
 # for day in days:
@@ -139,4 +159,3 @@ protocols = ["XChant", "Epidemic", "SprayNWait", "HotPotato"]
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr)
 # run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, True, 19, 1, False, [6,3], [0,0],100)
 
-run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, True, [6,3], [0,0],10)

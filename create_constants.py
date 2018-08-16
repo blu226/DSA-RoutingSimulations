@@ -29,12 +29,15 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         not_delivered_file = "not_delivered_opt.txt"
         metrics_file = "metrics_opt.txt"
         LLC_line = "path_to_LLC = \'" + path_to_folder + "\'\n"
+        packet_delivered_file = "packets_delivered_opt.txt"
+
 
     else:
         delivered_file = "delivered_messages.txt"
         consumed_energy_file = "energy_metrics.txt"
         not_delivered_file = "not_delivered.txt"
         metrics_file = "metrics.txt"
+        packet_delivered_file = "packets_delivered.txt"
         LLC_line = "path_to_LLC = \'" + str(path_to_day1_LLC) + "\'\n"
 
     if protocol == "SprayNWait":
@@ -45,7 +48,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
     f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [6133,780,3750,1400]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\nnum_channels = 10\nnum_primary_users = 30\nM = [60,600,1500,3000,6000,30000,45000]\npacket_size = 60\nnum_sec_per_tau = 60\nactive_channel_prob = 0.3\n")
+    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\nnum_channels = 10\nnum_primary_users = 0\nM = [60,600,1500,3000,6000,10000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 0.3\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -72,6 +75,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("not_delivered_file = \'" + not_delivered_file + "\'\n")
     f.write("generated_messages_file = \'" + generated_messages_file + "\'\n")
     f.write("metrics_file = \'" + metrics_file + "\'\n")
+    f.write("packet_delivered_file = \'" + packet_delivered_file + "\'\n")
     f.write("protocol = \'" + protocol + "\'\n")
 
     if dataset == "Lexington":
