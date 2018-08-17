@@ -206,34 +206,43 @@ class Network(object):
         # clear all channels and check if primary users are active
         self.clear_all_channels()
 
-    #Calculate energy consumption
+        #Calculate energy consumption
         if t % 15 == 0 or t == T - 1:
             self.find_avg_energy_consumption(t)
 
-    #Handle different protocols
+        #Handle different protocols
         if protocol == "XChant":
             self.xchant_add_messages(msg_lines,t,path_lines,spec_lines)
 
             #TODO: loop thru nodes randomly instead of linearly
             for i in range(len(self.nodes)):  # send all messages to their next hop
                 node = self.nodes[i]
-                isVisited = len(node.buf)  # Get the initial buffer size
+                isVisited = len(node.buf)   # Get the initial buffer size
+                msg_index = 0               # init index of msg buffer
+                was_sent = False            # init variable to check if a message could send
 
-                if len(node.buf) > 0 and len(node.buf[0].bands) > 0:
-                    spec_to_use = node.buf[0].bands[len(node.buf[0].bands) - 1]
+                # Checks to see what spectrum to use for tau
+                if len(node.buf) > 0 and len(node.buf[msg_index].bands) > 0:
+                    spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
 
                 while len(node.buf) > 0 and isVisited > 0:
-                    msg = node.buf[0]
-                    # if msg.ID == debug_message:
-                    #     print("Packet ID - path:", msg.packet_id, msg.path)
-                    #check if the packets belong to same message
-                    #if msg.ID == msg_ID_to_send:
+                    msg = node.buf[msg_index]
+
                     #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
-                    if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
-                        node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+                    if is_queuing_active == True and restrict_band_access == True:
+                        if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
+                            # TODO: get the suitable non-interfered channel
+                            was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+
+                    else:
+                        # TODO: get the suitable non-interfered channel
+                        was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
                     # the message gets deleted from the current node, and buffer gets shrinked
                     # isVisited is to get to the end of the node buffer even if it is not empty
                     isVisited -= 1
+                    if was_sent == False:
+                        # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
+                        msg_index += 1
         else:
             self.other_add_messages(msg_lines,t)
 

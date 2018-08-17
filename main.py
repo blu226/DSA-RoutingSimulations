@@ -13,7 +13,7 @@ net.create_primary_users()
 path_lines, spec_lines, msg_lines, specBW, LINK_EXISTS = get_data_structs()
 
 for t in range(0, T, tau):
-
+    # print("TIME:", t)
     net.network_GO(t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS)
     # net.network_status()
 

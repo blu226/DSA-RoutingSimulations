@@ -30,13 +30,13 @@ while count_messages < num_messages:
             if int(nodeId) > NoOfSources + NoOfDataCenters:
                 generateMessage = True
 
-    t = random.randint(int(0.1 * T), int(0.5 * T))
+    t = random.randint(int(0.1 * T), int(0.3 * T))
 
     prob_message_size = random.uniform(0, 1)
     if prob_message_size < 0.7 and size >= M[4]:
         size = random.choice(M[:3])
 
-    if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.5 * T:
+    if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.3 * T:
 
         p = random.uniform(0, 1)
 

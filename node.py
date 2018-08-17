@@ -313,7 +313,8 @@ class Node(object):                                                             
                 nodes[next].can_receive = message.curr
                 # if message.ID == debug_message:
                 #     print("msg fwd lim:", self.mes_fwd_time_limit, "transfer time:", transfer_time)
-                self.mes_fwd_time_limit += transfer_time_in_secs
+                if is_queuing_active == True:
+                    self.mes_fwd_time_limit += transfer_time_in_secs
                 if self.mes_fwd_time_limit <= num_sec_per_tau:
                     # if message.ID == debug_message:
                     #     print("ID - packetID - Curr - Time:", message.ID, message.packet_id, message.curr, ts)
@@ -340,11 +341,19 @@ class Node(object):                                                             
                         nodes[next].buf.append(message)  # add message to next node buffer
                         message.curr = next  # update messages current node
 
+                    return True
+
 
                 else:
+                    if message.ID == debug_message:
+                        print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
                     self.mes_fwd_time_limit -= transfer_time_in_secs
+                    return False
                     # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "MSG:", message.ID, "Packet:", message.packet_id)
-
+            else:
+                if message.ID == debug_message:
+                    print("out of range, node - packetID:", self.ID, message.packet_id)
+                return False
             #This is to empty the message.path so that the source node knows that the message has been delivered
             # elif int(message.des) == int(next):
             #     message.path.pop()
