@@ -13,6 +13,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     debug_message = -1
     is_queuing_active = True
     restrict_band_access = True
+    restrict_channel_access = True
+    generate_new_primary_users = True
 
     generate_messages = True if pkl_fold_num == 1 else False
 
@@ -70,7 +72,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         print("Invalid Band Type")
 
 
-    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access)
+    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users)
 
 
     if generate_link_exists == True and max_nodes == V + NoOfSources + NoOfDataCenters:
@@ -84,13 +86,13 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
             os.system("python3 create_pickles_Lex.py")
             os.system("python3 computeLINKEXISTS_Lex.py")
 
-    if protocol == "XChant":
-        if not os.path.exists(path_to_metrics):
-            os.makedirs(path_to_metrics)
-        os.system("python3 STB_main_path.py")
-    #
-    if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
-        os.system("python3 generateMessage_new.py")
+    # if protocol == "XChant":
+    #     if not os.path.exists(path_to_metrics):
+    #         os.makedirs(path_to_metrics)
+    #     os.system("python3 STB_main_path.py")
+    # #
+    # if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
+    #     os.system("python3 generateMessage_new.py")
 
 
 
@@ -102,9 +104,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr, num messages)
 #Day 1
-run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0],25)
+run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0],75)
 #Day 2
-run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 25)
+run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 75)
 
 
 

@@ -26,6 +26,8 @@ class Network(object):
         for node in self.nodes:
             node.clear_channels()
 
+    def activate_primary_users(self):
+
         for p_user in self.primary_users:
             p = random.uniform(0,1)
 
@@ -40,12 +42,31 @@ class Network(object):
             p_user.place()
             self.primary_users.append(p_user)
 
+    def save_primary_users(self):
+        with open("primary_users.txt", "w") as f:
+            for p_user in self.primary_users:
+                line = str(p_user.x) + "\t" + str(p_user.y) + "\t" + str(p_user.channel) + "\t" + str(p_user.band) + "\n"
+                f.write(line)
+
+    def load_primary_users(self):
+        with open("primary_users.txt", "r") as f:
+            lines = f.readlines()
+
+            for line in lines:
+                line_arr = line.strip().split()
+                p_user = PrimaryUser()
+                channel = int(line_arr[2])
+                if channel > num_channels:
+                    channel = random.randint(0,num_channels)
+                p_user.set(int(line_arr[0]), int(line_arr[1]), channel, int(line_arr[3]))
+
+                self.primary_users.append(p_user)
 
     def fill_network(self, num_nodes):  # quickly fill network and randomly place nodes
         for i in range(num_nodes):  # create and add nodes to network
             ide = str(i)
             node = Node(ide)
-            # node.load_pkl()
+            node.load_pkl()
             self.add_node(node)
 
     def find_avg_energy_consumption(self, time):
@@ -205,6 +226,7 @@ class Network(object):
     def network_GO(self, t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS):  # function that sends all messages at a given tau
         # clear all channels and check if primary users are active
         self.clear_all_channels()
+        self.activate_primary_users()
 
         #Calculate energy consumption
         if t % 15 == 0 or t == T - 1:

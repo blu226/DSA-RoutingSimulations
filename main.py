@@ -1,5 +1,6 @@
 from misc_sim_funcs import *
 from network import *
+from constants import  *
 
 
 initialize_output_files()
@@ -7,8 +8,13 @@ initialize_output_files()
 #create/init network
 net = Network()
 net.fill_network(V + NoOfSources + NoOfDataCenters)
-net.create_primary_users()
 
+if generate_new_primary_users == True:
+    net.create_primary_users()
+    net.save_primary_users()
+else:
+    net.load_primary_users()
+    net.save_primary_users()
 #Open LLC_path.txt, LLC_spectrum.txt, generated_messages, specBW, LINK_EXISTS
 path_lines, spec_lines, msg_lines, specBW, LINK_EXISTS = get_data_structs()
 

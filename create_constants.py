@@ -1,6 +1,6 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access):
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users):
     f = open("constants.py", "w")
 
     T_line = "T = " + str(T) + "\n"
@@ -18,7 +18,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     ptm_line = "path_to_metrics = path_to_folder + str(num_messages) + \'/\'\n"
     queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
-
+    rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
+    gpu_line = "generate_new_primary_users = " + str(generate_new_primary_users) + "\n"
     generated_messages_file = "generated_messages.txt"
     gen_LE_line = "generate_link_exists = " + str(generate_link_exists) + "\n"
     gen_mes_line = "generate_messages = " + str(generate_messages) + "\n"
@@ -50,7 +51,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
     f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [6133,780,3750,1400]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\nnum_channels = 10\nnum_primary_users = 0\nM = [60,600,1500,3000,6000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 0.3\n")
+    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\ndefault_num_channels = 10\nnum_channels = 5\nnum_primary_users = 20\nM = [60,600,1500,3000,6000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1.0\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -72,6 +73,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(num_reps_line)
     f.write(queue_line)
     f.write(rb_line)
+    f.write(rc_line)
+    f.write(gpu_line)
 
     f.write(lef_line)
     f.write("delivered_file = \'" + delivered_file + "\'\n")

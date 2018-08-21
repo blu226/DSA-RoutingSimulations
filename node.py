@@ -18,57 +18,65 @@ class Node(object):                                                             
         self.buf_size = 0
         self.mes_fwd_time_limit = 0
         self.can_receive = np.inf
-        self.channels = np.full(shape=(len(S), 10), fill_value=np.inf)
+        self.channels = np.full(shape=(len(S), num_channels), fill_value=np.inf)
 
-    def check_for_available_channel(self, node1, node2, ts, net, s):
+    def update_channel_occupancy(self, node1, node2, ts, net, s, channel, LINK_EXISTS):
+        for other_node in net.nodes:
+            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts, ts+1] == 1:
+                other_node.channels[s, channel] = node1.ID
+
+    def check_for_available_channel(self, node1, node2, ts, net, s, LINK_EXISTS):
         available = False
-        dist1 = 0
+        dist1 = 99999
         dist2 = 99999
 
-        for j in range(len(node1.channels[0])):
+        # print("Node1.ID:", node1.ID, "Node2.ID:", node2.ID, "Can_receive:", node2.can_receive)
+        if node2.can_receive == np.inf or node2.can_receive == int(node1.ID):
+            for j in range(num_channels):
 
-            if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) or (
-                    node1.channels[s][j] == int(node2.ID) + 1 and node2.channels[s][j] == int(node1.ID) + 1):
-                available = True
-                for other_node in net.nodes:
-                    if other_node != node1 and other_node != node2 and other_node.channels[s][j] == 1:
+                #check if a common channel is available between both nodes
+                if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)):
+                    available = True
 
-                        if dataset == "UMass":
-                            dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),float(other_node.coord[ts][1]), float(other_node.coord[ts][0]))
-                            dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),float(other_node.coord[ts][1]), float(other_node.coord[ts][0]))
-                        elif dataset == "Lexington":
-                            dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),float(other_node.coord[ts][0]), float(other_node.coord[ts][1]))
-                            dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),float(other_node.coord[ts][0]), float(other_node.coord[ts][1]))
+                    #interference due to secondary users
+                    for other_node in net.nodes:
+                        if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID or other_node.channels[s][j] == other_node.can_receive):
 
-                        if (dist1 < spectRange[s] or dist2 < spectRange[s]) and other_node.channels[s][j] != -1:
-                            available = False
-                for p_user in net.primary_users:
-                    if p_user.active == True and s == p_user.band and j == p_user.channel:
-                        if dataset == "UMass":
-                            dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
-                                                 float(p_user.y), float(p_user.x))
-                            dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
-                                                 float(p_user.y), float(p_user.x))
-                        elif dataset == "Lexington":
-                            dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
-                                                      float(p_user.x), float(p_user.y))
-                            dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
-                                                      float(p_user.x), float(p_user.y))
-                        if (dist1 < spectRange[s] or dist2 < spectRange[s]):
-                            node1.channels[s][j] = -1
-                            node2.channels[s][j] = -1
-                            available = False
+                            # print("Secondary User using same channel.")
 
-            if available == True:
-                node1.channels[s][j] = int(node2.ID) + 1
-                node2.channels[s][j] = int(node1.ID) + 1
-                return True
+                            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts, ts+1] == 1:
+                                # print("Secondary User in range")
+                                available = False
 
-        print("No Channel Available")
+                    #interference due to primary users
+                    for p_user in net.primary_users:
+                        if p_user.active == True and s == p_user.band and j == p_user.channel:
+                            if dataset == "UMass":
+                                dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
+                                                     float(p_user.y), float(p_user.x))
+                                dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
+                                                     float(p_user.y), float(p_user.x))
+                            elif dataset == "Lexington":
+                                dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
+                                                          float(p_user.x), float(p_user.y))
+                                dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
+                                                          float(p_user.x), float(p_user.y))
+                            if (dist1 < spectRange[s] or dist2 < spectRange[s]):
+                                node1.channels[s][j] = -1
+                                node2.channels[s][j] = -1
+                                available = False
+                                # print("Primary User using channel")
+
+                if available == True:
+                    self.update_channel_occupancy(node1,node2,ts,net,s,j, LINK_EXISTS)
+
+                    return True
+
+        # print("No Channel Available")
         return False
 
     def clear_channels(self):
-        self.channels = np.zeros(shape=(len(S), num_channels))
+        self.channels = np.full(shape=(len(S), num_channels),fill_value=np.inf)
         self.can_receive = np.inf
         self.mes_fwd_time_limit = 0
 
@@ -89,7 +97,7 @@ class Node(object):                                                             
             print("Message ID: " + str(message))
 
     def load_pkl(self):
-        self.coord = pickle.load(open(link_exists_folder + self.ID + ".pkl", "rb"))
+        self.coord = pickle.load(open(DataMule_path + pkl_folder + self.ID + ".pkl", "rb"))
 
     def compute_transfer_time(self, msg, s, specBW, i, j, t):
         # numerator = math.ceil(int(packet_size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
@@ -296,59 +304,57 @@ class Node(object):                                                             
                 s = s % 10
             s = s - 1
 
-            # #Check if the message has reached the destination
-            # if message.des != next:
-
             transfer_time, transfer_time_in_secs = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
             te = ts + transfer_time
-            # print("TS:", ts, "TE:", te)
 
             if te >= T:
                 te = T - 1
-            # print("curr: ", message.curr, "next: ", next)
-            # if self.is_in_communication_range(nodes[message.curr], nodes[next], ts, te, s, message) == True:
-            # self.check_for_available_channel(self, nodes[next], ts, net, s)
+
+
             # and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr)
             if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1:
-                nodes[next].can_receive = message.curr
-                # if message.ID == debug_message:
-                #     print("msg fwd lim:", self.mes_fwd_time_limit, "transfer time:", transfer_time)
-                if is_queuing_active == True:
-                    self.mes_fwd_time_limit += transfer_time_in_secs
-                if self.mes_fwd_time_limit <= num_sec_per_tau:
-                    # if message.ID == debug_message:
-                    #     print("ID - packetID - Curr - Time:", message.ID, message.packet_id, message.curr, ts)
 
-                    # calculate energy consumed
-                    consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
+                if restrict_channel_access == True:
+                    channel_available = self.check_for_available_channel(self, nodes[next], ts, net, s, LINK_EXISTS)
+                else:
+                    channel_available = True
 
-                    self.energy += consumedEnergy
-                    net.nodes[next].energy += consumedEnergy
-                    message.path.pop()
-                    message.bands.pop()
-                    message.last_sent = ts + transfer_time
-                    message.band_used(s)
+                if channel_available == True:
+                    nodes[next].can_receive = message.curr
 
-                    nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
-                    self.buf_size -= 1  # update current nodes buffer
+                    if is_queuing_active == True:
+                        self.mes_fwd_time_limit += transfer_time_in_secs
 
-                    if message.des == next:
-                        #message is delivered, write to file
-                        write_delivered_msg_to_file(nodes,message, ts)
+                    if self.mes_fwd_time_limit <= num_sec_per_tau:
+                        # calculate energy consumed
+                        consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
+                        self.energy += consumedEnergy
+                        net.nodes[next].energy += consumedEnergy
+
+                        message.path.pop()
+                        message.bands.pop()
+                        message.last_sent = ts + transfer_time
+                        message.band_used(s)
+
+                        nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
+                        self.buf_size -= 1  # update current nodes buffer
+
+                        if message.des == next:
+                            #message is delivered, write to file
+                            write_delivered_msg_to_file(nodes,message, ts)
+
+                        else:
+                            # handle message transferred
+                            nodes[next].buf.append(message)  # add message to next node buffer
+                            message.curr = next  # update messages current node
+
+                        return True
 
                     else:
-                        # handle message transferred
-                        nodes[next].buf.append(message)  # add message to next node buffer
-                        message.curr = next  # update messages current node
-
-                    return True
-
-
-                else:
-                    if message.ID == debug_message:
-                        print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
-                    self.mes_fwd_time_limit -= transfer_time_in_secs
-                    return False
+                        if message.ID == debug_message:
+                            print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
+                        self.mes_fwd_time_limit -= transfer_time_in_secs
+                        return False
                     # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "MSG:", message.ID, "Packet:", message.packet_id)
             else:
                 if message.ID == debug_message:

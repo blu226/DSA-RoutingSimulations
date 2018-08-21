@@ -16,9 +16,25 @@ class PrimaryUser(object):
         with open(DataMule_path + chosen_file, 'r') as f:
             lines = f.readlines()[1:]
 
-        rand_index = random.randint(0, len(lines) - 1)
 
+        rand_index = random.randint(0, len(lines) - 1)
         line_arr = lines[rand_index].strip().split()
 
-        self.x = float(line_arr[2])
-        self.y = float(line_arr[3])
+        x = float(line_arr[2])
+        y = float(line_arr[3])
+
+        while int(x) == 0:
+            rand_index = random.randint(0, len(lines) - 1)
+            line_arr = lines[rand_index].strip().split()
+
+            x = float(line_arr[2])
+            y = float(line_arr[3])
+
+        self.x = x
+        self.y = y
+
+    def set(self, x, y, channel, band):
+        self.x = x
+        self.y = y
+        self.channel = channel
+        self.band = band
