@@ -121,10 +121,10 @@ def LLC_PATH_ADJ_2(ADJ_T, ADJ_E, Parent, Spectrum, V, T, M):
 
 def PRINT_LLC_PATH_FILE_3(LLC_PATH, ELC_PATH, Parent, Spectrum, ADJ_T):
 
-    file = open(path_to_folder + "LLC_PATH.txt", "w")
-    file2 = open(path_to_folder + "LLC_PATH_Spectrum.txt", "w")
-    file3 = open(path_to_folder + "LLC_Spectrum.txt", "w")
-    file4 = open(path_to_folder + "LLC_time.txt", "w")
+    file = open(path_to_save_LLC + "LLC_PATH.txt", "w")
+    file2 = open(path_to_save_LLC + "LLC_PATH_Spectrum.txt", "w")
+    file3 = open(path_to_save_LLC + "LLC_Spectrum.txt", "w")
+    file4 = open(path_to_save_LLC + "LLC_time.txt", "w")
 
     file.write("#i\tj\tt\tm:\tPATH\n")
     file2.write("#i\tj\tt\tm:\tPATH\n")

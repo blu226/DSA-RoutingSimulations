@@ -36,29 +36,26 @@ class Network(object):
             else:
                 p_user.active = False
 
-    def create_primary_users(self):
-        for x in range(num_primary_users):
-            p_user = PrimaryUser()
-            p_user.place()
-            self.primary_users.append(p_user)
+    def create_primary_users(self, num_C):
+            for x in range(num_primary_users):
+                p_user = PrimaryUser(num_C)
+                p_user.place()
+                self.primary_users.append(p_user)
 
-    def save_primary_users(self):
-        with open("primary_users.txt", "w") as f:
+    def save_primary_users(self, num_C):
+        with open("Primary_Users/primary_users_" + str(num_C) + ".txt", "w") as f:
             for p_user in self.primary_users:
                 line = str(p_user.x) + "\t" + str(p_user.y) + "\t" + str(p_user.channel) + "\t" + str(p_user.band) + "\n"
                 f.write(line)
 
     def load_primary_users(self):
-        with open("primary_users.txt", "r") as f:
+        with open("Primary_Users/primary_users_" + str(num_channels) + ".txt", "r") as f:
             lines = f.readlines()
 
-            for line in lines:
-                line_arr = line.strip().split()
+            for line_ind in range(num_primary_users):
+                line_arr = lines[line_ind].strip().split()
                 p_user = PrimaryUser()
-                channel = int(line_arr[2])
-                if channel > num_channels:
-                    channel = random.randint(0,num_channels)
-                p_user.set(int(line_arr[0]), int(line_arr[1]), channel, int(line_arr[3]))
+                p_user.set(float(line_arr[0]), float(line_arr[1]), int(line_arr[2]), int(line_arr[3]))
 
                 self.primary_users.append(p_user)
 
@@ -227,7 +224,7 @@ class Network(object):
         # clear all channels and check if primary users are active
         self.clear_all_channels()
         self.activate_primary_users()
-
+        # print("TIME:", t)
         #Calculate energy consumption
         if t % 15 == 0 or t == T - 1:
             self.find_avg_energy_consumption(t)
@@ -249,6 +246,8 @@ class Network(object):
 
                 while len(node.buf) > 0 and isVisited > 0:
                     msg = node.buf[msg_index]
+
+                    # print("msg:", msg.ID, "packetID:", msg.packet_id, "PATH:", msg.path)
 
                     #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
                     if is_queuing_active == True and restrict_band_access == True:

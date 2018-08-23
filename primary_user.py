@@ -3,8 +3,8 @@ from STB_help import *
 class PrimaryUser(object):
 
     def __init__(self):
-        self.band = random.randint(0, len(S))
-        self.channel = random.randint(0, num_channels)
+        self.band = -1
+        self.channel = -1
         self.x = -1
         self.y = -1
         self.active = False

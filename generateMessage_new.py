@@ -2,7 +2,7 @@ from constants import *
 import random
 
 message_file = open(DataMule_path + "Link_Exists/generated_messages.txt", "w")
-with open(path_to_folder + "LLC_PATH.txt", "r") as fp:
+with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
     path_lines = fp.readlines()[1:]
 fp.close()
 

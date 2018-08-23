@@ -22,7 +22,7 @@ class Node(object):                                                             
 
     def update_channel_occupancy(self, node1, node2, ts, net, s, channel, LINK_EXISTS):
         for other_node in net.nodes:
-            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts, ts+1] == 1:
+            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1:
                 other_node.channels[s, channel] = node1.ID
 
     def check_for_available_channel(self, node1, node2, ts, net, s, LINK_EXISTS):
@@ -31,16 +31,20 @@ class Node(object):                                                             
         dist2 = 99999
 
         # print("Node1.ID:", node1.ID, "Node2.ID:", node2.ID, "Can_receive:", node2.can_receive)
+        #make sure receiver is not already receiving from anyone else
         if node2.can_receive == np.inf or node2.can_receive == int(node1.ID):
             for j in range(num_channels):
 
                 #check if a common channel is available between both nodes
-                if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)):
+                if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
+                        or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)) \
+                        or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == np.inf):
                     available = True
 
                     #interference due to secondary users
                     for other_node in net.nodes:
-                        if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID or other_node.channels[s][j] == other_node.can_receive):
+                        #no one in range is transmitting on the same channel
+                        if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID ):
 
                             # print("Secondary User using same channel.")
 
@@ -310,10 +314,8 @@ class Node(object):                                                             
             if te >= T:
                 te = T - 1
 
-
             # and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr)
             if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1:
-
                 if restrict_channel_access == True:
                     channel_available = self.check_for_available_channel(self, nodes[next], ts, net, s, LINK_EXISTS)
                 else:
@@ -355,11 +357,16 @@ class Node(object):                                                             
                             print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
                         self.mes_fwd_time_limit -= transfer_time_in_secs
                         return False
-                    # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "MSG:", message.ID, "Packet:", message.packet_id)
+                else:
+                    if message.ID == debug_message:
+                        print("channel unavailable")
+
             else:
                 if message.ID == debug_message:
                     print("out of range, node - packetID:", self.ID, message.packet_id)
                 return False
+
+        return False
             #This is to empty the message.path so that the source node knows that the message has been delivered
             # elif int(message.des) == int(next):
             #     message.path.pop()
