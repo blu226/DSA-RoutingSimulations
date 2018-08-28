@@ -109,14 +109,16 @@ class Network(object):
             msg_size = msg_arr[4]
             num_packets_recieved = 0
             num_packets = math.ceil(int(msg_size) / int(packet_size))
+            packetIDs = [x for x in range(num_packets)]
 
             for line in lines:
                 line_arr = line.strip().split()
 
-                if line_arr[0] == msg_id:
+                if line_arr[0] == msg_id and int(line_arr[6]) in packetIDs:
                     num_packets_recieved += 1
+                    packetIDs.remove(int(line_arr[6]))
 
-                if num_packets_recieved == num_packets:
+                if num_packets_recieved == num_packets and len(packetIDs) == 0:
                     f = open(path_to_metrics + delivered_file, "a")
                     f.write(line)
                     f.close()
@@ -129,16 +131,19 @@ class Network(object):
             line_arr = line.strip().split()
 
             if int(line_arr[5]) == time:
+                num_packets = math.ceil(int(line_arr[4]) / int(packet_size))
+
                 for i in range(num_replicas):
-                    new_mes = Message(line_arr[0], line_arr[1], line_arr[2], line_arr[5], line_arr[4], [0, 0, 0, 0], -1, -1, i)
-                    src = int(line_arr[1])
-                    self.nodes[src].buf.append(new_mes)
+                    for j in range(num_packets):
+                        new_mes = Message(line_arr[0], line_arr[1], line_arr[2], line_arr[5], line_arr[4], [0, 0, 0, 0], -1, -1, i, j)
+                        src = int(line_arr[1])
+                        self.nodes[src].buf.append(new_mes)
 
     def not_delivered_messages(self):
         f = open(path_to_metrics + not_delivered_file, "a")
         for node in self.nodes:
             for mes in node.buf:
-                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t\t" + str(mes.replica) + "\n"
+                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) +"\n"
                 f.write(line)
         f.close()
 
@@ -177,17 +182,18 @@ class Network(object):
 
     def try_forwarding_message_to_all1(self,src_node, message, t, LINK_EXISTS, specBW):
         replica = 0
+        #Check if in range with each node
         for des_node in self.nodes:
             to_send = True
-
+            #Check if next node already has the message
             if des_node != src_node:
                 for mes in des_node.buf:
-                    if mes.ID == message.ID:
+                    if mes.ID == message.ID and mes.packet_id == message.packet_id:
                         to_send = False
 
                 if to_send == True:
                     if protocol == "Epidemic":
-                        if src_node.try_sending_message_epi(des_node, message, t, replica, LINK_EXISTS, specBW):
+                        if src_node.try_sending_message_epi(des_node, message, t, replica, LINK_EXISTS, specBW, self):
                             replica += 1
                     elif protocol == "SprayNWait":
                         # if message.ID == debug_message:
@@ -246,9 +252,6 @@ class Network(object):
 
                 while len(node.buf) > 0 and isVisited > 0:
                     msg = node.buf[msg_index]
-
-                    # print("msg:", msg.ID, "packetID:", msg.packet_id, "PATH:", msg.path)
-
                     #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
                     if is_queuing_active == True and restrict_band_access == True:
                         if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:

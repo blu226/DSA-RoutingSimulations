@@ -26,7 +26,7 @@ p_id = 1
 
 channels = [x for x in range(2,11)]
 
-
+#Get data for XChants
 for time in startTime:
     t = 0
     for channel in channels:
@@ -48,6 +48,25 @@ for time in startTime:
                     Xchants[t][0] = line_arr[p_id]
 
         t += 1
+
+#Get data for Epidemic
+t = 0
+for channel in channels:
+
+    path_to_metrics = path + "LE_" + str(startTime[1]) + "_" + str(T) + "/" + "Epidemic/ALL/mules_" + \
+                      str(num_mules) + "/channels_" + str(channel) + "/P_users_" + str(num_Pusers) + \
+                      "/" + str(num_messages) + "/metrics.txt"
+
+    with open(path_to_metrics, "r") as f:
+        lines = f.readlines()[1:]
+
+    for line in lines:
+        line_arr = line.strip().split()
+
+        if "180" in line_arr:
+            Epidemic_ALL[t][0] = line_arr[p_id]
+
+    t += 1
 
 
 x = np.array([x for x in range(2,11, 1)])

@@ -106,7 +106,7 @@ class Node(object):                                                             
     def compute_transfer_time(self, msg, s, specBW, i, j, t):
         # numerator = math.ceil(int(packet_size) / int(specBW[i, j, s, t])) * (t_sd + idle_channel_prob * t_td)
         # time_to_transfer = tau * math.ceil(numerator / tau)
-        transmission_time = packet_size / specBW[i, j, s, t]  # in seconds
+        transmission_time = packet_size / specBW[int(i), int(j), int(s), int(t)]  # in seconds
         time_to_transfer = math.ceil(transmission_time / num_sec_per_tau)  # in tau
 
         return  time_to_transfer, transmission_time
@@ -177,7 +177,7 @@ class Node(object):                                                             
 
             return False
 
-    def try_sending_message_epi(self, des_node, mes, ts, replicaID, LINK_EXISTS, specBW):
+    def try_sending_message_epi(self, des_node, mes, ts, replicaID, LINK_EXISTS, specBW, net):
 
         if mes.last_sent <= ts:
             max_end = ts + maxTau
@@ -191,34 +191,46 @@ class Node(object):                                                             
                 for s in S:
 
                     if LINK_EXISTS[int(self.ID), int(des_node.ID), int(s), int(ts), int(te)] == 1:
-                        spec_to_use.append(s)
+                        if restrict_channel_access == True:
+                            channel_available = self.check_for_available_channel(self, des_node, ts, net, s,LINK_EXISTS)
+                        else:
+                            channel_available = True
+
+                        if channel_available == True:
+                            spec_to_use.append(s)
+                            break
 
                 for spec in range(len(spec_to_use)):
-                    if self.can_transfer(packet_size, spec_to_use[spec], (te - ts), specBW, self.ID, des_node.ID, ts):
 
-                        if des_node.can_receive == np.inf or des_node.can_receive == mes.curr:
-                            des_node.can_receive = mes.curr
+                    if des_node.can_receive == np.inf or des_node.can_receive == mes.curr:
+                        des_node.can_receive = self.ID
 
-                            transfer_time = self.compute_transfer_time(mes, spec, specBW, mes.curr, des_node.ID, ts)
+                        transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, spec, specBW, mes.curr, des_node.ID, ts)
 
-                            self.mes_fwd_time_limit += transfer_time
+                        if is_queuing_active == True:
+                            self.mes_fwd_time_limit += transfer_time_in_sec
 
-                            if self.mes_fwd_time_limit <= num_sec_per_tau:
-                                # calculate energy consumed
-                                consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, spec, ts, specBW)
-                                self.energy += consumedEnergy
-                                des_node.energy += consumedEnergy
+                        if self.mes_fwd_time_limit <= num_sec_per_tau:
+                            # calculate energy consumed
+                            consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, spec, ts, specBW)
+                            self.energy += consumedEnergy
+                            des_node.energy += consumedEnergy
 
-                                new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size, [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],mes.band_usage[3]],[0],[0], 0)
-                                new_message.set(te, replicaID)
+                            if int(des_node.ID) == (mes.des):
+                                write_delivered_msg_to_file(mes, te)
+                                self.buf.remove(mes)
+                            else:
+                                new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size, [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],mes.band_usage[3]],[0],[0], 0, mes.packet_id)
+                                new_message.set(te, replicaID, des_node.ID)
                                 new_message.band_used(spec_to_use[spec])
 
                                 des_node.buf.append(new_message)
-                                return True
 
-                            else:
-                                # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", mes.ID)
-                                self.mes_fwd_time_limit -= transfer_time
+                            return True
+
+                        else:
+                            # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", mes.ID)
+                            self.mes_fwd_time_limit -= transfer_time
 
             return False
 
@@ -322,7 +334,7 @@ class Node(object):                                                             
                     channel_available = True
 
                 if channel_available == True:
-                    nodes[next].can_receive = message.curr
+                    nodes[next].can_receive = self.ID
 
                     if is_queuing_active == True:
                         self.mes_fwd_time_limit += transfer_time_in_secs
@@ -338,12 +350,12 @@ class Node(object):                                                             
                         message.last_sent = ts + transfer_time
                         message.band_used(s)
 
-                        nodes[message.curr].buf.remove(message)  # remove message from destination node buffer
+                        self.buf.remove(message)  # remove message from current node buffer
                         self.buf_size -= 1  # update current nodes buffer
 
                         if message.des == next:
                             #message is delivered, write to file
-                            write_delivered_msg_to_file(nodes,message, ts)
+                            write_delivered_msg_to_file(message, ts)
 
                         else:
                             # handle message transferred

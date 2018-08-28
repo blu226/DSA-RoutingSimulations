@@ -15,9 +15,10 @@ class Message(object):                                                          
         self.packet_id = packet_id
 
 
-    def set(self, lastSent, rep):
+    def set(self, lastSent, rep, curr):
         self.last_sent = lastSent
         self.replica = rep
+        self.curr = curr
 
     def band_used(self, s):
         self.band_usage[s] += 1

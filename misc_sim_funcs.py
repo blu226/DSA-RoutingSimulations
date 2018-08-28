@@ -34,7 +34,7 @@ def initialize_output_files():
         os.makedirs(path_to_metrics)
 
     output_file = open(path_to_metrics + delivered_file, "w")
-    output_file.write("ID\ts\td\tts\tte\tLLC\tELC\n")
+    output_file.write("ID\ts\td\tts\tte\tLLC\tPid\tsize\tband usage\n")
     output_file.write("----------------------------------------------------\n")
     output_file.close()
 
@@ -43,25 +43,24 @@ def initialize_output_files():
     output_file2.close()
 
     output_file3 = open(path_to_metrics + not_delivered_file, "w")
-    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tparent\tparentTime\treplica\tenergy\n")
+    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tcurr node\tpacketID\n")
     output_file3.write("----------------------------------------------------\n")
     output_file3.close()
 
     output_file4 = open(path_to_metrics + packet_delivered_file, "w")
     output_file4.close()
 
-def write_delivered_msg_to_file(nodes, message, ts):
+def write_delivered_msg_to_file(message, te):
 
     # if message has reached its destination
     # if len(message.path) == 0: #and message.src != message.des: # and message.T  + message.totalDelay <= T:
-    if ts <= T:  # delivered time is less than the allowed TTL deadline
         output_file = open(path_to_metrics + packet_delivered_file, "a")  # print confirmation to output file
         band_usage_str = str(message.band_usage[0]) + '\t' + str(message.band_usage[1]) + '\t' + str(
             message.band_usage[2]) + "\t" + str(message.band_usage[3])
 
         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
-            message.genT) + "\t" + str(int(message.last_sent)) + "\t" + str(
-            int(message.last_sent - message.genT)) + "\t" + str(message.size) + "\t" + str(
+            message.genT) + "\t" + str(int(te)) + "\t" + str(
+            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) +  "\t" + str(
             message.totalEnergy) + "\t" + band_usage_str + "\n"
 
         output_file.write(output_msg)

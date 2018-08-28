@@ -12,9 +12,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes
     debug_message = -1
-    is_queuing_active = True
-    restrict_band_access = True
-    restrict_channel_access = True
+    is_queuing_active = False
+    restrict_band_access = False
+    restrict_channel_access = False
     generate_new_primary_users = False
 
     generate_messages = True if pkl_fold_num == 1 else False
@@ -111,9 +111,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr, num messages, num channels, num primary users)
 #Day 1
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0],200, 10, 100)
+run_simulation("UMass", "2007-11-06", 1, "Epidemic", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 10, 10, 0)
 # Day 2
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 200, 10, 100)
+# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 10, 10, 0)
 
 
 
@@ -128,34 +128,34 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 
 #RUN ALL UMASS SIMULATIONS
-
-dataset = "UMass"
-# # days = ["2007-11-01", "2007-11-06", "2007-11-07"]
-days = ["2007-11-06"]
-round = 1
-protocols = ["XChant"]
-
-# print("Bootstrap Round\n")
-# for day in days:
-#     # for v in range(10,-1,-1):
-#     v = 10
-#     run_simulation(dataset, day, round, "XChant", "ALL", 180, 660, v, False, 19, 1, False, [6,3], [0,0], 200, 10, 20)
-#     run_simulation(dataset, day, round, "XChant", "ALL", 180, 840, v, False, 19, 2, False, [6, 3], [0, 0], 200, 10, 20)
 #
-print("\nSTARTING SIMULATION\n")
-for day in days:
-    for num_mules in range(10,0,-1):
-        for num_msg in [25, 50, 75, 100, 150, 200]:
-            for num_chan in range(10, 1, -1):
-                for num_pusers in range(100, 0, -20):
-
-                    print("Day:", day, "| V:", num_mules, "| # msgs:", num_msg, "| # channels:", num_chan, "| # primary users:", num_pusers)
-                    print("_____________________________________________________________________________")
-                    print("Round 1\n")
-                    run_simulation("UMass", day, 1, "XChant", "ALL", 180, 660, num_mules, False, 19, 1, False, [6,3], [0,0],num_msg, num_chan, num_pusers)
-                    print("\nRound 2 \n")
-                    run_simulation("UMass", day, 1, "XChant", "ALL", 180, 840, num_mules, False, 19, 2, False, [6,3], [0,0],num_msg, num_chan, num_pusers)
-                    print("\n")
+# dataset = "UMass"
+# # # days = ["2007-11-01", "2007-11-06", "2007-11-07"]
+# days = ["2007-11-06"]
+# round = 1
+# protocols = ["XChant"]
+#
+# # print("Bootstrap Round\n")
+# # for day in days:
+# #     # for v in range(10,-1,-1):
+# #     v = 10
+# #     run_simulation(dataset, day, round, "XChant", "ALL", 180, 660, v, False, 19, 1, False, [6,3], [0,0], 200, 10, 20)
+# #     run_simulation(dataset, day, round, "XChant", "ALL", 180, 840, v, False, 19, 2, False, [6, 3], [0, 0], 200, 10, 20)
+# #
+# print("\nSTARTING SIMULATION\n")
+# for day in days:
+#     for num_mules in range(10,0,-1):
+#         for num_msg in [25, 50, 75, 100, 150, 200]:
+#             for num_chan in range(10, 1, -1):
+#                 for num_pusers in range(100, 0, -20):
+#
+#                     print("Day:", day, "| V:", num_mules, "| # msgs:", num_msg, "| # channels:", num_chan, "| # primary users:", num_pusers)
+#                     print("_____________________________________________________________________________")
+#                     print("Round 1\n")
+#                     run_simulation("UMass", day, 1, "Epidemic", "ALL", 180, 660, num_mules, False, 19, 1, False, [6,3], [0,0],num_msg, num_chan, num_pusers)
+#                     print("\nRound 2 \n")
+#                     run_simulation("UMass", day, 1, "Epidemic", "ALL", 180, 840, num_mules, False, 19, 2, False, [6,3], [0,0],num_msg, num_chan, num_pusers)
+#                     print("\n")
 
 
 
