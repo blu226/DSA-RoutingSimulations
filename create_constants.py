@@ -1,6 +1,6 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC):
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting):
     f = open("constants.py", "w")
 
     T_line = "T = " + str(T) + "\n"
@@ -28,6 +28,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     chan_line = "num_channels = " + str(num_chan) + "\n"
     puser_line = "num_primary_users = " + str(num_puser) + "\n"
     pts_line = "path_to_save_LLC = \'" + path_to_save_LLC + "\'\n"
+    ss_line = "smart_setting = \'" + smart_setting + "\'\n"
 
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
@@ -90,6 +91,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("metrics_file = \'" + metrics_file + "\'\n")
     f.write("packet_delivered_file = \'" + packet_delivered_file + "\'\n")
     f.write("protocol = \'" + protocol + "\'\n")
+    f.write(ss_line)
 
     if dataset == "Lexington":
         f.write("\nVMIN = " + str(speed[0]) + "\n")

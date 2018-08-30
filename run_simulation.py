@@ -7,14 +7,14 @@ import shutil
 
 
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting="optimistic"):
 
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes
     debug_message = -1
-    is_queuing_active = False
-    restrict_band_access = False
-    restrict_channel_access = False
+    is_queuing_active = True
+    restrict_band_access = True
+    restrict_channel_access = True
     generate_new_primary_users = False
 
     generate_messages = True if pkl_fold_num == 1 else False
@@ -22,7 +22,10 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     dataset = DataSet               #UMass or Lexington
     day_or_numMules = Day_Or_NumMules#date (UMass) or number of mules (Lexington)
     round = Round                       #Round number (Always 1 for UMass)
-    protocol = Protocol             #Protocol in set of [XChant, Epidemic, SprayNWait, HotPotato]
+    if Protocol == "Epidemic_Smart":
+        protocol = Protocol + "_" + smart_setting    #Protocol in set of [XChant, Epidemic, SprayNWait, HotPotato]
+    else:
+        protocol = Protocol
     band = Band                    #bands to use in set of [ALL, TV, LTE, ISM, CBRS]
     generate_link_exists = Gen_LE
     T = t                         #Length of Simulation
@@ -74,7 +77,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         print("Invalid Band Type")
 
 
-    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC)
+    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting)
 
     if generate_new_primary_users == True:
         os.system("python3 generate_primary_users.py")
@@ -101,19 +104,28 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     # if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
     #     os.system("python3 generateMessage_new.py")
 
-
-
-    # if pkl_fold_num == 2:
-    #
     os.system("python3 main.py")
     os.system("python3 metrics.py")
 
 
-# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge, src_dst_arr, speed_arr, num messages, num channels, num primary users)
-#Day 1
-run_simulation("UMass", "2007-11-06", 1, "Epidemic", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 10, 10, 0)
+# (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
+#  src_dst_arr, speed_arr, num messages, num channels, num primary users, smart setting (optional))
+
+# Day 1
+print("\nOptimistic")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "optimistic")
+print("\nPessimistic")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
+print("\nRandom")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "random")
+
 # Day 2
-# run_simulation("UMass", "2007-11-06", 1, "XChant", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 10, 10, 0)
+print("\nOptimistic")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "optimistic")
+print("\nPessimistic")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
+print("\nRandom")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "random")
 
 
 
@@ -128,7 +140,7 @@ run_simulation("UMass", "2007-11-06", 1, "Epidemic", "ALL", 180, 660, 10, False,
 
 
 #RUN ALL UMASS SIMULATIONS
-#
+
 # dataset = "UMass"
 # # # days = ["2007-11-01", "2007-11-06", "2007-11-07"]
 # days = ["2007-11-06"]
@@ -156,6 +168,6 @@ run_simulation("UMass", "2007-11-06", 1, "Epidemic", "ALL", 180, 660, 10, False,
 #                     print("\nRound 2 \n")
 #                     run_simulation("UMass", day, 1, "Epidemic", "ALL", 180, 840, num_mules, False, 19, 2, False, [6,3], [0,0],num_msg, num_chan, num_pusers)
 #                     print("\n")
-
+#
 
 

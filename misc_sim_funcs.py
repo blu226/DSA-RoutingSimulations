@@ -1,6 +1,7 @@
 from constants import *
 import os
 import pickle
+import random
 
 
 
@@ -65,6 +66,76 @@ def write_delivered_msg_to_file(message, te):
 
         output_file.write(output_msg)
         output_file.close()
+
+def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
+
+    if ts == T - 1:
+        te = ts
+    else:
+        te = ts + 1
+
+    all_nodes = net.nodes
+    nodes_in_range = []
+
+    for node in all_nodes:
+
+        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts), int(te)] == 1:
+            nodes_in_range.append(node)
+
+    return nodes_in_range
+
+def initialize_s():
+    if smart_setting == "optimistic":
+        s = 3
+    elif smart_setting == "pessimistic":
+        s = 0
+    elif smart_setting == "random":
+        s = random.randint(0, 3)
+    else:
+        s = -1
+
+    return s
+
+def update_s(s, spec_chosen):
+    if spec_chosen == False:
+
+        if smart_setting == "optimistic":
+            new_s = s - 1
+
+        elif smart_setting == "pessimistic":
+            new_s = s + 1
+
+        elif smart_setting == "random":
+            loop_flag = True
+
+            while loop_flag == True:
+                new_s = random.randint(0, 3)
+
+                if new_s != s:
+                    loop_flag = False
+        else:
+            new_s = -1
+
+    else:
+        new_s = -1
+
+    return new_s
+
+# checks if a given packet is already in a nodes buffer
+def to_send(msg, node):
+
+    for m in node.buf:
+        if m.ID == msg.ID and m.packet_id == msg.packet_id:
+            return False
+
+    for m in node.delivered:
+        if m.ID == msg.ID and m.packet_id == msg.packet_id:
+            return False
+
+    return True
+
+
+
 
 
 

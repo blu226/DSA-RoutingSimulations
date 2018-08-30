@@ -13,6 +13,7 @@ class Node(object):                                                             
     def __init__(self, name):
         self.ID = name                                                                #Node ID or name (string)
         self.buf = []                                                                   #Node message buffer
+        self.delivered = []
         self.coord = []
         self.energy = 0
         self.buf_size = 0
@@ -24,6 +25,18 @@ class Node(object):                                                             
         for other_node in net.nodes:
             if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1:
                 other_node.channels[s, channel] = node1.ID
+
+    def handle_energy(self, mes, des_node, s, ts, specBW):
+        consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, s, ts, specBW)
+        self.energy += consumedEnergy
+        des_node.energy += consumedEnergy
+
+
+    # def forward_messages_to_destination(self, nodes_in_range, t, LINK_EXISTS, specBW, net, s):
+    #     for msg in self.buf:
+    #         for node in nodes_in_range:
+    #             if msg.des == node.ID and msg.last_sent <= t:
+    #                 self.try_sending_message_epi(node, msg, t, LINK_EXISTS, specBW, net, s)
 
     def check_for_available_channel(self, node1, node2, ts, net, s, LINK_EXISTS):
         available = False
@@ -99,6 +112,23 @@ class Node(object):                                                             
         for i in range(len(self.buf)):
             message = self.buf[i].ID
             print("Message ID: " + str(message))
+
+    def is_channel_available(self, des_node, s, ts, net, LINK_EXISTS):
+
+        # check if des_node has an open channel
+        if (des_node.can_receive == np.inf or des_node.can_receive == self.ID):
+            if restrict_channel_access == True:
+                channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS)
+            else:
+                channel_available = True
+
+        else:
+            channel_available = False
+
+
+        return channel_available
+
+
 
     def load_pkl(self):
         self.coord = pickle.load(open(DataMule_path + pkl_folder + self.ID + ".pkl", "rb"))
@@ -176,63 +206,44 @@ class Node(object):                                                             
                                 return True
 
             return False
+    # def try_sending_message_epi(self, des_node, mes, ts, replicaID, LINK_EXISTS, specBW, net, s): OLD DECLARATION
 
-    def try_sending_message_epi(self, des_node, mes, ts, replicaID, LINK_EXISTS, specBW, net):
+    def try_sending_message_epi(self, des_node, mes, ts, LINK_EXISTS, specBW, net, s):
 
-        if mes.last_sent <= ts:
-            max_end = ts + maxTau
+        # Check if des_node has already received a msg from another node and has an available channel in the current tau
+        if self.is_channel_available(des_node, s, ts, net, LINK_EXISTS):
+            # update who the des_node can receive from
+            des_node.can_receive = self.ID
 
-            if max_end > T:
-                max_end = T
+            # calculate transfer time
+            transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, s, specBW, mes.curr, des_node.ID, ts)
 
-            for te in range(ts + 1, max_end):
-                spec_to_use = []
+            # account for time it takes to send if resources aren't infinite
+            if is_queuing_active == True:
+                self.mes_fwd_time_limit += transfer_time_in_sec
 
-                for s in S:
+            # Check if there is enough time to transfer packet
+            if self.mes_fwd_time_limit <= num_sec_per_tau:
+                # calculate energy consumed
+                self.handle_energy(mes, des_node, s, ts, specBW)
+                # create replica of message
+                new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
+                                      [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
+                                      [0], 0, mes.packet_id)
+                new_message.set(ts + 1, mes.replica + 1, des_node.ID)
+                new_message.band_used(s)
+                # handle msg if it is being sent to its destination
+                if int(des_node.ID) == (mes.des):
+                    write_delivered_msg_to_file(mes, ts + 1)
+                    des_node.delivered.append(new_message)
+                    self.buf.remove(mes)
 
-                    if LINK_EXISTS[int(self.ID), int(des_node.ID), int(s), int(ts), int(te)] == 1:
-                        if restrict_channel_access == True:
-                            channel_available = self.check_for_available_channel(self, des_node, ts, net, s,LINK_EXISTS)
-                        else:
-                            channel_available = True
+                # handle msg if it is being sent to a relay node
+                else:
+                    des_node.buf.append(new_message)
 
-                        if channel_available == True:
-                            spec_to_use.append(s)
-                            break
-
-                for spec in range(len(spec_to_use)):
-
-                    if des_node.can_receive == np.inf or des_node.can_receive == mes.curr:
-                        des_node.can_receive = self.ID
-
-                        transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, spec, specBW, mes.curr, des_node.ID, ts)
-
-                        if is_queuing_active == True:
-                            self.mes_fwd_time_limit += transfer_time_in_sec
-
-                        if self.mes_fwd_time_limit <= num_sec_per_tau:
-                            # calculate energy consumed
-                            consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, spec, ts, specBW)
-                            self.energy += consumedEnergy
-                            des_node.energy += consumedEnergy
-
-                            if int(des_node.ID) == (mes.des):
-                                write_delivered_msg_to_file(mes, te)
-                                self.buf.remove(mes)
-                            else:
-                                new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size, [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],mes.band_usage[3]],[0],[0], 0, mes.packet_id)
-                                new_message.set(te, replicaID, des_node.ID)
-                                new_message.band_used(spec_to_use[spec])
-
-                                des_node.buf.append(new_message)
-
-                            return True
-
-                        else:
-                            # print("Msg fwd limit reached:", self.mes_fwd_time_limit, "packet ", mes.ID)
-                            self.mes_fwd_time_limit -= transfer_time
-
-            return False
+                return True
+        return False
 
     def choose_messages_to_send(self, mesID):
         all_mes_list = []

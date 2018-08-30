@@ -267,6 +267,43 @@ class Network(object):
                     if was_sent == False:
                         # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
                         msg_index += 1
+
+        elif "Epidemic_Smart" in protocol:
+            # add messages to source nodes
+            self.other_add_messages(msg_lines, t)
+
+           # loop over each node
+            for node in self.nodes:
+           # check to see what nodes are in range over chosen band
+                s = initialize_s()
+
+                it = 0
+                while s >= 0 and s < 4 and it < 4:
+                    # get nodes in range of s
+                    nodes_in_range = find_nodes_in_range(node, self, s, LINK_EXISTS, t)
+                    if len(nodes_in_range) > 0:
+                        # shuffle nodes in range so there is no priority to nodes with lower IDs
+                        # random.shuffle(nodes_in_range)
+
+                        # start flooding
+                        for des_node in nodes_in_range:
+                            for msg in node.buf:
+
+                                if to_send(msg, des_node) == True:
+                                    node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
+
+                        s = update_s(s, True)
+
+                    else:
+                        s = update_s(s, False)
+                    # iterator to prevent random from infinite loop
+                    it += 1
+
+
+
+
+
+
         else:
             self.other_add_messages(msg_lines,t)
 
