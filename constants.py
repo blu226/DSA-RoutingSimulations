@@ -43,6 +43,7 @@ num_replicas = 1
 is_queuing_active = True
 restrict_band_access = True
 restrict_channel_access = True
+priority_queue = True
 generate_new_primary_users = False
 num_channels = 10
 num_primary_users = 0

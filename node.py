@@ -31,12 +31,15 @@ class Node(object):                                                             
         self.energy += consumedEnergy
         des_node.energy += consumedEnergy
 
+    def order_priority_queue(self, nodes_in_range):
+        # get all IDs of nodes in range
+        msgs_in_range, msgs_not_in_range = get_msg_lists(nodes_in_range, self)
 
-    # def forward_messages_to_destination(self, nodes_in_range, t, LINK_EXISTS, specBW, net, s):
-    #     for msg in self.buf:
-    #         for node in nodes_in_range:
-    #             if msg.des == node.ID and msg.last_sent <= t:
-    #                 self.try_sending_message_epi(node, msg, t, LINK_EXISTS, specBW, net, s)
+        # sort msgs based on generation time and combine lists
+        new_buf = sort_and_combine_msg_lists(msgs_in_range, msgs_not_in_range)
+
+        # store new buf in node
+        self.buf = new_buf
 
     def check_for_available_channel(self, node1, node2, ts, net, s, LINK_EXISTS):
         available = False
@@ -234,7 +237,7 @@ class Node(object):                                                             
                 new_message.band_used(s)
                 # handle msg if it is being sent to its destination
                 if int(des_node.ID) == (mes.des):
-                    write_delivered_msg_to_file(mes, ts + 1)
+                    write_delivered_msg_to_file(new_message, new_message.last_sent)
                     des_node.delivered.append(new_message)
                     self.buf.remove(mes)
 
@@ -243,6 +246,7 @@ class Node(object):                                                             
                     des_node.buf.append(new_message)
 
                 return True
+
         return False
 
     def choose_messages_to_send(self, mesID):

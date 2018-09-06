@@ -274,33 +274,32 @@ class Network(object):
 
            # loop over each node
             for node in self.nodes:
-           # check to see what nodes are in range over chosen band
-                s = initialize_s()
+                # init band based on smart setting
+                s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+                # send msgs to destinations first if priority queue is enabled
+                if priority_queue == True:
+                    # order the msg buffer based on genT and if its in range of des
+                    node.order_priority_queue(nodes_in_range)
+                    # loop until msg at top of buffer can't be sent to its destination
+                    for i in range(len(node.buf)):
+                        # get msg to be sent
+                        msg = node.buf[0]
+                        des_node = self.nodes[int(msg.des)]
+                        # check if msg has already reached its destination
+                        if to_send(msg, des_node) == True:
+                            if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
+                                # if msg can't be sent, break from loop
+                                break
+                        # if msg has already been sent to its destination then delete from buffer
+                        else:
+                            node.buf.remove(msg)
 
-                it = 0
-                while s >= 0 and s < 4 and it < 4:
-                    # get nodes in range of s
-                    nodes_in_range = find_nodes_in_range(node, self, s, LINK_EXISTS, t)
-                    if len(nodes_in_range) > 0:
-                        # shuffle nodes in range so there is no priority to nodes with lower IDs
-                        # random.shuffle(nodes_in_range)
-
-                        # start flooding
-                        for des_node in nodes_in_range:
-                            for msg in node.buf:
-
-                                if to_send(msg, des_node) == True:
-                                    node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
-
-                        s = update_s(s, True)
-
-                    else:
-                        s = update_s(s, False)
-                    # iterator to prevent random from infinite loop
-                    it += 1
-
-
-
+                # continue to flood messages that are not in range of their destinations
+                for des_node in nodes_in_range:
+                    for msg in node.buf:
+                        # check if des_node already has packet
+                        if to_send(msg, des_node) == True:
+                            node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
 
 
 

@@ -15,6 +15,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     is_queuing_active = True
     restrict_band_access = True
     restrict_channel_access = True
+    priority_queue_active = True
     generate_new_primary_users = False
 
     generate_messages = True if pkl_fold_num == 1 else False
@@ -63,7 +64,12 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         return -1
 
     if band == "ALL":
-        S = [0, 1, 2, 3]  # Spectrums to use
+        if smart_setting == "pessimistic":
+            S = [0, 2, 3, 1]
+        elif smart_setting == "optimistic":
+            S = [3, 2, 1, 0]
+        else:
+            S = [0, 1, 2, 3]  # Spectrums to use
     elif band == "TV":
         S = [0]
     elif band == "ISM":
@@ -77,7 +83,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         print("Invalid Band Type")
 
 
-    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting)
+    create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path, debug_message, protocol, NoOfDataCenters, NoOfSources,generate_link_exists,generate_messages, num_messages, pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting, priority_queue_active)
 
     if generate_new_primary_users == True:
         os.system("python3 generate_primary_users.py")
@@ -112,16 +118,17 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 #  src_dst_arr, speed_arr, num messages, num channels, num primary users, smart setting (optional))
 
 # Day 1
-print("\nOptimistic")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "optimistic")
-print("\nPessimistic")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
-print("\nRandom")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "random")
+# print("\nOptimistic")
+# run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 25, 10, 0, "optimistic")
 
-# Day 2
+# print("\nPessimistic")
+# run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
+# print("\nRandom")
+# run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "random")
+#
+# # Day 2
 print("\nOptimistic")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "optimistic")
+run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 20, 10, 0, "optimistic")
 print("\nPessimistic")
 run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
 print("\nRandom")

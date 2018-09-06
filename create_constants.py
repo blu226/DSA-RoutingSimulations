@@ -1,6 +1,6 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting):
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting, priority_queue_active):
     f = open("constants.py", "w")
 
     T_line = "T = " + str(T) + "\n"
@@ -19,6 +19,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
+    pq_line = "priority_queue = " + str(priority_queue_active) + "\n"
     gpu_line = "generate_new_primary_users = " + str(generate_new_primary_users) + "\n"
     generated_messages_file = "generated_messages.txt"
     gen_LE_line = "generate_link_exists = " + str(generate_link_exists) + "\n"
@@ -78,6 +79,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(queue_line)
     f.write(rb_line)
     f.write(rc_line)
+    f.write(pq_line)
     f.write(gpu_line)
     f.write(chan_line)
     f.write(puser_line)
