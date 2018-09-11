@@ -19,23 +19,23 @@ HotPotato_ALL = np.zeros(shape=(time_epochs, runs))
 num_mules = 10
 T = 180
 startTime = 840
-num_messages = 300
-days = [ "2007-11-07", "2007-11-06"]
+num_messages = 100
+days = [ "2007-11-06"]
 folder_nums = [x for x in range(1,11, 1)]
-bands_epi = ["ALL", "LTE", "TV", "CBRS", "ISM"]
+bands_epi = ["ALL"]
 bands = ["ALL"]
-protocols = ["XChant", "Epidemic", "SprayNWait", "HotPotato"]
+protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic", "Epidemic_Smart_random",]
 metrics_file = "metrics.txt"
 
-p_id = 2 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 t = 0
 
 for i in range(len(days)):
     for protocol in protocols:
-        if protocol == "Epidemic":
+        if "Epidemic" in protocol:
             for band in bands_epi:
-                path = "DataMules/UMass/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + band + "/" + str(num_mules) + "/" + str(num_messages) + "/"
+                path = "DataMules/UMass/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + band + "/mules_" + str(num_mules) + "/channels_10/P_users_20/" + str(num_messages) + "/"
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
 
@@ -71,19 +71,19 @@ for i in range(len(days)):
     t += 1
 
 t = 0
-
-for i in range(len(days)):
-    for band in bands:
-        path = "DataMules/UMass/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(
-            T) + "/XChant/" + band + "/" + str(num_mules) + "/" + str(num_messages) + "/"
-        with open(path + "metrics_opt.txt", "r") as f:
-            lines = f.readlines()[1:]
-
-        for line in lines:
-            line_arr = line.strip().split()
-            Xchants_pk[t][i] = float(line_arr[p_id])
-
-    t += 1
+#
+# for i in range(len(days)):
+#     for band in bands:
+#         path = "DataMules/UMass/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(
+#             T) + "/XChant/" + band + "/" + str(num_mules) + "/" + str(num_messages) + "/"
+#         with open(path + "metrics_opt.txt", "r") as f:
+#             lines = f.readlines()[1:]
+#
+#         for line in lines:
+#             line_arr = line.strip().split()
+#             Xchants_pk[t][i] = float(line_arr[p_id])
+#
+#     t += 1
 
 
 

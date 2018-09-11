@@ -22,8 +22,13 @@ class Node(object):                                                             
         self.channels = np.full(shape=(len(S), num_channels), fill_value=np.inf)
 
     def update_channel_occupancy(self, node1, node2, ts, net, s, channel, LINK_EXISTS):
+        if ts == T - 1:
+            te = ts
+        else:
+            te = ts + 1
+
         for other_node in net.nodes:
-            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1:
+            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, te] == 1:
                 other_node.channels[s, channel] = node1.ID
 
     def handle_energy(self, mes, des_node, s, ts, specBW):

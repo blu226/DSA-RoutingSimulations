@@ -1,11 +1,6 @@
 from create_constants import *
 from constants import *
 import os
-import shutil
-
-
-
-
 
 def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting="optimistic"):
 
@@ -27,6 +22,11 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         protocol = Protocol + "_" + smart_setting    #Protocol in set of [XChant, Epidemic, SprayNWait, HotPotato]
     else:
         protocol = Protocol
+
+    if priority_queue_active == True:
+        buffer = "PQ"
+    else:
+        buffer = "FIFO"
     band = Band                    #bands to use in set of [ALL, TV, LTE, ISM, CBRS]
     generate_link_exists = Gen_LE
     T = t                         #Length of Simulation
@@ -40,12 +40,12 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     if dataset == "UMass":
         dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
         link_exists_path = dataMule_path + "Link_Exists/" + "LE_" + str(start_time) + "_" + str(T) + "/"
-        metrics_path = link_exists_path + protocol + "/" + band + "/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
-        path_to_save_LLC = link_exists_path + protocol + "/" + band + "/mules_" + str(V) + "/"
+        metrics_path = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+        path_to_save_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
         if pkl_fold_num == 1:
-            path_to_day1_LLC = link_exists_path + protocol + "/" + band + "/mules_" + str(V) + "/"
+            path_to_day1_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
         else:
-            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - T) + "_" + str(T) + "/" + protocol + "/" + band + "/mules_" + str(V) + "/"
+            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - T) + "_" + str(T) + "/" + protocol + "/" + buffer + "/mules_" + str(V) + "/"
 
     elif dataset == "Lexington":
         dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
@@ -55,9 +55,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
             path_to_day1_LLC = metrics_path
         else:
             link_exists_path = dataMule_path + "Link_Exists/" + "LE_2_" + str(T) + "/"
-            metrics_path = link_exists_path + protocol + "/" + band + "/" + str(V) + "/"
+            metrics_path = link_exists_path + protocol + "/" + buffer + "/" + str(V) + "/"
             path_to_day1_LLC = dataMule_path + "Link_Exists/LE_1_" + str(
-                T) + "/" + protocol + "/" + band + "/" + str(V) + "/"  + str(num_chan) + "/" + str(num_puser) + "/"
+                T) + "/" + protocol + "/" + buffer + "/" + str(V) + "/"  + str(num_chan) + "/" + str(num_puser) + "/"
 
     else:
         print("Invalid Dataset")
@@ -127,12 +127,42 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 # run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 660, 10, False, 19, 1, False, [6,3], [0,0], 50, 10, 0, "random")
 #
 # # Day 2
-print("\nOptimistic")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 20, 10, 0, "optimistic")
-print("\nPessimistic")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "pessimistic")
-print("\nRandom")
-run_simulation("UMass", "2007-11-06", 1, "Epidemic_Smart", "ALL", 180, 840, 10, False, 19, 2, False, [6,3], [0,0], 50, 10, 0, "random")
+
+data = "UMass"
+day = "2007-11-06"
+len_T = 180                     #length of simulation
+start_time = 840                #start time (to find Link Exists)
+bands = "ALL"                   #which bands to use
+num_mules = 10                  #number of data mules to use
+generate_LE = False             #generate Link Exists
+max_v = 19                      #max number of datamules + src + dst
+pkl_ID = 2                      #pkl folder ID if Link Exists is being generated
+perfect_knowledge = False       #Xchant only
+src_dst = [6, 3]                #num src and dst
+speed = [0, 0]                  #Lex data only
+
+for num_channels in range(10, 1, -2):
+    for num_Pusers in range(0, 125, 25):
+        for num_messages in range(25, 175, 25):
+
+            print("-----------------------------------------------------------------------")
+            print("Channels:", num_channels, "\tPrimary Users:", num_Pusers, "\tMessages:", num_messages)
+            print("-----------------------------------------------------------------------")
+
+            print("\nOptimistic")
+            run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mules, generate_LE, max_v,
+                           pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                           "optimistic")
+
+            print("\nPessimistic")
+            run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mules, generate_LE, max_v,
+                           pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                           "pessimistic")
+
+            print("\nRandom")
+            run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mules, generate_LE, max_v,
+                           pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                           "random")
 
 
 

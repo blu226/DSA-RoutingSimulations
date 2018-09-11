@@ -79,9 +79,9 @@ def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
 
     for node in all_nodes:
 
-        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts), int(te)] == 1:
+        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(S[s]), int(ts), int(te)] == 1:
             if smart_setting == "pessimistic" and s < 3:
-                if LINK_EXISTS[int(src_node.ID), int(node.ID), int(s + 1), int(ts), int(te)] == 0:
+                if LINK_EXISTS[int(src_node.ID), int(node.ID), int(S[s + 1]), int(ts), int(te)] == 0:
                     nodes_in_range.append(node)
             else:
                 nodes_in_range.append(node)
@@ -203,57 +203,33 @@ def des_in_range(nodes_in_range, node):
     return False
 
 def choose_spectrum(node, net, LINK_EXISTS, t):
-    # s = initialize_s()
-    it = 0
-    s = S[it]
 
     # loop through bands until a valid one is chosen
-    while s >= 0 and s < 4 and it < 4:
+    for i in range(4):
         # get nodes in range of s
-        nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
+        nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
 
         if len(nodes_in_range) > 0:
             # if priority queue is active send to destinations first
             if priority_queue == True:
                 # if any destinations are in range use this band
                 if des_in_range(nodes_in_range, node) == True:
-                    return s, nodes_in_range
-                else:
-                    # s = update_s(s)
-                    it += 1
-                    if it < 4:
-                        s = S[it]
-            else:
-                return s, nodes_in_range
+                    return S[i], nodes_in_range
 
-        else:
-            # s = update_s(s)
-            it += 1
-            if it < 4:
-                s = S[it]
+            else:
+                return S[i], nodes_in_range
 
     # in the case that priority queue is enabled and no msg is in range with its dst over any band, choose
     # the first band, based on smart setting, that is in range with at least 1 node
-    # s = initialize_s()
-    it = 0
-    s = S[it]
-
     # loop through bands until a valid one is chosen
-    while s >= 0 and s < 4 and it < 4:
+    for i in range(4):
         # get nodes in range of s
-        nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
+        nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
 
         if len(nodes_in_range) > 0:
-            return s, nodes_in_range
-
-        else:
-            # s = update_s(s)
-            it += 1
-            if it < 4:
-                s = S[it]
+            return S[i], nodes_in_range
 
     # if a node is not in range with anyone then initial band is returned
-    # s = initialize_s()
-    s = S[0]
+    s = 0
     nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
     return s, nodes_in_range
