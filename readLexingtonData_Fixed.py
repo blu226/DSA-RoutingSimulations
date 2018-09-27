@@ -248,7 +248,7 @@ if V + NoOfDataCenters + NoOfSources == max_nodes:
 
     #TODO: Run it only for Day1
 
-    if day_num == 1:
+    if generate_link_exists == True:
         print("New locations generated\n")
         getBusRoutes(0, V + NoOfSources + NoOfDataCenters)
         getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))

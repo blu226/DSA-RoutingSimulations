@@ -16,11 +16,13 @@ path_lines, spec_lines, msg_lines, specBW, LINK_EXISTS = get_data_structs()
 for t in range(0, T, tau):
 
     net.network_GO(t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS)
-    # net.network_status()
+
 
 #creates not_delivered.txt for overhead computation
 net.not_delivered_messages()
 # Handle messages that got delivered
 net.messages_delivered()
+
+# net.network_status()
 
 

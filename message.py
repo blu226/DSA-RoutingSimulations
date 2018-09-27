@@ -13,6 +13,7 @@ class Message(object):                                                          
         self.totalEnergy = 0
         self.replica = replica
         self.packet_id = packet_id
+        self.num_copies = -1
 
 
     def set(self, lastSent, rep, curr):
@@ -22,3 +23,6 @@ class Message(object):                                                          
 
     def band_used(self, s):
         self.band_usage[s] += 1
+
+    def create_copies(self, nc):
+        self.num_copies = nc

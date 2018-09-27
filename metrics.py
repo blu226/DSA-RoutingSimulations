@@ -1,4 +1,5 @@
 from constants import *
+import math
 
 def compute_overhead(time):
 
@@ -6,13 +7,15 @@ def compute_overhead(time):
         return 1
 
     with open( DataMule_path + "Link_Exists/" + generated_messages_file, "r") as f:
-        generated_lines = f.readlines()[1:num_messages]
+        generated_lines = f.readlines()[1:num_messages + 1]
 
-    with open(path_to_metrics + delivered_file, 'r') as f:
-        delivered_lines = f.readlines()[2:]
+    with open(path_to_metrics + packet_delivered_file, 'r') as f:
+        delivered_lines = f.readlines()
 
     with open(path_to_metrics + not_delivered_file, 'r') as f:
         NotDelivered_lines = f.readlines()[2:]
+
+    total_packets = 0
 
     num_mes_gen = 0
     num_mes_del = 0
@@ -25,6 +28,8 @@ def compute_overhead(time):
     for line in generated_lines:
         line_arr = line.strip().split()
         if int(line_arr[5]) < time:
+            num_packets = math.ceil(int(line_arr[4]) / int(packet_size))
+            total_packets += num_packets
             num_mes_gen += 1
             sum_mes_gen += int(line_arr[4])
     for line in delivered_lines:
@@ -42,7 +47,7 @@ def compute_overhead(time):
     if num_mes_gen == 0:
         return 0
 
-    overhead = (num_mes_del + num_mes_NotDel) / num_mes_gen
+    overhead = (num_mes_del + num_mes_NotDel) / total_packets
     overhead_size = (sum_mes_gen + sum_mes_NotDel)/sum_mes_gen
 
     return overhead

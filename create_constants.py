@@ -1,6 +1,11 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages, pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting, priority_queue_active):
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message,\
+                     protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,\
+                     pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, \
+                     restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
+                     smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd):
+
     f = open("constants.py", "w")
 
     T_line = "T = " + str(T) + "\n"
@@ -20,6 +25,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
     pq_line = "priority_queue = " + str(priority_queue_active) + "\n"
+    b_line = "broadcast = " + str(broadcast) + "\n"
+    geo_line = "geographical_routing = " + str(geo_routing) + "\n"
     gpu_line = "generate_new_primary_users = " + str(generate_new_primary_users) + "\n"
     generated_messages_file = "generated_messages.txt"
     gen_LE_line = "generate_link_exists = " + str(generate_link_exists) + "\n"
@@ -30,7 +37,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     puser_line = "num_primary_users = " + str(num_puser) + "\n"
     pts_line = "path_to_save_LLC = \'" + path_to_save_LLC + "\'\n"
     ss_line = "smart_setting = \'" + smart_setting + "\'\n"
-
+    ntf_line = "num_nodes_to_fwd = " + str(num_nodes_to_fwd) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -54,9 +61,9 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         num_reps_line = "num_replicas = 1\n"
 
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
-    f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [6133,780,3750,1400]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
+    f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [1200,180,800,300]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 30\nminTTL=15\nmaxTau = 20\ndefault_num_channels = 10\nM = [60,600,1500,3000,6000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("TTL = 360\nminTTL=15\nmaxTau = 20\ndefault_num_channels = 10\nM = [60,600,60,600,60]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -80,6 +87,9 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(rb_line)
     f.write(rc_line)
     f.write(pq_line)
+    f.write(b_line)
+    f.write(geo_line)
+    f.write(ntf_line)
     f.write(gpu_line)
     f.write(chan_line)
     f.write(puser_line)

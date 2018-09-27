@@ -1,7 +1,6 @@
-from constants import *
-import os
 import pickle
-import random
+from STB_help import *
+import math
 
 
 
@@ -61,8 +60,7 @@ def write_delivered_msg_to_file(message, te):
 
         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
             message.genT) + "\t" + str(int(te)) + "\t" + str(
-            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) +  "\t" + str(
-            message.totalEnergy) + "\t" + band_usage_str + "\n"
+            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) + "\t" + band_usage_str + "\n"
 
         output_file.write(output_msg)
         output_file.close()
@@ -124,6 +122,15 @@ def update_s(s):
 
 
     return new_s
+
+def write_to_not_delivered(mes):
+    f = open(path_to_metrics + not_delivered_file, "a")
+
+    line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
+        mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
+        mes.curr) + "\t" + str(mes.packet_id) + "\n"
+    f.write(line)
+    f.close()
 
 # checks if a given packet is already in a nodes buffer
 def to_send(msg, node):
@@ -230,6 +237,49 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
             return S[i], nodes_in_range
 
     # if a node is not in range with anyone then initial band is returned
-    s = 0
+    s = S[0]
     nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
     return s, nodes_in_range
+
+def find_distance(x1, y1, x2, y2):
+    if dataset == "Lexington":
+        dist = euclideanDistance(x1, y1, x2, y2)
+    elif dataset == "UMass":
+        dist = funHaversine(y1, x1, y2, x2)
+
+    return dist
+
+def get_suitable_spectrum_list(setting):
+    w1 = 0
+    w2 = 0
+    sum_list = []
+    S = []
+    if "optimistic" in setting:
+        w2 = 1
+    elif "pessimistic" in setting:
+        w1 = 1
+    else:
+        w1 = .5
+        w2 = .5
+
+    for i in range(len(spectRange)):
+        sum = (w1 * math.exp(-(1/(spectRange[i]/1000)))) + (w2 * math.exp(-(1/minBW[i])))
+        sum_list.append(sum)
+
+    for i in range(4):
+        ind = sum_list.index(max(sum_list))
+        S.append(ind)
+        sum_list[ind] = 0
+
+    return S
+
+
+def find_node_closest_to_dst(node_list):
+    min_dist = 9999999
+
+    for node in node_list:
+        if node[1] < min_dist:
+            min_dist = node[1]
+            node_to_forward = node
+
+    return node_to_forward
