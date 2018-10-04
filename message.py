@@ -1,5 +1,5 @@
 class Message(object):                                                                          #Message Object
-    def __init__(self, ID, src, des, genT, size, prev_bands_used, bands, path, replica, packet_id):
+    def __init__(self, ID, src, des, genT, size, prev_bands_used, bands, path, replica, packet_id, hops):
         self.ID = int(ID)
         self.src = int(src)
         self.des = int(des)
@@ -14,12 +14,13 @@ class Message(object):                                                          
         self.replica = replica
         self.packet_id = packet_id
         self.num_copies = -1
-
+        self.hops = hops
 
     def set(self, lastSent, rep, curr):
         self.last_sent = lastSent
         self.replica = rep
         self.curr = curr
+        self.hops += 1
 
     def band_used(self, s):
         self.band_usage[s] += 1

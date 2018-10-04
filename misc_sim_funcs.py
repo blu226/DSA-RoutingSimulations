@@ -48,6 +48,7 @@ def initialize_output_files():
     output_file3.close()
 
     output_file4 = open(path_to_metrics + packet_delivered_file, "w")
+    output_file4.write("ID\ts\td\tts\tte\tLLC\tPID\tsize\thops\tband usage\n")
     output_file4.close()
 
 def write_delivered_msg_to_file(message, te):
@@ -60,7 +61,7 @@ def write_delivered_msg_to_file(message, te):
 
         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
             message.genT) + "\t" + str(int(te)) + "\t" + str(
-            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) + "\t" + band_usage_str + "\n"
+            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) + "\t" + str(message.hops) + "\t" + band_usage_str + "\n"
 
         output_file.write(output_msg)
         output_file.close()

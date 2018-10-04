@@ -10,7 +10,7 @@ def compute_overhead(time):
         generated_lines = f.readlines()[1:num_messages + 1]
 
     with open(path_to_metrics + packet_delivered_file, 'r') as f:
-        delivered_lines = f.readlines()
+        delivered_lines = f.readlines()[1:]
 
     with open(path_to_metrics + not_delivered_file, 'r') as f:
         NotDelivered_lines = f.readlines()[2:]
@@ -50,7 +50,7 @@ def compute_overhead(time):
     overhead = (num_mes_del + num_mes_NotDel) / total_packets
     overhead_size = (sum_mes_gen + sum_mes_NotDel)/sum_mes_gen
 
-    return overhead
+    return round(overhead, 4)
 
 def find_avg_energy(time):
 
@@ -60,7 +60,7 @@ def find_avg_energy(time):
     for line in lines:
         line_arr = line.strip().split()
         if (int(line_arr[0]) == int(time) or int(line_arr[0]) == T - 1):
-            return line_arr[1]
+            return round(float(line_arr[1]), 4)
 
 def message_info(mes_list):
     with open(link_exists_folder + generated_messages_file, 'r') as f:
@@ -99,6 +99,26 @@ def compute_band_usage(delivery_time, spec_lines):
     print("Band usage: ",  band_usage, "\n")
     return band_usage
 
+
+def compute_ave_hop_count(t):
+
+    with open(path_to_metrics + packet_delivered_file, 'r') as f:
+        delivered_lines = f.readlines()[1:]
+
+    num_msg = 0
+    total_hops = 0
+
+    for line in delivered_lines:
+        line_arr = line.strip().split()
+        if int(line_arr[4]) <= t:
+            num_msg += 1
+            total_hops += int(line_arr[8])
+
+    if num_msg > 0:
+        return round(total_hops / num_msg, 4), num_msg
+    else:
+        return 0, num_msg
+
 def compute_metrics(lines, total_messages, delivery_time, spec_lines):
     delivered = 0
     latency = 0
@@ -130,19 +150,26 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
         band_usage = compute_band_usage(delivery_time, spec_lines)
 
     if delivered > 0:
-        latency = float(latency)/delivered
+        latency = round(float(latency)/delivered, 4)
         energy = float(energy)/delivered
 
     if total_messages > 0:
-        delivered = float(delivered) / total_messages
+        delivered = round(float(delivered) / total_messages, 4)
 
     avg_energy = find_avg_energy(delivery_time)
 
     overhead = compute_overhead(delivery_time)
 
-    print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ", avg_energy)
+    avg_hops_per_packet, num_packets = compute_ave_hop_count(delivery_time)
 
-    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage
+    if num_packets > 0:
+        eng = round(avg_energy/num_packets, 4)
+    else:
+        eng = 0
+
+    print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ", eng, "AVG hops:", avg_hops_per_packet)
+
+    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet
 
 #Main starts here
 total_messages = num_messages
@@ -173,9 +200,9 @@ delivery_times = [i for i in range(0, T + 10, 15)]
 
 metric_file.write("#t\tPDR\tLatency\tEnergy\Overhead\n")
 for t in delivery_times:
-    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage = compute_metrics(lines, total_messages, t, spec_lines)
+    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, hops = compute_metrics(lines, total_messages, t, spec_lines)
     metric_file.write(
-        str(t) + "\t" + str(avg_pdr) + "\t" + str(avg_latency) + "\t" + str(avg_energy) + "\t" + str(overhead) + "\t" +
+        str(t) + "\t" + str(avg_pdr) + "\t" + str(avg_latency) + "\t" + str(avg_energy) + "\t" + str(overhead) + "\t" + str(hops) + "\t" +
         str(band_usage[0]) + "\t" + str(band_usage[1]) + "\t" + str(band_usage[2]) + "\t" + str(band_usage[3]) + "\n")
 
 metric_file.close()

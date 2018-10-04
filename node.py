@@ -292,10 +292,12 @@ class Node(object):                                                             
                     self.handle_energy(mes, des_node, s, ts, specBW)
                     if geographical_routing == True:
                         if int(des_node.ID) == (mes.des):
+                            mes.hops += 1
                             write_delivered_msg_to_file(mes, mes.last_sent)
                             des_node.delivered.append(mes)
                             self.buf.remove(mes)
                         else:
+                            mes.hops += 1
                             mes.last_sent = ts
                             mes.curr = des_node.ID
                             des_node.buf.append(mes)
@@ -304,7 +306,7 @@ class Node(object):                                                             
                         # create replica of message
                         new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                               [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
-                                              [0], 0, mes.packet_id)
+                                              [0], 0, mes.packet_id, mes.hops)
                         new_message.set(ts + 1, mes.replica + 1, des_node.ID)
                         new_message.band_used(s)
                         # handle msg if it is being sent to its destination
@@ -360,7 +362,7 @@ class Node(object):                                                             
                 # create replica of message
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
-                                      [0], 0, mes.packet_id)
+                                      [0], 0, mes.packet_id, mes.hops)
                 new_message.set(ts + 1, mes.replica + 1, des_node.ID)
                 new_message.band_used(s)
                 # handle if msg is sent to destination

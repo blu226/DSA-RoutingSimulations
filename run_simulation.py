@@ -11,13 +11,14 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     is_queuing_active = True
     restrict_band_access = True
     restrict_channel_access = True
-    priority_queue_active = True
-    broadcast = True
-    geo_routing = False
+    priority_queue_active = False
+    broadcast = False
+    geo_routing = True
     num_nodes_to_fwd = 1
     generate_new_primary_users = False
 
     generate_messages = True if pkl_fold_num == 1 else False
+    fwd_strat = "broadcast" if broadcast == True else "geo_" + str(num_nodes_to_fwd)
 
     dataset = DataSet               #UMass or Lexington
     day_or_numMules = Day_Or_NumMules#date (UMass) or number of mules (Lexington)
@@ -44,7 +45,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     if dataset == "UMass":
         dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
         link_exists_path = dataMule_path + "Link_Exists/" + "LE_" + str(start_time) + "_" + str(T) + "/"
-        metrics_path = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+        metrics_path = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat +"/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
         path_to_save_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
         if pkl_fold_num == 1:
             path_to_day1_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
@@ -55,11 +56,13 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
         if pkl_fold_num == 1:
             link_exists_path = dataMule_path + "Link_Exists/" + "LE_1_"  + str(T) + "/"
-            metrics_path = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+            metrics_path = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat + "/mules_" + str(
+                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
             path_to_day1_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
         else:
             link_exists_path = dataMule_path + "Link_Exists/" + "LE_2_" + str(T) + "/"
-            metrics_path = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+            metrics_path = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat + "/mules_" + str(
+                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
             path_to_day1_LLC = dataMule_path + "Link_Exists/LE_2_" + str(
                 T) + "/" + protocol + "/" + buffer + "/mules_" + str(V) +  "/"
 
@@ -189,7 +192,7 @@ run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mul
 # src_dst = [6, 3]                #num src and dst
 # speed = [350, 700]                  #Lex data only
 # proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-# num_messages = 15
+# num_messages = 50
 # num_Pusers = 0
 # num_channels = 10
 #

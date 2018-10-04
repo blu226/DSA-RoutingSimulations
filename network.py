@@ -136,7 +136,7 @@ class Network(object):
 
 
                 for j in range(num_packets):
-                    new_mes = Message(line_arr[0], line_arr[1], line_arr[2], line_arr[5], line_arr[4], [0, 0, 0, 0], -1, -1, 0, j)
+                    new_mes = Message(line_arr[0], line_arr[1], line_arr[2], line_arr[5], line_arr[4], [0, 0, 0, 0], -1, -1, 0, j, 0)
                     new_mes.create_copies(num_replicas)
                     src = int(line_arr[1])
                     self.nodes[src].buf.append(new_mes)
@@ -292,7 +292,7 @@ class Network(object):
         self.clear_all_channels()
         self.activate_primary_users()
         # clear out old msgs
-        # self.clear_old_msgs(t)
+        self.clear_old_msgs(t)
         # print("TIME:", t)
         #Calculate energy consumption
         if t % 15 == 0 or t == T - 1:
@@ -378,6 +378,11 @@ class Network(object):
                 elif geographical_routing == True:
                     for msg in node.buf:
                         # get list of node priority to forward to
+                        if msg.ID == debug_message:
+                            # print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
+                            nodeIDIR = [node.ID for node in nodes_in_range]
+                            if "20" in nodeIDIR:
+                                print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range
                         if node_priority_list != -1:
@@ -405,8 +410,8 @@ class Network(object):
                             # if msg wasn't broadcasted then give transfer time back to node
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
-                            else:
-                                node.buf.remove(msg)
+                            # else:
+                            #     node.buf.remove(msg)
 
 
                 # multiple unicast
