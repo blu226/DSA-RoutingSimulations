@@ -77,15 +77,8 @@ def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
     nodes_in_range = []
 
     for node in all_nodes:
-
-        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(S[s]), int(ts), int(te)] == 1:
-            if smart_setting == "pessimistic" and s < 3:
-                if LINK_EXISTS[int(src_node.ID), int(node.ID), int(S[s + 1]), int(ts), int(te)] == 0:
-                    nodes_in_range.append(node)
-            else:
-                nodes_in_range.append(node)
-
-
+        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts), int(te)] == 1:
+            nodes_in_range.append(node)
 
     return nodes_in_range
 
@@ -134,7 +127,11 @@ def write_to_not_delivered(mes):
     f.close()
 
 # checks if a given packet is already in a nodes buffer
-def to_send(msg, node):
+def to_send(msg, node, t):
+
+    #check if message was received by node in current time slot
+    if t < msg.last_sent:
+        return False
 
     # check if packet is in buffer
     for m in node.buf:
@@ -146,6 +143,8 @@ def to_send(msg, node):
             return False
 
     return True
+
+# sorts msgs by generation time. original code puts earlier generation times first, returning reversed so newer gen times
 
 def sort_by_genT(msg_list):
     sorted_list = []
@@ -165,18 +164,18 @@ def sort_by_genT(msg_list):
         sorted_list.append(msg_list[lowest_ind])
         msg_list.pop(lowest_ind)
 
-    return sorted_list
+    return list(reversed(sorted_list))
 
 def get_msg_lists(nodes_in_range, curr_node):
     nodes_in_range_IDs = []
     for node in nodes_in_range:
-        nodes_in_range_IDs.append(node.ID)
+        nodes_in_range_IDs.append(int(node.ID))
 
     msgs_in_range = []
     msgs_not_in_range = []
     # check if any messages in buffer are in range with destination
     for msg in curr_node.buf:
-        if msg.des in nodes_in_range_IDs:
+        if int(msg.des) in nodes_in_range_IDs:
             msgs_in_range.append(msg)
         else:
             msgs_not_in_range.append(msg)
@@ -198,49 +197,117 @@ def sort_and_combine_msg_lists(msgs_IR, msgs_OR):
 
     return final_buffer
 
-def des_in_range(nodes_in_range, node):
+def des_in_range(nodes_in_range, node, t):
     nodes_in_range_IDs = []
     for nodeIR in nodes_in_range:
-        nodes_in_range_IDs.append(nodeIR.ID)
+        nodes_in_range_IDs.append(int(nodeIR.ID))
 
     # checks if there exists a msg in range with its destination
     for msg in node.buf:
         if msg.des in nodes_in_range_IDs:
-            return True
+            #get des node
+            for node in nodes_in_range:
+                if int(node.ID) == int(msg.des):
+                    des_node = node
+                    break
+            # check if des node has already received msg
+            if to_send(msg, des_node, t) == True:
+                return True
 
     return False
 
 def choose_spectrum(node, net, LINK_EXISTS, t):
+    chosen_spec = S[0]
 
-    # loop through bands until a valid one is chosen
-    for i in range(4):
-        # get nodes in range of s
-        nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
-
-        if len(nodes_in_range) > 0:
-            # if priority queue is active send to destinations first
-            if priority_queue == True:
+    #Handle priority queue
+    # if priority queue is active send to destinations first
+    if priority_queue == True:
+        is_dest_node_found = False
+        for s in S:
+            nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
+            if len(nodes_in_range) > 0:
                 # if any destinations are in range use this band
-                if des_in_range(nodes_in_range, node) == True:
-                    return S[i], nodes_in_range
+                if des_in_range(nodes_in_range, node, t) == True:
+
+                    # if weighted approach, choose CBRS band if LTE and CBRS have the same nodes in range
+                    if smart_setting == "random":
+                        CBRS_nodes_in_range = find_nodes_in_range(node, net, S[1], LINK_EXISTS, t)
+                        if nodes_in_range == CBRS_nodes_in_range:
+                            chosen_spec = S[1]
+                            return chosen_spec, CBRS_nodes_in_range
+
+                    is_dest_node_found = True
+                    chosen_spec = s
+
+                    return chosen_spec, nodes_in_range
+
+        if is_dest_node_found == False:
+            chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
+
+    else: #FIFO
+        chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
+    return chosen_spec
+
+
+def default_spec_band(node, net, LINK_EXISTS, t):
+    chosen_spec = S[0]
+    nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
+
+    # if weighted approach, choose CBRS band if LTE and CBRS have the same nodes in range
+    if len(nodes_in_range) > 0 and smart_setting == "random":
+        CBRS_nodes_in_range = find_nodes_in_range(node, net, S[1], LINK_EXISTS, t)
+        if nodes_in_range == CBRS_nodes_in_range:
+            chosen_spec = S[1]
+            return chosen_spec, CBRS_nodes_in_range
+
+    elif len(nodes_in_range) > 0 and smart_setting != "pessimistic":
+        return chosen_spec, nodes_in_range
+
+    #If NOT pessimistic, and no nodes in range or is a pessimistic approach
+    # loop through bands until a valid one is chosen
+    for i in range(1, 4):
+        next_nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
+        if len(next_nodes_in_range) > 0:
+            if smart_setting != "pessimistic":
+                chosen_spec = S[i]
+                nodes_in_range = next_nodes_in_range
+                break
 
             else:
-                return S[i], nodes_in_range
+                if nodes_in_range == next_nodes_in_range:
+                    nodes_in_range = next_nodes_in_range
+                    chosen_spec = S[i]
+
+                else:
+                    break
+
+    return chosen_spec, nodes_in_range
+
+        # # print("nodes in range", S[i], ":", [node.ID for node in nodes_in_range])
+        # if len(nodes_in_range) > 0:
+        #     # if priority queue is active send to destinations first
+        #     if priority_queue == True:
+        #         # if any destinations are in range use this band
+        #         if des_in_range(nodes_in_range, node) == True:
+        #             return S[i], nodes_in_range
+        #
+        #     else:
+        #         return S[i], nodes_in_range
 
     # in the case that priority queue is enabled and no msg is in range with its dst over any band, choose
     # the first band, based on smart setting, that is in range with at least 1 node
     # loop through bands until a valid one is chosen
-    for i in range(4):
-        # get nodes in range of s
-        nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
+    # for i in range(4):
+    #     # get nodes in range of s
+    #     nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
+    #
+    #     if len(nodes_in_range) > 0:
+    #         return S[i], nodes_in_range
+    #
+    # # if a node is not in range with anyone then initial band is returned
+    # s = S[0]
+    # nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
 
-        if len(nodes_in_range) > 0:
-            return S[i], nodes_in_range
-
-    # if a node is not in range with anyone then initial band is returned
-    s = S[0]
-    nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
-    return s, nodes_in_range
 
 def find_distance(x1, y1, x2, y2):
     if dataset == "Lexington":
@@ -260,12 +327,13 @@ def get_suitable_spectrum_list(setting):
     elif "pessimistic" in setting:
         w1 = 1
     else:
-        w1 = .5
-        w2 = .5
+        w1 = .2
+        w2 = .8
 
     for i in range(len(spectRange)):
         sum = (w1 * math.exp(-(1/(spectRange[i]/1000)))) + (w2 * math.exp(-(1/minBW[i])))
         sum_list.append(sum)
+
 
     for i in range(4):
         ind = sum_list.index(max(sum_list))

@@ -108,16 +108,46 @@ def compute_ave_hop_count(t):
     num_msg = 0
     total_hops = 0
 
+    maxhop = 0
+
     for line in delivered_lines:
         line_arr = line.strip().split()
         if int(line_arr[4]) <= t:
             num_msg += 1
             total_hops += int(line_arr[8])
+            if int(line_arr[8]) > int(maxhop):
+                maxhop = line_arr[8]
 
     if num_msg > 0:
         return round(total_hops / num_msg, 4), num_msg
     else:
         return 0, num_msg
+
+def compute_hop_counts(t):
+
+    with open(path_to_metrics + packet_delivered_file, 'r') as f:
+        delivered_lines = f.readlines()[1:]
+
+    count_1 = 0
+    count_2 = 0
+    count_3 = 0
+    count_4 = 0
+    count_above4 = 0
+
+    for line in delivered_lines:
+        line_arr = line.strip().split()
+        if int(line_arr[4]) <= t:
+            if int(line_arr[8]) == 1:
+                count_1 += 1
+            elif int(line_arr[8]) == 2:
+                count_2 += 1
+            elif int(line_arr[8]) == 3:
+                count_3 += 1
+            elif int(line_arr[8]) == 4:
+                count_4 += 1
+            else:
+                count_above4 += 1
+    return count_1, count_2, count_3, count_4, count_above4
 
 def compute_metrics(lines, total_messages, delivery_time, spec_lines):
     delivered = 0
@@ -162,14 +192,17 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     avg_hops_per_packet, num_packets = compute_ave_hop_count(delivery_time)
 
+    count_1, count_2, count_3, count_4, count_above4 = compute_hop_counts(delivery_time)
+
     if num_packets > 0:
         eng = round(avg_energy/num_packets, 4)
     else:
         eng = 0
 
-    print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ", eng, "AVG hops:", avg_hops_per_packet)
+    print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
+          eng, "AVG hops:", avg_hops_per_packet, "#hops [1,2,3,4,5+]: [", count_1, count_2, count_3, count_4, count_above4, "]")
 
-    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet
+    return delivered, latency, eng, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet
 
 #Main starts here
 total_messages = num_messages

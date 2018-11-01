@@ -26,6 +26,9 @@ class Node(object):                                                             
             te = ts
         else:
             te = ts + 1
+
+        node2.can_receive = int(node1.ID)
+
         node1.channels[s, channel] = int(node1.ID)
         for other_node in net.nodes:
             if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, te] == 1:
@@ -75,7 +78,7 @@ class Node(object):                                                             
 
                     #interference due to primary users
                     for p_user in net.primary_users:
-                        if p_user.active == True and s == p_user.band and j == p_user.channel:
+                        if p_user.active == True and s == int(p_user.band) and j == int(p_user.channel):
                             if dataset == "UMass":
                                 dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
                                                      float(p_user.y), float(p_user.x))
@@ -293,7 +296,7 @@ class Node(object):                                                             
                     if geographical_routing == True:
                         if int(des_node.ID) == (mes.des):
                             mes.hops += 1
-                            write_delivered_msg_to_file(mes, mes.last_sent)
+                            write_delivered_msg_to_file(mes, mes.last_sent + 1)
                             des_node.delivered.append(mes)
                             self.buf.remove(mes)
                         else:
@@ -302,6 +305,7 @@ class Node(object):                                                             
                             mes.curr = des_node.ID
                             des_node.buf.append(mes)
                             self.buf.remove(mes)
+
                     else:
                         # create replica of message
                         new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
@@ -313,14 +317,14 @@ class Node(object):                                                             
                         if int(des_node.ID) == (mes.des):
                             write_delivered_msg_to_file(new_message, new_message.last_sent)
                             des_node.delivered.append(new_message)
-                            self.buf.remove(mes)
-                            write_to_not_delivered(mes)
+                            # remove msg from buffer if sent to dst
+                            # self.buf.remove(mes)
 
                         # handle msg if it is being sent to a relay node
                         else:
                             des_node.buf.append(new_message)
 
-                        return True
+                    return True
                 else:
                     if mes.ID == debug_message:
                         print("out of time")
@@ -336,6 +340,7 @@ class Node(object):                                                             
 
     def try_broadcasting_message_epi(self, nodes_in_range, mes, ts, LINK_EXISTS, specBW, net, s):
 
+        # print("Broadcasting", mes.ID, "to", [node.ID for node in nodes_in_range])
         # variable to see if message is sent to any nodes in range
         message_broadcasted = False
         channel_to_use = -1
@@ -353,7 +358,7 @@ class Node(object):                                                             
                  print(self.ID, "channels:", self.channels[s], des_node.ID, "channels:", des_node.channels[s], "dst canrecieve:",
                        des_node.can_receive, "ch avail:", channel_available)
 
-            if channel_available >= 0 and to_send(mes, des_node) == True:
+            if channel_available >= 0 and to_send(mes, des_node, ts) == True:
 
                 message_broadcasted = True
 
@@ -370,7 +375,7 @@ class Node(object):                                                             
                 if int(des_node.ID) == (mes.des):
                     write_delivered_msg_to_file(new_message, new_message.last_sent)
                     des_node.delivered.append(new_message)
-                    write_to_not_delivered(mes)
+                    # write_to_not_delivered(mes)
                     break
 
                     # handle msg if it is being sent to a relay node

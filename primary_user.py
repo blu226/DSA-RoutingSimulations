@@ -7,6 +7,7 @@ class PrimaryUser(object):
         self.channel = -1
         self.x = -1
         self.y = -1
+        self.on_off = []
         self.active = False
 
     def place(self):
@@ -38,3 +39,9 @@ class PrimaryUser(object):
         self.y = y
         self.channel = channel
         self.band = band
+
+    def flip_is_active(self):
+        if self.active == True:
+            self.active = False
+        else:
+            self.active = True

@@ -2,9 +2,10 @@ from constants import *
 import random
 
 message_file = open(DataMule_path + "Link_Exists/generated_messages.txt", "w")
-with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
-    path_lines = fp.readlines()[1:]
-fp.close()
+
+# with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
+#     path_lines = fp.readlines()[1:]
+# fp.close()
 
 id = 0
 count_messages = 0
@@ -33,7 +34,7 @@ while count_messages < num_messages:
     t = random.randint(int(0.1 * T), int(0.3 * T))
 
     prob_message_size = random.uniform(0, 1)
-    if prob_message_size < 0.7 and size >= M[4]:
+    if prob_message_size < 0.7 and size >= M[3]:
         size = random.choice(M[:3])
 
     if generateMessage == True and src < NoOfSources and des >= NoOfSources and des < NoOfSources + NoOfDataCenters and genT <= 0.3 * T:

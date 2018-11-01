@@ -20,6 +20,13 @@ Epidemic_opt_PQ1 = np.zeros(shape=(time_epochs, runs))
 Epidemic_pes_PQ1 = np.zeros(shape=(time_epochs, runs))
 Epidemic_rnd_PQ1 = np.zeros(shape=(time_epochs, runs))
 
+Epidemic_opt2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_pes2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_rnd2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_opt_PQ2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_pes_PQ2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_rnd_PQ2 = np.zeros(shape=(time_epochs, runs))
+
 Epidemic_opt3 = np.zeros(shape=(time_epochs, runs))
 Epidemic_pes3 = np.zeros(shape=(time_epochs, runs))
 Epidemic_rnd3 = np.zeros(shape=(time_epochs, runs))
@@ -36,16 +43,17 @@ Epidemic_rnd_PQ5 = np.zeros(shape=(time_epochs, runs))
 
 num_mules = 30
 num_channels = 10
-num_Pusers = 0
+num_Pusers = 100
 T = 180
 startTime = 2
-num_messages = 50
+num_messages = 150
 days = ["30"]
 dataset = "Lexington"
 folder_nums = [x for x in range(1,11, 1)]
-buffer_types = ["PQ", "FIFO"]
+buffer_types = ["PQ"]
 protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic", "Epidemic_Smart_random"]
-fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
+# fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
+fwd_strat = ["geo_2"]
 metrics_file = "metrics.txt"
 
 p_id = 2 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
@@ -67,6 +75,8 @@ for i in range(len(days)):
                             if buffer_type == "FIFO":
                                 if "1" in strat:
                                     Epidemic_opt1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_opt2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_opt3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -78,6 +88,8 @@ for i in range(len(days)):
                             else:
                                 if "1" in strat:
                                     Epidemic_opt_PQ1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_opt_PQ2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_opt_PQ3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -88,6 +100,8 @@ for i in range(len(days)):
                             if buffer_type == "FIFO":
                                 if "1" in strat:
                                     Epidemic_pes1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_pes2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_pes3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -99,6 +113,8 @@ for i in range(len(days)):
                             else:
                                 if "1" in strat:
                                     Epidemic_pes_PQ1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_pes_PQ2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_pes_PQ3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -110,6 +126,8 @@ for i in range(len(days)):
                             if buffer_type == "FIFO":
                                 if "1" in strat:
                                     Epidemic_rnd1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_rnd2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_rnd3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -121,6 +139,8 @@ for i in range(len(days)):
                             else:
                                 if "1" in strat:
                                     Epidemic_rnd_PQ1[t][i] = float(line_arr[p_id])
+                                elif "2" in strat:
+                                    Epidemic_rnd_PQ2[t][i] = float(line_arr[p_id])
                                 elif "3" in strat:
                                     Epidemic_rnd_PQ3[t][i] = float(line_arr[p_id])
                                 elif "5" in strat:
@@ -149,6 +169,13 @@ if p_id == 3:
             Epidemic_pes_PQ1[t][run] = float(Epidemic_pes_PQ1[t][run]) / 1000
             Epidemic_rnd_PQ1[t][run] = float(Epidemic_rnd_PQ1[t][run]) / 1000
 
+            Epidemic_opt2[t][run] = float(Epidemic_opt2[t][run]) / 1000
+            Epidemic_pes2[t][run] = float(Epidemic_pes2[t][run]) / 1000
+            Epidemic_rnd2[t][run] = float(Epidemic_rnd2[t][run]) / 1000
+            Epidemic_opt_PQ2[t][run] = float(Epidemic_opt_PQ2[t][run]) / 1000
+            Epidemic_pes_PQ2[t][run] = float(Epidemic_pes_PQ2[t][run]) / 1000
+            Epidemic_rnd_PQ2[t][run] = float(Epidemic_rnd_PQ2[t][run]) / 1000
+
             Epidemic_opt3[t][run] = float(Epidemic_opt3[t][run]) / 1000
             Epidemic_pes3[t][run] = float(Epidemic_pes3[t][run]) / 1000
             Epidemic_rnd3[t][run] = float(Epidemic_rnd3[t][run]) / 1000
@@ -169,9 +196,9 @@ x = np.array([x for x in range(0, T +1, 30)])
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=25)
 plt.xticks(np.arange(0, 181, 30))
-# title_str = "Messages: " + str(num_messages) + "    Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
+title_str = "Messages: " + str(num_messages) + "    Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
 # title_str = "Broadcast to everyone in range"
-# plt.title(title_str)
+plt.title(title_str)
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
 
@@ -182,7 +209,7 @@ if p_id == 1:
     fig_name = "Plots/pdr_Time_SER.png"
 
 if p_id == 2:
-    plt.ylim(-1, 45)
+    plt.ylim(-1, 20)
     plt.ylabel('Network delay (min)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
 
@@ -191,13 +218,13 @@ if p_id == 2:
 if p_id == 3:
     plt.ylabel('Energy expenditure (KJ)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-0.01, 2.5)
+    plt.ylim(-0.01, 12.5)
     fig_name = "Plots/energy_time_SER.png"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-1, 15)
+    plt.ylim(-1, 20)
     fig_name = "Plots/overhead_Time_SER.png"
 
 # plt.errorbar(x, Epidemic_opt5, 0, marker='h', markersize=10, linestyle='--', linewidth=3)
@@ -205,23 +232,23 @@ if p_id == 4:
 # plt.errorbar(x, Epidemic_opt_PQ5, 0, marker='h', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, Epidemic_pes_PQ5, 0, marker='p', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, Epidemic_rnd, 0, marker='h', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_rnd_PQ, 0, marker='h', markersize=10, linestyle='-', linewidth=3)
+plt.errorbar(x, Epidemic_rnd_PQ2, 0, marker='h', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, Epidemic_rnd1, 0, marker='p', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_rnd_PQ1, 0, marker='p', markersize=10, linestyle='-', linewidth=3)
+plt.errorbar(x, Epidemic_opt_PQ2, 0, marker='p', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, Epidemic_rnd3, 0, marker='v', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_rnd_PQ3, 0, marker='v', markersize=10, linestyle='-', linewidth=3)
+plt.errorbar(x, Epidemic_pes_PQ2, 0, marker='v', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, Epidemic_rnd5, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_rnd_PQ5, 0, marker='x', markersize=10, linestyle='-', linewidth=3)
+# plt.errorbar(x, Epidemic_rnd_PQ2, 0, marker='x', markersize=10, linestyle='-', linewidth=3)
 
 
 if p_id == 1:
-    plt.legend([ "Broadcast","Geo1", "Geo3", "Geo5"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
 elif p_id == 2:
-    plt.legend([ "Broadcast","Geo1", "Geo3", "Geo5"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
 elif p_id ==3:
-    plt.legend([ "Broadcast","Geo1", "Geo3", "Geo5"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
 elif p_id ==4:
-    plt.legend([ "Broadcast","Geo1", "Geo3", "Geo5"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
 
 
 plt.tight_layout()

@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting="optimistic"):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd):
 
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes
@@ -11,10 +11,10 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     is_queuing_active = True
     restrict_band_access = True
     restrict_channel_access = True
-    priority_queue_active = False
+    priority_queue_active = True
     broadcast = False
     geo_routing = True
-    num_nodes_to_fwd = 1
+    num_nodes_to_fwd = num_fwd
     generate_new_primary_users = False
 
     generate_messages = True if pkl_fold_num == 1 else False
@@ -145,46 +145,44 @@ bands = "ALL"                   #which bands to use
 num_mules = 30                  #number of data mules to use
 generate_LE = False             #generate Link Exists
 max_v = 42                      #max number of datamules + src + dst
-pkl_ID = 2                      #pkl folder ID if Link Exists is being generated
+pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
 src_dst = [6, 6]                #num src and dst
-speed = [350, 700]                  #Lex data only
+speed = [350, 600]                  #Lex data only
 proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-num_messages = 50
+num_messages = 150
 num_Pusers = 0
 num_channels = 10
+nodes_tofwd = 5
+# for num_channels in [10, 5, 3]:
+# for num_Pusers in [10, 100, 200]:
+#         for num_messages in [50, 100, 150]:
 
-# for num_channels in range(10, 1, -2):
-#     for num_Pusers in range(0, 125, 25):
-#         for num_messages in range(25, 175, 25):
 
 print("-----------------------------------------------------------------------")
-print("Channels:", num_channels, "\tPrimary Users:", num_Pusers, "\tMessages:", num_messages)
+print("Channels:", num_channels, "\tPrimary Users:", num_Pusers, "\tMessages:", num_messages, "\tNum Fwd:", nodes_tofwd)
 print("-----------------------------------------------------------------------")
 
 print("\nOptimistic")
 run_simulation(data, day, 1, proto, bands, len_T, start_time, num_mules, generate_LE, max_v,
                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-               "optimistic")
+               "optimistic", nodes_tofwd)
 
 print("\nPessimistic")
 run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mules, generate_LE, max_v,
                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-               "pessimistic")
-
-print("\nWeighted")
-run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mules, generate_LE, max_v,
-               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-               "random")
+               "pessimistic", nodes_tofwd)
 
 
 
+
+#
 # data = "UMass"
 # day = "2007-11-06"
 # len_T = 180                     #length of simulation
 # start_time = 840                #start time (to find Link Exists)
 # bands = "ALL"                   #which bands to use
-# num_mules = 10                  #number of data mules to use
+# num_mules = 5                  #number of data mules to use
 # generate_LE = False             #generate Link Exists
 # max_v = 19                      #max number of datamules + src + dst
 # pkl_ID = 2                      #pkl folder ID if Link Exists is being generated
@@ -192,8 +190,8 @@ run_simulation(data, day, 1, "Epidemic_Smart", bands, len_T, start_time, num_mul
 # src_dst = [6, 3]                #num src and dst
 # speed = [350, 700]                  #Lex data only
 # proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-# num_messages = 50
-# num_Pusers = 0
+# num_messages = 100
+# num_Pusers = 200
 # num_channels = 10
 #
 # # for num_channels in range(10, 1, -2):

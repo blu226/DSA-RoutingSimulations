@@ -23,6 +23,8 @@ net.not_delivered_messages()
 # Handle messages that got delivered
 net.messages_delivered()
 
+print("Band Usage:", net.band_usage)
+
 # net.network_status()
 
 

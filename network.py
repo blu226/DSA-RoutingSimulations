@@ -12,6 +12,7 @@ class Network(object):
         self.primary_users = []            #list of primary users
         self.message_num = 0
         self.time = 0
+        self.band_usage = [0, 0, 0, 0]
 
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
@@ -30,12 +31,11 @@ class Network(object):
     def activate_primary_users(self):
 
         for p_user in self.primary_users:
-            p = random.uniform(0,1)
-
-            if p < active_channel_prob:
-                p_user.active = True
+            if p_user.on_off[0] == 0:
+                p_user.flip_is_active()
+                p_user.on_off.pop(0)
             else:
-                p_user.active = False
+                p_user.on_off[0] = p_user.on_off[0] - 1
 
     def create_primary_users(self, num_C):
             for x in range(num_primary_users):
@@ -50,13 +50,31 @@ class Network(object):
                 f.write(line)
 
     def load_primary_users(self):
-        with open("Primary_Users/primary_users_" + str(num_channels) + ".txt", "r") as f:
-            lines = f.readlines()
+        # read in primary user
+        if dataset == "UMass":
+            with open("Primary_Users/primary_users_" + str(num_channels) + ".txt", "r") as f:
+                lines = f.readlines()
+        elif dataset == "Lexington":
+            with open("Primary_Users/primary_usersLEX_" + str(num_channels) + ".txt", "r") as f:
+                lines = f.readlines()
+        # read in on off times
+        with open("Primary_Users/on_off_times.txt", "r") as f:
+            on_off = f.readlines()
 
+            # create primary user
             for line_ind in range(num_primary_users):
+                # get location, band, and channel
                 line_arr = lines[line_ind].strip().split()
                 p_user = PrimaryUser()
                 p_user.set(float(line_arr[0]), float(line_arr[1]), int(line_arr[2]), int(line_arr[3]))
+                # store on/off times
+                on_off_line = on_off[line_ind].strip().split()
+                on_off_ints = []
+                for ele in on_off_line:
+                    on_off_ints.append(int(ele))
+
+                p_user.on_off = on_off_ints
+
 
                 self.primary_users.append(p_user)
 
@@ -268,7 +286,7 @@ class Network(object):
             curr_dist = find_distance(node_currX, node_currY, des_nodeX, des_nodeY)
             prev_dist = find_distance(node_prevX, node_prevY, des_nodeX, des_nodeY)
 
-            if prev_dist - curr_dist > 0:
+            if prev_dist - curr_dist >= 0:
                 nodes_moving_toward_dst.append([node, curr_dist])
             else:
                 nodes_moving_away_dst.append([node, curr_dist])
@@ -339,21 +357,29 @@ class Network(object):
             for node in self.nodes:
                 # init band based on smart setting
                 s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+
                 # send msgs to destinations first if priority queue is enabled
                 if priority_queue == True:
 
                     # order the msg buffer based on genT and if its in range of des
                     node.order_priority_queue(nodes_in_range)
                     # loop until msg at top of buffer can't be sent to its destination
+                    msg_index = 0
                     for i in range(len(node.buf)):
                         # get msg to be sent
-                        msg = node.buf[0]
+                        msg = node.buf[msg_index]
                         des_node = self.nodes[int(msg.des)]
                         # check if msg has already reached its destination
-                        if to_send(msg, des_node) == True:
+                        if to_send(msg, des_node, t) == True:
                             # if not at destination try sending
                             if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
                                 break
+                            else:
+                                self.band_usage[s] += 1
+                        else:
+                            msg_index += 1
+
+
 
 
 
@@ -372,8 +398,10 @@ class Network(object):
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             # broadcast msg to everyone in range
                             msg_sent = node.try_broadcasting_message_epi(nodes_in_range, msg, t, LINK_EXISTS, specBW, self, s)
-                            if msg_sent == False and is_queuing_active == True:
+                            if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
+                            else:
+                                self.band_usage[s] += 1
 
                 elif geographical_routing == True:
                     for msg in node.buf:
@@ -390,7 +418,7 @@ class Network(object):
                             nodes_to_broadcast = []
                             node_counter = 0
                             for i in range(len(node_priority_list)):
-                                if to_send(msg, node_priority_list[i]) == True and node_counter < num_nodes_to_fwd:
+                                if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
 
@@ -407,11 +435,13 @@ class Network(object):
                             if node.mes_fwd_time_limit <= num_sec_per_tau:
                                 msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
                                                                              specBW, self, s)
-                            # if msg wasn't broadcasted then give transfer time back to node
-                            if msg_sent == False:
+                                # if msg wasn't broadcasted then give transfer time back to node
+                                if msg_sent == False:
+                                    node.mes_fwd_time_limit -= transfer_time_in_sec
+                                else:
+                                    self.band_usage[s] += 1
+                            else:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
-                            # else:
-                            #     node.buf.remove(msg)
 
 
                 # multiple unicast
@@ -419,7 +449,7 @@ class Network(object):
                     for des_node in nodes_in_range:
                         for msg in node.buf:
                             # check if des_node already has packet
-                            if to_send(msg, des_node) == True:
+                            if to_send(msg, des_node, t) == True:
                                 node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
 
 
