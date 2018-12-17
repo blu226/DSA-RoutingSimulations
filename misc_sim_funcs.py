@@ -17,8 +17,8 @@ def get_data_structs():
         path_lines = []
         spec_lines = []
 
-    with open(DataMule_path + "Link_Exists/" + generated_messages_file, "r") as f:
-        msg_lines = f.readlines()[1:num_messages + 1]
+    with open(generated_messages_file, "r") as f:
+        msg_lines = f.readlines()[1:]
 
     specBW = pickle.load(open(link_exists_folder + "specBW.pkl", "rb"))
     LINK_EXISTS = pickle.load(open(link_exists_folder + "LINK_EXISTS.pkl", "rb"))
@@ -51,6 +51,9 @@ def initialize_output_files():
     output_file4.write("ID\ts\td\tts\tte\tLLC\tPID\tsize\thops\tband usage\n")
     output_file4.close()
 
+    output_file5 = open(path_to_metrics + overhead_file, "w")
+    output_file5.close()
+
 def write_delivered_msg_to_file(message, te):
 
     # if message has reached its destination
@@ -77,7 +80,7 @@ def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
     nodes_in_range = []
 
     for node in all_nodes:
-        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts), int(te)] == 1:
+        if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts)] == 1:
             nodes_in_range.append(node)
 
     return nodes_in_range
@@ -204,44 +207,52 @@ def des_in_range(nodes_in_range, node, t):
 
     # checks if there exists a msg in range with its destination
     for msg in node.buf:
+
         if msg.des in nodes_in_range_IDs:
             #get des node
-            for node in nodes_in_range:
-                if int(node.ID) == int(msg.des):
-                    des_node = node
-                    break
+            for nodeIR in nodes_in_range:
+                if int(nodeIR.ID) == int(msg.des):
+                    des_node = nodeIR
+                    # break
             # check if des node has already received msg
-            if to_send(msg, des_node, t) == True:
-                return True
+                    if to_send(msg, des_node, t) == True:
+                        if (node.ID == "15" and t == 60 and des_node.ID == "7" and debug_mode == 1):
+                            print("Delivered:", [str(msg.ID) + " " + str(msg.packet_id) for msg in des_node.delivered])
+                        return True
 
     return False
 
 def choose_spectrum(node, net, LINK_EXISTS, t):
     chosen_spec = S[0]
 
+    # if (node.ID == "15" and t == 60):
+    #     print("MSG des:", [msg.ID for msg in node.buf])
+
     #Handle priority queue
     # if priority queue is active send to destinations first
     if priority_queue == True:
         is_dest_node_found = False
         for s in S:
+            if (node.ID == "15" and t == 60 and debug_mode == 1):
+                print("S:", s)
             nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
+
+            if (node.ID == "15" and t == 60 and debug_mode == 1):
+                print("nodes in range", [node.ID for node in nodes_in_range])
+
             if len(nodes_in_range) > 0:
                 # if any destinations are in range use this band
                 if des_in_range(nodes_in_range, node, t) == True:
-
-                    # if weighted approach, choose CBRS band if LTE and CBRS have the same nodes in range
-                    if smart_setting == "random":
-                        CBRS_nodes_in_range = find_nodes_in_range(node, net, S[1], LINK_EXISTS, t)
-                        if nodes_in_range == CBRS_nodes_in_range:
-                            chosen_spec = S[1]
-                            return chosen_spec, CBRS_nodes_in_range
 
                     is_dest_node_found = True
                     chosen_spec = s
 
                     return chosen_spec, nodes_in_range
 
+
         if is_dest_node_found == False:
+            if (node.ID == "15" and t == 60 and debug_mode == 1):
+                print("dest not in range", [node.ID for node in nodes_in_range])
             chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
 
     else: #FIFO

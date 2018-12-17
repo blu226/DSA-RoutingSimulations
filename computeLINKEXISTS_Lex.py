@@ -1,4 +1,5 @@
 import pickle
+import numpy
 import math
 
 from STB_help import *
@@ -134,7 +135,7 @@ def createLinkExistenceADJ():
     #print("#ts te i j s \n")
 
     for ts in range(0, T - dt, dt):
-        for te in range(ts + dt, ts + maxTau, dt):
+        for te in range(ts + dt, ts + dt + maxTau, dt):
             for file1 in fileList:
                 file1_pkl = pickle.load(open(DataMule_path + pkl_folder + file1, "rb"))
 
@@ -155,21 +156,21 @@ def createLinkExistenceADJ():
                             else:
                                 # print(file1_id, file2_id)
                                 if file1_id == file2_id:
-                                    LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt] = 1
+                                    LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt] = 1
                                 else:
                                     # filepath1 = lex_data_directory_day + file1
                                     # filepath2 = lex_data_directory_day + file2
 
                                     # print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s))
                                     if CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts, te) == True:
-                                        LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt] = 1
+                                        LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt] = 1
 
                                   #  print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s) + " ts: " + str(ts_dt) + " te: " + str(te_dt) + " = " + str(LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt]))
 
 # Main starts here
 
 # This function is independent of tau
-LINK_EXISTS = numpy.empty(shape=(V + NoOfDataCenters + NoOfSources, V + NoOfDataCenters + NoOfSources, numSpec, int(T/dt), int(T/dt)))
+LINK_EXISTS = numpy.empty(shape=(V + NoOfDataCenters + NoOfSources, V + NoOfDataCenters + NoOfSources, numSpec, int(T/dt)))
 LINK_EXISTS.fill(math.inf)
 
 # if not os.path.exists(lex_data_directory):

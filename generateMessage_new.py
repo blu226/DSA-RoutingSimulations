@@ -3,9 +3,9 @@ import random
 
 message_file = open(DataMule_path + "Link_Exists/generated_messages.txt", "w")
 
-# with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
-#     path_lines = fp.readlines()[1:]
-# fp.close()
+with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
+    path_lines = fp.readlines()[1:]
+fp.close()
 
 id = 0
 count_messages = 0

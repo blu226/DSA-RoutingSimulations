@@ -278,15 +278,15 @@ def save_5D_in_file(filename, adj):
 
 def save_in_file(filename, adj):
     with open(filename, "w") as f:
-        f.write("#i j s ts te \n")
+        f.write("#i j s ts \n")
         for i in range(len(adj)):
             for j in range(len(adj[0])):
                 for s in range(len(adj[0][0])):
                     for ts in range(len(adj[0][0][0])):
-                        for te in range(len(adj[0][0][0][0])):
-                            if (adj[i, j, s, ts, te] != math.inf and i != j):
-                                f.write(str(i) + " " + str(j) + " " + str(s) + " " + str(ts) + " " + str(te) + " = " + str(
-                                        adj[i, j, s, ts, te]) + "\n")
+                        # for te in range(len(adj[0][0][0])):
+                        if (adj[i, j, s, ts] != math.inf and i != j):
+                            f.write(str(i) + " " + str(j) + " " + str(s) + " " + str(ts) + " = " + str(
+                                    adj[i, j, s, ts]) + "\n")
 
     f.close()
 

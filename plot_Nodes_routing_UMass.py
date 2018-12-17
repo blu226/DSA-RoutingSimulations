@@ -150,7 +150,7 @@ plt.yticks(fontsize=25)
 plt.xticks(np.arange(1, 11, 2))
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
-
+f
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.xlabel('Number of data mules', fontsize=25)

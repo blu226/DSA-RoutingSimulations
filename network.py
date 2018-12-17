@@ -44,7 +44,7 @@ class Network(object):
                 self.primary_users.append(p_user)
 
     def save_primary_users(self, num_C):
-        with open("Primary_Users/primary_users_" + str(num_C) + ".txt", "w") as f:
+        with open("Primary_Users/" + dataset +  "/" + str(puser_round) + "/primary_users_" + str(num_C) + ".txt", "w") as f:
             for p_user in self.primary_users:
                 line = str(p_user.x) + "\t" + str(p_user.y) + "\t" + str(p_user.channel) + "\t" + str(p_user.band) + "\n"
                 f.write(line)
@@ -52,13 +52,13 @@ class Network(object):
     def load_primary_users(self):
         # read in primary user
         if dataset == "UMass":
-            with open("Primary_Users/primary_users_" + str(num_channels) + ".txt", "r") as f:
+            with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_users_" + str(num_channels) + ".txt", "r") as f:
                 lines = f.readlines()
         elif dataset == "Lexington":
-            with open("Primary_Users/primary_usersLEX_" + str(num_channels) + ".txt", "r") as f:
+            with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_usersLEX_" + str(num_channels) + ".txt", "r") as f:
                 lines = f.readlines()
         # read in on off times
-        with open("Primary_Users/on_off_times.txt", "r") as f:
+        with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/on_off_times.txt", "r") as f:
             on_off = f.readlines()
 
             # create primary user
@@ -85,16 +85,39 @@ class Network(object):
             node.load_pkl()
             self.add_node(node)
 
+
     def find_avg_energy_consumption(self, time):
         total_energy = 0
+        num_packets_delivered = 0
 
         for node in self.nodes:
             total_energy += node.energy
+            num_packets_delivered += len(node.delivered)
 
-        avg_energy = total_energy / (V +NoOfDataCenters + NoOfSources)
+        # avg_energy = total_energy / (V +NoOfDataCenters + NoOfSources)
+
 
         f = open(path_to_metrics + consumed_energy_file, 'a')
-        f.write(str(time) + "\t" + str(avg_energy) + "\n")
+        f.write(str(time) + "\t" + str(total_energy) + "\t" + str(num_packets_delivered) + "\n")
+        f.close()
+
+    def compute_overhead(self, time):
+        total_packets_delivered = 0
+        total_packets_in_network = 0
+
+        for node in self.nodes:
+            total_packets_in_network += len(node.buf)
+            total_packets_delivered += len(node.delivered)
+
+
+
+        if(total_packets_delivered == 0):
+            overhead = 0
+        else:
+            overhead = total_packets_in_network / total_packets_delivered
+
+        f = open(path_to_metrics + overhead_file, 'a')
+        f.write(str(time) + "\t" + str(overhead) + "\t" + str(total_packets_in_network) + "\t" + str(total_packets_delivered) + "\n")
         f.close()
 
     def get_message_info(self, path_lines, spec_lines, src, des, t, size):
@@ -116,8 +139,8 @@ class Network(object):
         # Function messages_delivered: deletes messages that have been delivered
     def messages_delivered(self):
 
-        with open(DataMule_path + "Link_Exists/" + generated_messages_file, "r") as f:
-            msg_lines = f.readlines()[1:num_messages + 1]
+        with open(generated_messages_file, "r") as f:
+            msg_lines = f.readlines()[1:]
 
         with open(path_to_metrics + packet_delivered_file, 'r') as f:
             lines = f.readlines()
@@ -253,6 +276,7 @@ class Network(object):
         for node in self.nodes:
             for mes in node.buf:
                 if t - mes.genT > TTL:
+                    # print("MSG:", mes.ID, "curr:", mes.curr, "t:", t, "TTL expired")
                     line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
                         mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
                         mes.curr) + "\t" + str(mes.packet_id) + "\n"
@@ -313,8 +337,10 @@ class Network(object):
         self.clear_old_msgs(t)
         # print("TIME:", t)
         #Calculate energy consumption
-        if t % 15 == 0 or t == T - 1:
+        if t % metric_interval == 0 or t == T - 1:
             self.find_avg_energy_consumption(t)
+            # self.compute_overhead(t)
+
 
         #Handle different protocols
         if protocol == "XChant":
@@ -353,10 +379,18 @@ class Network(object):
             # add messages to source nodes
             self.other_add_messages(msg_lines, t)
 
+            # print("Nodes:", [(i, self.nodes[i].ID) for i in range(len(self.nodes)) ])
            # loop over each node
             for node in self.nodes:
                 # init band based on smart setting
-                s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+
+                if smart_setting == "optimistic" or smart_setting == "pessimistic":
+                    s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+                else:
+                    s = S[0]
+                    nodes_in_range = find_nodes_in_range(node, self, s, LINK_EXISTS, t)
+                # if t == 10:
+                #     print("curr:", node.ID, "s", s, "Nodes", [n.ID for n in nodes_in_range])
 
                 # send msgs to destinations first if priority queue is enabled
                 if priority_queue == True:
@@ -370,7 +404,7 @@ class Network(object):
                         msg = node.buf[msg_index]
                         des_node = self.nodes[int(msg.des)]
                         # check if msg has already reached its destination
-                        if to_send(msg, des_node, t) == True:
+                        if to_send(msg, des_node, t) == True and int(msg.des) == int(des_node.ID):
                             # if not at destination try sending
                             if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
                                 break
@@ -380,14 +414,16 @@ class Network(object):
                             msg_index += 1
 
 
-
-
-
                 # continue to flood messages that are not in range of their destinations
                 # broadcast message to everyone in range
 
                 if broadcast == True and len(nodes_in_range) > 0:
                     for msg in node.buf:
+                        # nodes_to_broadcast = []
+                        # for i in range(len(nodes_in_range)):
+                        #     if to_send(msg, nodes_in_range[i], t) == True:
+                        #         nodes_to_broadcast.append(nodes_in_range[i])
+
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
                                                                                          nodes_in_range[0].ID, t)
                         # account for time it takes to send if resources aren't infinite
@@ -403,14 +439,16 @@ class Network(object):
                             else:
                                 self.band_usage[s] += 1
 
-                elif geographical_routing == True:
+                elif geographical_routing == True and len(nodes_in_range) > 0: #geographical paradigm
+
+                    # print("broadcast: Hi this function runs")
                     for msg in node.buf:
-                        # get list of node priority to forward to
-                        if msg.ID == debug_message:
-                            # print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
-                            nodeIDIR = [node.ID for node in nodes_in_range]
-                            if "20" in nodeIDIR:
-                                print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
+                        # # get list of node priority to forward to
+                        # if msg.ID == debug_message:
+                        #     # print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
+                        #     nodeIDIR = [node.ID for node in nodes_in_range]
+                        #     if "20" in nodeIDIR:
+                        #         print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range
                         if node_priority_list != -1:
@@ -422,35 +460,36 @@ class Network(object):
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
 
-                            # find transfer time
-                            transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,
-                                                                                             msg.curr,
-                                                                                             nodes_in_range[0].ID,
-                                                                                             t)
-                            # account for time it takes to send if resources aren't infinite
-                            if is_queuing_active == True:
-                                node.mes_fwd_time_limit += transfer_time_in_sec
+                        # nodes_to_broadcast = nodes_in_range
+                        # find transfer time
+                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,
+                                                                                         msg.curr,
+                                                                                         nodes_in_range[0].ID,
+                                                                                         t)
+                        # account for time it takes to send if resources aren't infinite
+                        if is_queuing_active == True:
+                            node.mes_fwd_time_limit += transfer_time_in_sec
 
-                            # check if there is enough time to broadcast msg
-                            if node.mes_fwd_time_limit <= num_sec_per_tau:
-                                msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
-                                                                             specBW, self, s)
-                                # if msg wasn't broadcasted then give transfer time back to node
-                                if msg_sent == False:
-                                    node.mes_fwd_time_limit -= transfer_time_in_sec
-                                else:
-                                    self.band_usage[s] += 1
-                            else:
+                        # check if there is enough time to broadcast msg
+                        if node.mes_fwd_time_limit <= num_sec_per_tau:
+                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
+                                                                         specBW, self, s)
+                            # if msg wasn't broadcasted then give transfer time back to node
+                            if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
+                            else:
+                                self.band_usage[s] += 1
+                        # else:
+                        #     node.mes_fwd_time_limit -= transfer_time_in_sec
 
 
                 # multiple unicast
-                else:
-                    for des_node in nodes_in_range:
-                        for msg in node.buf:
-                            # check if des_node already has packet
-                            if to_send(msg, des_node, t) == True:
-                                node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
+                # else:
+                #     for des_node in nodes_in_range:
+                #         for msg in node.buf:
+                #             # check if des_node already has packet
+                #             if to_send(msg, des_node, t) == True:
+                #                 node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
 
 
 

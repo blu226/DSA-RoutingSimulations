@@ -31,7 +31,7 @@ class Node(object):                                                             
 
         node1.channels[s, channel] = int(node1.ID)
         for other_node in net.nodes:
-            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, te] == 1:
+            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1:
                 other_node.channels[s, channel] = int(node1.ID)
 
     def handle_energy(self, mes, des_node, s, ts, specBW):
@@ -54,11 +54,14 @@ class Node(object):                                                             
         dist1 = 99999
         dist2 = 99999
 
+        # if smart_setting != "optimistic" and smart_setting != "pessimistic":
+        #     s = 0
+
+
         # print("Node1.ID:", node1.ID, "Node2.ID:", node2.ID, "Can_receive:", node2.can_receive)
         #make sure receiver is not already receiving from anyone else
         if node2.can_receive == np.inf or node2.can_receive == int(node1.ID):
             for j in range(num_channels):
-
                 #check if a common channel is available between both nodes
                 if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
                         or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)) \
@@ -72,7 +75,7 @@ class Node(object):                                                             
 
                             # print("Secondary User using same channel.")
 
-                            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts, ts+1] == 1:
+                            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
                                 # print("Secondary User in range")
                                 available = False
 
@@ -126,7 +129,7 @@ class Node(object):                                                             
 
                         print("Secondary User using same channel.")
 
-                        if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts, ts+1] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts, ts+1] == 1:
+                        if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
                             # print("Secondary User in range")
                             available = False
 
@@ -276,7 +279,10 @@ class Node(object):                                                             
         if ts == T - 1:
             return False
         # check if nodes are in range
-        if LINK_EXISTS[int(self.ID), int(des_node.ID), s, int(ts), int(ts + 1)] == 1:
+
+        if LINK_EXISTS[int(self.ID), int(des_node.ID), s, int(ts)] == 1:
+            if debug_message == mes.ID:
+                print("in range")
             # Check if des_node has already received a msg from another node and has an available channel in the current tau
             if self.is_channel_available(des_node, s, ts, net, LINK_EXISTS) >= 0:
                 # update who the des_node can receive from
@@ -293,38 +299,49 @@ class Node(object):                                                             
                 if self.mes_fwd_time_limit <= num_sec_per_tau:
                     # calculate energy consumed
                     self.handle_energy(mes, des_node, s, ts, specBW)
-                    if geographical_routing == True:
-                        if int(des_node.ID) == (mes.des):
-                            mes.hops += 1
-                            write_delivered_msg_to_file(mes, mes.last_sent + 1)
-                            des_node.delivered.append(mes)
-                            self.buf.remove(mes)
-                        else:
-                            mes.hops += 1
-                            mes.last_sent = ts
-                            mes.curr = des_node.ID
-                            des_node.buf.append(mes)
-                            self.buf.remove(mes)
 
-                    else:
-                        # create replica of message
-                        new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
-                                              [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
-                                              [0], 0, mes.packet_id, mes.hops)
-                        new_message.set(ts + 1, mes.replica + 1, des_node.ID)
-                        new_message.band_used(s)
-                        # handle msg if it is being sent to its destination
+
+                    if geographical_routing == True or broadcast == True:
                         if int(des_node.ID) == (mes.des):
-                            write_delivered_msg_to_file(new_message, new_message.last_sent)
+                            new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
+                                                  [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],
+                                                   mes.band_usage[3]], [0],
+                                                  [0], 0, mes.packet_id, mes.hops)
+                            new_message.set(ts + 1, mes.replica + 1, des_node.ID)
+                            new_message.band_used(s)
+                            # mes.hops += 1
+                            write_delivered_msg_to_file(new_message, mes.last_sent + 1)
                             des_node.delivered.append(new_message)
-                            # remove msg from buffer if sent to dst
+                            # self.buf.remove(mes)
+                            return True
+
+                        else:
+                            print("Try sending message directly to next hop should never be called", des_node.ID, mes.des)
+                            # mes.hops += 1
+                            # mes.last_sent = ts
+                            # mes.curr = des_node.ID
+                            # des_node.buf.append(mes)
                             # self.buf.remove(mes)
 
-                        # handle msg if it is being sent to a relay node
-                        else:
-                            des_node.buf.append(new_message)
+                    # else:
+                    #     # create replica of message
+                    #     new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
+                    #                           [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
+                    #                           [0], 0, mes.packet_id, mes.hops)
+                    #     new_message.set(ts + 1, mes.replica + 1, des_node.ID)
+                    #     new_message.band_used(s)
+                    #     # handle msg if it is being sent to its destination
+                    #     if int(des_node.ID) == (mes.des):
+                    #         write_delivered_msg_to_file(new_message, new_message.last_sent)
+                    #         des_node.delivered.append(new_message)
+                    #         # remove msg from buffer if sent to dst
+                    #         # self.buf.remove(mes)
+                    #
+                    #     # handle msg if it is being sent to a relay node
+                    #     else:
+                    #         print("Try sending message directly to next hop should never be called")
+                    #         des_node.buf.append(new_message)
 
-                    return True
                 else:
                     if mes.ID == debug_message:
                         print("out of time")
@@ -363,7 +380,8 @@ class Node(object):                                                             
                 message_broadcasted = True
 
                 # calculate energy consumed
-                self.handle_energy(mes, des_node, s, ts, specBW)
+                consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, s, ts, specBW)
+                des_node.energy += consumedEnergy
                 # create replica of message
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
@@ -381,6 +399,9 @@ class Node(object):                                                             
                     # handle msg if it is being sent to a relay node
                 else:
                     des_node.buf.append(new_message)
+
+        if(message_broadcasted == True):
+            self.energy += consumedEnergy
 
         return message_broadcasted
 
@@ -413,7 +434,7 @@ class Node(object):                                                             
 
                 for s in S:
 
-                    if LINK_EXISTS[int(self.ID), int(des_node.ID), s, int(ts), int(te)] == 1:
+                    if LINK_EXISTS[int(self.ID), int(des_node.ID), s, int(ts)] == 1:
                         spec_to_use.append(s)
 
                 for spec in range(len(spec_to_use)):

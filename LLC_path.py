@@ -58,7 +58,7 @@ def computeADJ_T_2(specBW, LINK_EXISTS):
                                 consumedEnergy = round(consumedEnergy, 2)
 
                                 # print(i, j, t, consumedTime, m, specBW[i, j, s, t])
-                                if (t + consumedTime) < T and LINK_EXISTS[i, j, s, t, (t + consumedTime)] < math.inf:
+                                if (t + consumedTime) < T and LINK_EXISTS[i, j, s, t] < math.inf:
 
                                     currSpec = Spectrum[i, j, t, m]
                                     if currSpec > 9:

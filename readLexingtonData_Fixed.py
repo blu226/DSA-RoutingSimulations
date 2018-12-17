@@ -2,6 +2,7 @@ import re
 import random
 import pickle
 import shutil
+import numpy
 
 from STB_help import *
 
@@ -23,13 +24,42 @@ def readTrajectoryFile(DMTrajectories):
                 print ("No Match !!!")
     fp.close()
 
+def check_dist_between_all_src_des(vil_src, vil_des, new_src, new_des):
+    add_new_src_des = True
+    adequate_dist = 2000
+
+    # if len(vil_src) == 0:
+    #     return True
+
+    for des in vil_des:
+        dist = euclideanDistance(float(str(new_src).split()[0]), float(str(new_src).split()[1]), float(str(des).split()[0]),
+                                 float(str(des).split()[1]))
+        if dist < adequate_dist:
+            add_new_src_des = False
+
+    for src in vil_src:
+        dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(new_des).split()[0]),
+                                 float(str(new_des).split()[1]))
+        if dist < adequate_dist:
+            add_new_src_des = False
+
+    dist = euclideanDistance(float(str(new_src).split()[0]), float(str(new_src).split()[1]), float(str(new_des).split()[0]),
+                             float(str(new_des).split()[1]))
+
+    if dist < adequate_dist:
+        add_new_src_des = False
+
+    return add_new_src_des
 
 def getSourceDesCoordinates(src_start, src_end, des_end):
 
     if day_num == 1:
 
         bus_routes = pickle.load(open(DataMule_path + "bus_route_ids.pkl", "rb"))
-        village_coors = [0 for x in range(des_end + 1)]
+        village_coors = []
+        village_src = []
+        village_des = []
+
         bus_routes = list(set(bus_routes))
 
         print("bus_routes", bus_routes)
@@ -49,8 +79,8 @@ def getSourceDesCoordinates(src_start, src_end, des_end):
                 des = random.choice(DMTrajectories[route_id])
                 dist = euclideanDistance(float(str(src).split()[0]), float(str(src).split()[1]), float(str(des).split()[0]), float(str(des).split()[1]))
                 count = 0
-                adequate_dist = random.randint(1000, 2500)
-                while dist < adequate_dist:
+                adequate_dist = random.randint(2000, 2500)
+                while dist < adequate_dist and check_dist_between_all_src_des(village_src, village_des, src, des) == False:
                     count = count + 1
                     if count > len(DMTrajectories[route_id]):
                         route_id = random.choice(bus_routes)
@@ -65,8 +95,16 @@ def getSourceDesCoordinates(src_start, src_end, des_end):
 
                 print("SRC Route ID", route_id, srcID, src)
                 print("DES Route ID", route_id, srcID + src_end, des, "dist: ", dist, "\n")
-                village_coors[srcID] = src
-                village_coors[srcID + src_end] = des
+                village_src.append(src)
+                village_des.append(des)
+                # village_coors[srcID] = src
+                # village_coors[srcID + src_end] = des
+
+        for x in range(len(village_src)):
+            village_coors.append(village_src[x])
+
+        for x in range(len(village_des)):
+            village_coors.append(village_des[x])
 
 
 
@@ -228,7 +266,7 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 #We want same source, destination, and bus routes irrespective of number of runs and days
 
 # This function is independent of tau
-LINK_EXISTS = numpy.empty(shape=(V + NoOfSources + NoOfDataCenters, V + NoOfSources + NoOfDataCenters, numSpec, int(T/dt), int(T/dt)))
+LINK_EXISTS = numpy.empty(shape=(V + NoOfSources + NoOfDataCenters, V + NoOfSources + NoOfDataCenters, numSpec, int(T/dt)))
 LINK_EXISTS.fill(math.inf)
 
 T = T + 30

@@ -1,56 +1,52 @@
 from constants import *
 import math
 
+
+time_window = T
+print_metrics = False
+
+
+def find_num_msg_gen(t):
+    with open(generated_messages_file, "r") as f:
+        msg_lines = f.readlines()[1:]
+
+    num_msg = 0
+    for line in msg_lines:
+        line_arr = line.strip().split()
+        if int(line_arr[5]) <= t and int(line_arr[5]) >= t - time_window:
+            num_msg += 1
+
+    return num_msg
+
 def compute_overhead(time):
 
     if protocol == "XChant" or protocol == "HotPotato":
         return 1
 
-    with open( DataMule_path + "Link_Exists/" + generated_messages_file, "r") as f:
-        generated_lines = f.readlines()[1:num_messages + 1]
+    with open(path_to_metrics + not_delivered_file, "r") as f:
+        not_del_lines = f.readlines()[2:]
 
-    with open(path_to_metrics + packet_delivered_file, 'r') as f:
-        delivered_lines = f.readlines()[1:]
+    with open(path_to_metrics + packet_delivered_file, "r") as f2:
+        del_lines = f2.readlines()[1:]
 
-    with open(path_to_metrics + not_delivered_file, 'r') as f:
-        NotDelivered_lines = f.readlines()[2:]
+    packets_delivered = 0
+    packets_not_delivered = 0
 
-    total_packets = 0
-
-    num_mes_gen = 0
-    num_mes_del = 0
-    num_mes_NotDel = 0
-
-    sum_mes_gen = 0
-    sum_mes_del = 0
-    sum_mes_NotDel = 0
-
-    for line in generated_lines:
+    for line in del_lines:
         line_arr = line.strip().split()
-        if int(line_arr[5]) < time:
-            num_packets = math.ceil(int(line_arr[4]) / int(packet_size))
-            total_packets += num_packets
-            num_mes_gen += 1
-            sum_mes_gen += int(line_arr[4])
-    for line in delivered_lines:
-        line_arr = line.strip().split()
-        if int(line_arr[4]) < time:
-            num_mes_del += 1
-            sum_mes_del += int(line_arr[6])
+        if(int(line_arr[4]) <= time):
+            packets_delivered += 1
 
-    for line in NotDelivered_lines:
+    for line in not_del_lines:
         line_arr = line.strip().split()
-        if int(line_arr[4]) < time:
-            num_mes_NotDel += 1
-            sum_mes_NotDel += int(line_arr[6])
+        if (int(line_arr[4]) <= time):
+            packets_not_delivered += 1
 
-    if num_mes_gen == 0:
+    if(packets_delivered == 0):
         return 0
+    else:
+        return round(float(packets_not_delivered/packets_delivered), 2)
 
-    overhead = (num_mes_del + num_mes_NotDel) / total_packets
-    overhead_size = (sum_mes_gen + sum_mes_NotDel)/sum_mes_gen
-
-    return round(overhead, 4)
 
 def find_avg_energy(time):
 
@@ -60,7 +56,10 @@ def find_avg_energy(time):
     for line in lines:
         line_arr = line.strip().split()
         if (int(line_arr[0]) == int(time) or int(line_arr[0]) == T - 1):
-            return round(float(line_arr[1]), 4)
+            if(float(line_arr[2]) == 0):
+                return 0
+            else:
+                return round(float(line_arr[1])/float(line_arr[2]), 2)
 
 def message_info(mes_list):
     with open(link_exists_folder + generated_messages_file, 'r') as f:
@@ -119,7 +118,7 @@ def compute_ave_hop_count(t):
                 maxhop = line_arr[8]
 
     if num_msg > 0:
-        return round(total_hops / num_msg, 4), num_msg
+        return round(total_hops / num_msg, 2), num_msg
     else:
         return 0, num_msg
 
@@ -161,7 +160,7 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     for line in lines:
         line_arr = line.strip().split()
-        if int(line_arr[4]) <= delivery_time and int(line_arr[0]) not in mes_IDs:
+        if int(line_arr[4]) <= delivery_time and int(line_arr[4]) >= delivery_time - time_window and int(line_arr[3]) <= delivery_time and int(line_arr[3]) >= delivery_time - time_window and int(line_arr[0]) not in mes_IDs:
             delivered += 1
             latency += int(line_arr[5])
             # energy += float(line_arr[7])
@@ -180,11 +179,11 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
         band_usage = compute_band_usage(delivery_time, spec_lines)
 
     if delivered > 0:
-        latency = round(float(latency)/delivered, 4)
+        latency = round(float(latency)/delivered, 2)
         energy = float(energy)/delivered
 
     if total_messages > 0:
-        delivered = round(float(delivered) / total_messages, 4)
+        delivered = round(float(delivered) / total_messages, 2)
 
     avg_energy = find_avg_energy(delivery_time)
 
@@ -195,17 +194,22 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
     count_1, count_2, count_3, count_4, count_above4 = compute_hop_counts(delivery_time)
 
     if num_packets > 0:
-        eng = round(avg_energy/num_packets, 4)
+        eng = round(avg_energy/num_packets, 2)
     else:
         eng = 0
 
-    print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
-          eng, "AVG hops:", avg_hops_per_packet, "#hops [1,2,3,4,5+]: [", count_1, count_2, count_3, count_4, count_above4, "]")
+    if print_metrics == True:
+
+        print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
+              eng, "AVG hops:", avg_hops_per_packet, "#hops [1,2,3,4,5+]: [", count_1, count_2, count_3, count_4, count_above4, "]")
 
     return delivered, latency, eng, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet
 
 #Main starts here
-total_messages = num_messages
+with open(generated_messages_file, "r") as f:
+    msg_lines = f.readlines()[1:]
+
+total_messages = len(msg_lines) - 1
 
 metric_file = open(path_to_metrics + metrics_file, "w")
 with open(path_to_metrics + delivered_file, "r") as f:
@@ -229,11 +233,14 @@ for line in lines:
     fsorted.write(line)
 fsorted.close()
 
-delivery_times = [i for i in range(0, T + 10, 15)]
+delivery_times = [i for i in range(0, T + 10, metric_interval)]
 
 metric_file.write("#t\tPDR\tLatency\tEnergy\Overhead\n")
 for t in delivery_times:
-    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, hops = compute_metrics(lines, total_messages, t, spec_lines)
+
+    num_msgs_gen = find_num_msg_gen(t)
+
+    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, hops = compute_metrics(lines, num_msgs_gen, t, spec_lines)
     metric_file.write(
         str(t) + "\t" + str(avg_pdr) + "\t" + str(avg_latency) + "\t" + str(avg_energy) + "\t" + str(overhead) + "\t" + str(hops) + "\t" +
         str(band_usage[0]) + "\t" + str(band_usage[1]) + "\t" + str(band_usage[2]) + "\t" + str(band_usage[3]) + "\n")

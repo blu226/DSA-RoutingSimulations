@@ -1,129 +1,210 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-time_epochs = 5
-runs = 1
+total_channels = 5
+runs = 10
 
-geo1 = np.zeros(shape=(time_epochs, runs))
-geo5 = np.zeros(shape=(time_epochs, runs))
-geo10 = np.zeros(shape=(time_epochs, runs))
+msg_files = 100
+puser_files = 5
 
-geoP1 = np.zeros(shape=(time_epochs, runs))
-geoP5 = np.zeros(shape=(time_epochs, runs))
-geoP10 = np.zeros(shape=(time_epochs, runs))
+# arrays for broadcast
+Epidemic_opt_PQ = np.zeros(shape=(total_channels, msg_files, puser_files))
+Epidemic_pes_PQ = np.zeros(shape=(total_channels, msg_files, puser_files))
 
+# arrays for geo
+
+Epidemic_opt_PQ1 = np.zeros(shape=(total_channels, msg_files, puser_files))
+Epidemic_pes_PQ1 = np.zeros(shape=(total_channels, msg_files, puser_files))
+
+Epidemic_opt_PQ3 = np.zeros(shape=(total_channels, msg_files, puser_files))
+Epidemic_pes_PQ3 = np.zeros(shape=(total_channels, msg_files, puser_files))
+
+Epidemic_opt_PQ5 = np.zeros(shape=(total_channels, msg_files, puser_files))
+Epidemic_pes_PQ5 = np.zeros(shape=(total_channels, msg_files, puser_files))
 
 num_mules = 30
 num_channels = [2, 4, 6, 8, 10]
-num_Pusers = 200
+num_Pusers = 100
 T = 180
 startTime = 1
-num_messages = 200
-days = ["30"]
+num_messages = 150
+days = "30"
+dataset = "Lexington"
 folder_nums = [x for x in range(1,11, 1)]
-buffer_types = ["PQ"]
+buffer_type = "PQ"
 protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic"]
+# fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
+fwd_strat = ["broadcast", "geo_3", "geo_1", "geo_5"]
 metrics_file = "metrics.txt"
 
-p_id = 4 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
-for i in range(len(days)):
-    for protocol in protocols:
-        for buffer_type in buffer_types:
-            t = 0
-            for chan in num_channels:
-                for num_fwd in ["1", "5", "10"]:
+for i in range(msg_files):
+    for j in range(puser_files):
+        for strat in fwd_strat:
+            for protocol in protocols:
+                t = 0
+                for chan in num_channels:
+                    path = "DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
+                           "_" + str(T) + "/" + protocol + "/" + buffer_type + "/" + strat + "/mules_" + \
+                           str(num_mules) + "/channels_" + str(chan) + "/P_users_" + str(num_Pusers) + \
+                           "/msgfile" + str(i) + "/puserfile" + str(j) + "/"
 
-                    path = "DataMules/Lexington/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + buffer_type + "/geo_" + num_fwd + "/mules_" + str(num_mules) + "/channels_" + str(chan) + "/P_users_" + str(num_Pusers) + "/" + str(num_messages) + "/"
                     with open(path + metrics_file, "r") as f:
                         lines = f.readlines()[1:]
 
                     for line in lines:
                         line_arr = line.strip().split()
-
-                        if "180" in line_arr:
+                        if int(line_arr[0])  == 180:
                             if "optimistic" in protocol:
-                                if num_fwd == "1":
-                                    geo1[t][i] = float(line_arr[p_id])
-                                elif num_fwd == "5":
-                                    geo5[t][i] = float(line_arr[p_id])
-                                elif num_fwd == "10":
-                                    geo10[t][i] = float(line_arr[p_id])
-
+                                if "1" in strat:
+                                    Epidemic_opt_PQ1[t, i, j] = float(line_arr[p_id])
+                                elif "3" in strat:
+                                    Epidemic_opt_PQ3[t, i, j] = float(line_arr[p_id])
+                                elif "5" in strat:
+                                    Epidemic_opt_PQ5[t, i, j] = float(line_arr[p_id])
+                                else:
+                                    Epidemic_opt_PQ[t, i, j] = float(line_arr[p_id])
                             elif "pessimistic" in protocol:
-                                if num_fwd == "1":
-                                    geoP1[t][i] = float(line_arr[p_id])
-                                elif num_fwd == "5":
-                                    geoP5[t][i] = float(line_arr[p_id])
-                                elif num_fwd == "10":
-                                    geoP10[t][i] = float(line_arr[p_id])
-                t += 1
+                                if "1" in strat:
+                                    Epidemic_pes_PQ1[t, i, j] = float(line_arr[p_id])
+                                elif "3" in strat:
+                                    Epidemic_pes_PQ3[t, i, j] = float(line_arr[p_id])
+                                elif "5" in strat:
+                                    Epidemic_pes_PQ5[t, i, j] = float(line_arr[p_id])
+                                else:
+                                    Epidemic_pes_PQ[t, i, j] = float(line_arr[p_id])
 
-if p_id == 3:
-    for t in range(len(geo1)):
-        for run in range(runs):
-            geo1[t][run] = float(geo1[t][run]) / 1000
-            geo5[t][run] = float(geo5[t][run]) / 1000
-            geo10[t][run] = float(geo10[t][run]) / 1000
-            geoP1[t][run] = float(geoP1[t][run]) / 1000
-            geoP5[t][run] = float(geoP5[t][run]) / 1000
-            geoP10[t][run] = float(geoP10[t][run]) / 1000
+                            t += 1
+
+opt1_mean = []
+opt1_sd = []
+pes1_mean = []
+pes1_sd = []
+opt3_mean = []
+opt3_sd = []
+pes3_mean = []
+pes3_sd = []
+opt5_mean = []
+opt5_sd = []
+pes5_mean = []
+pes5_sd = []
+optB_mean = []
+optB_sd = []
+pesB_mean = []
+pesB_sd = []
 
 
+opt1_temp = []
+pes1_temp = []
+opt3_temp = []
+pes3_temp = []
+opt5_temp = []
+pes5_temp = []
+optB_temp = []
+pesB_temp = []
 
-x = np.array([2, 4, 6, 8, 10])
+for t in range(len(Epidemic_opt_PQ3)):
+    t_arr_opt1 = []
+    t_arr_pes1 = []
+    t_arr_opt3 = []
+    t_arr_pes3 = []
+    t_arr_opt5 = []
+    t_arr_pes5 = []
+    t_arr_optB = []
+    t_arr_pesB = []
+    for i in range(len(Epidemic_opt_PQ3[t])):
+        for j in range(len(Epidemic_opt_PQ3[t][i])):
+            t_arr_opt1.append(Epidemic_opt_PQ1[t,i,j])
+            t_arr_pes1.append(Epidemic_pes_PQ1[t,i,j])
+            t_arr_opt3.append(Epidemic_opt_PQ3[t,i,j])
+            t_arr_pes3.append(Epidemic_pes_PQ3[t,i,j])
+            t_arr_opt5.append(Epidemic_opt_PQ5[t,i,j])
+            t_arr_pes5.append(Epidemic_pes_PQ5[t,i,j])
+            t_arr_optB.append(Epidemic_opt_PQ[t,i,j])
+            t_arr_pesB.append(Epidemic_pes_PQ[t,i,j])
+
+    opt1_temp.append(t_arr_opt1)
+    pes1_temp.append(t_arr_pes1)
+    opt3_temp.append(t_arr_opt3)
+    pes3_temp.append(t_arr_pes3)
+    opt5_temp.append(t_arr_opt5)
+    pes5_temp.append(t_arr_pes5)
+    optB_temp.append(t_arr_optB)
+    pesB_temp.append(t_arr_pesB)
+
+for i in range(len(opt1_temp)):
+    opt1_mean.append(np.mean(opt1_temp[i]))
+    pes1_mean.append(np.mean(pes1_temp[i]))
+    opt1_sd.append(np.std(opt1_temp[i]))
+    pes1_sd.append(np.std(pes1_temp[i]))
+    opt3_mean.append(np.mean(opt3_temp[i]))
+    pes3_mean.append(np.mean(pes3_temp[i]))
+    opt3_sd.append(np.std(opt3_temp[i]))
+    pes3_sd.append(np.std(pes3_temp[i]))
+    opt5_mean.append(np.mean(opt5_temp[i]))
+    pes5_mean.append(np.mean(pes5_temp[i]))
+    opt5_sd.append(np.std(opt5_temp[i]))
+    pes5_sd.append(np.std(pes5_temp[i]))
+    optB_mean.append(np.mean(optB_temp[i]))
+    pesB_mean.append(np.mean(pesB_temp[i]))
+    optB_sd.append(np.std(optB_temp[i]))
+    pesB_sd.append(np.std(pesB_temp[i]))
+
+
+x = np.array([x for x in range(2, 11, 2)])
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=25)
-plt.xticks(np.array([2, 4, 6, 8, 10]))
-title_str = "Time: " + str(T) + "    Messages: " + str(num_messages) + "    Primary Users: " + str(num_Pusers)
+plt.xticks(np.arange(2, 11, 2))
+title_str = "Time: 180" + "    Primary Users: " + str(num_Pusers)
+# title_str = "Broadcast to everyone in range"
 plt.title(title_str)
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
 
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
-    plt.xlabel('Number of channels', fontsize=25)
-    plt.ylim(-0.05,1.1)
-    fig_name = "Plots/pdr_channel_SER.png"
+    plt.xlabel('Num channels', fontsize=25)
+    plt.ylim(-0.1,1)
+    fig_name = "Plots/pdr_chan_SER.png"
 
 if p_id == 2:
-    plt.ylim(-1, 80)
+    plt.ylim(-1, 35)
     plt.ylabel('Network delay (min)', fontsize=25)
-    plt.xlabel('Number of channels', fontsize=25)
+    plt.xlabel('Num channels', fontsize=25)
 
-    fig_name = "Plots/latency_channel_SER.png"
+    fig_name = "Plots/latency_chan_SER.png"
 
 if p_id == 3:
-    plt.ylabel('Energy expenditure (KJ)', fontsize=25)
-    plt.xlabel('Number of channels', fontsize=25)
-    plt.ylim(-1, 17)
-    fig_name = "Plots/energy_channel_SER.png"
+    plt.ylabel('Energy per packet (KJ)', fontsize=25)
+    plt.xlabel('Num channels', fontsize=25)
+    fig_name = "Plots/energy_chan_SER.png"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
-    plt.xlabel('Number of channels', fontsize=25)
-    plt.ylim(-1, 15)
-    fig_name = "Plots/overhead_channel_SER.png"
+    plt.xlabel('Num channels', fontsize=25)
+    plt.ylim(-1, 20)
+    fig_name = "Plots/overhead_chan_SER.png"
 
 
-plt.errorbar(x, geo1, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "red")
-plt.errorbar(x, geo5, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "blue")
-plt.errorbar(x, geo10, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "green")
-plt.errorbar(x, geoP1, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "red")
-plt.errorbar(x, geoP5, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "blue")
-plt.errorbar(x, geoP10, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "green")
-
-
-
+plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+plt.errorbar(x, opt1_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color ="blue")
+plt.errorbar(x, opt3_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="green")
+plt.errorbar(x, opt5_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color = "black")
+plt.errorbar(x, pesB_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="red")
+plt.errorbar(x, pes1_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color ="blue")
+plt.errorbar(x, pes3_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="green")
+plt.errorbar(x, pes5_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color = "black")
 
 if p_id == 1:
-    plt.legend(["Opt-1", "Opt-5", "Opt-10", "Pes-1", "Pes-5", "Pes-10"], loc="lower right", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 2, frameon=False)
 elif p_id == 2:
-    plt.legend(["Opt-1", "Opt-5", "Opt-10", "Pes-1", "Pes-5", "Pes-10"], loc="upper right", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 2, frameon=False)
 elif p_id ==3:
-    plt.legend(["Opt-1", "Opt-5", "Opt-10", "Pes-1", "Pes-5", "Pes-10"], loc="lower right", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 4, frameon=False)
 elif p_id ==4:
-    plt.legend(["Opt-1", "Opt-5", "Opt-10", "Pes-1", "Pes-5", "Pes-10"], loc="lower right", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+
 
 plt.tight_layout()
 plt.savefig(fig_name)

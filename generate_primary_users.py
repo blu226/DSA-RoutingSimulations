@@ -1,9 +1,6 @@
 from STB_help import *
 
 
-
-files = findfiles(DataMule_path)
-
 def pu_on_off_arr():
     on_off_arr = []
     t = T
@@ -15,61 +12,76 @@ def pu_on_off_arr():
 
     return on_off_arr
 
-for x in range(num_primary_users):
-    chosen_file = random.choice(files)
-
-    with open(DataMule_path + chosen_file, 'r') as f:
-        lines = f.readlines()[1:]
 
 
-    rand_index = random.randint(0, len(lines) - 1)
-    line_arr = lines[rand_index].strip().split()
-    # print(line_arr)
+max_puser = 500
+rounds = 5
+files = findfiles(DataMule_path)
 
-    x = float(line_arr[1])
-    y = float(line_arr[2])
 
-    while int(x) == 0:
+for it in range(rounds):
+    file_path = "Primary_Users/" + str(it)
+
+    if not os.path.exists(file_path):
+        os.makedirs(file_path)
+
+    for x in range(max_puser):
+        chosen_file = random.choice(files)
+
+        with open(DataMule_path + chosen_file, 'r') as f:
+            lines = f.readlines()[1:]
+
+
         rand_index = random.randint(0, len(lines) - 1)
         line_arr = lines[rand_index].strip().split()
+        # print(line_arr)
 
         x = float(line_arr[1])
         y = float(line_arr[2])
 
-    band = random.randint(0,len(S) - 1)
-    channel = random.randint(0, default_num_channels - 1)
+        while int(x) == 0:
+            rand_index = random.randint(0, len(lines) - 1)
+            line_arr = lines[rand_index].strip().split()
 
-    p_line = str(x) + "\t" + str(y) + "\t" + str(channel) + "\t" + str(band) + "\n"
+            x = float(line_arr[1])
+            y = float(line_arr[2])
 
-    f = open("Primary_Users/primary_usersLEX.txt", "a")
-    f.write(p_line)
-    f.close()
+        band = random.randint(0,len(S) - 1)
+        channel = random.randint(0, default_num_channels - 1)
 
-for x in range(default_num_channels, 0, -1):
-    with open("Primary_Users/primary_usersLEX.txt", "r") as f:
-        lines = f.readlines()
+        p_line = str(x) + "\t" + str(y) + "\t" + str(channel) + "\t" + str(band) + "\n"
 
-        f2 = open("Primary_Users/primary_usersLEX_" + str(x) + ".txt", "w")
+        f = open(file_path + "/primary_usersLEX.txt", "a")
+        f.write(p_line)
+        f.close()
 
-        for line in lines:
-            line_arr = line.strip().split()
+    for x in range(default_num_channels, 0, -1):
+        with open(file_path + "/primary_usersLEX.txt", "r") as f:
+            lines = f.readlines()
 
-            if int(line_arr[2]) >= x:
-                line_arr[2] = random.randint(0, x - 1)
+            f2 = open(file_path + "/primary_usersLEX_" + str(x) + ".txt", "w")
 
-            new_line = str(line_arr[0]) + "\t" + str(line_arr[1]) + "\t" + str(line_arr[2]) + "\t" + str(line_arr[3]) + "\n"
-            f2.write(new_line)
+            for line in lines:
+                line_arr = line.strip().split()
 
-        f2.close()
+                if int(line_arr[2]) >= x:
+                    line_arr[2] = random.randint(0, x - 1)
+
+                new_line = str(line_arr[0]) + "\t" + str(line_arr[1]) + "\t" + str(line_arr[2]) + "\t" + str(line_arr[3]) + "\n"
+                f2.write(new_line)
+
+            f2.close()
 
 
-# f = open("Primary_Users/on_off_times.txt", "a")
-#
-# for i in range(500):
-#     on_off_arr = pu_on_off_arr()
-#     for j in range(len(on_off_arr)):
-#         f.write(str(on_off_arr[j]) + " ")
-#     f.write("\n")
+    o_f_times = open(file_path + "/on_off_times.txt", "a")
+
+    for i in range(500):
+        on_off_arr = pu_on_off_arr()
+        for j in range(len(on_off_arr)):
+            o_f_times.write(str(on_off_arr[j]) + " ")
+        o_f_times.write("\n")
+
+    o_f_times.close()
 
 
 

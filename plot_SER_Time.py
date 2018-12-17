@@ -1,202 +1,161 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from constants import *
 
-time_epochs = 7
-runs = 1
+time_epochs = 13
+runs = 10
+
+msg_files = 33
+puser_files = 1
 
 # arrays for broadcast
-Epidemic_opt = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd = np.zeros(shape=(time_epochs, runs))
-Epidemic_opt_PQ = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes_PQ = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd_PQ = np.zeros(shape=(time_epochs, runs))
+Epidemic_opt_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_pes_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 # arrays for geo
-Epidemic_opt1 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes1 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd1 = np.zeros(shape=(time_epochs, runs))
-Epidemic_opt_PQ1 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes_PQ1 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd_PQ1 = np.zeros(shape=(time_epochs, runs))
 
-Epidemic_opt2 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes2 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd2 = np.zeros(shape=(time_epochs, runs))
-Epidemic_opt_PQ2 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes_PQ2 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd_PQ2 = np.zeros(shape=(time_epochs, runs))
+Epidemic_opt_PQ1 = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_pes_PQ1 = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
-Epidemic_opt3 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes3 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd3 = np.zeros(shape=(time_epochs, runs))
-Epidemic_opt_PQ3 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes_PQ3 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd_PQ3 = np.zeros(shape=(time_epochs, runs))
+Epidemic_opt_PQ3 = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_pes_PQ3 = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
-Epidemic_opt5 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes5 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd5 = np.zeros(shape=(time_epochs, runs))
-Epidemic_opt_PQ5 = np.zeros(shape=(time_epochs, runs))
-Epidemic_pes_PQ5 = np.zeros(shape=(time_epochs, runs))
-Epidemic_rnd_PQ5 = np.zeros(shape=(time_epochs, runs))
+Epidemic_opt_PQ5 = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_pes_PQ5 = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
-num_mules = 30
-num_channels = 10
+num_mules = 50
+num_channels = 6
 num_Pusers = 100
-T = 180
-startTime = 2
-num_messages = 150
-days = ["30"]
+T = 360
+startTime = 1
+days = "50"
 dataset = "Lexington"
-folder_nums = [x for x in range(1,11, 1)]
-buffer_types = ["PQ"]
-protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic", "Epidemic_Smart_random"]
-# fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
-fwd_strat = ["geo_2"]
+buffer_type = "PQ"
+protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic"]
+# protocols = ["Epidemic_Smart_optimistic"]
+# fwd_strat = ["geo_3"]
+fwd_strat = ["geo_3", "geo_1", "geo_5", "broadcast"]
 metrics_file = "metrics.txt"
 
-p_id = 2 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
-for i in range(len(days)):
-    for protocol in protocols:
-        for buffer_type in buffer_types:
-            for strat in fwd_strat:
+for i in range(1, msg_files):
+    for j in range(puser_files):
+        for strat in fwd_strat:
+            for protocol in protocols:
                 t = 0
+                path = "DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
+                       "_" + str(T) + "/" + protocol + "/" + buffer_type + "/" + strat + "/mules_" + \
+                       str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                       "/msgfile" + str(i) + "/puserfile" + str(j) + "/"
 
-                path = "DataMules/" + dataset + "/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + buffer_type + "/" + strat + "/mules_" + str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + "/" + str(num_messages) + "/"
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
 
                 for line in lines:
                     line_arr = line.strip().split()
-                    if int(line_arr[0]) % 10 == 0:
+                    if int(line_arr[0]) % 5 == 0:
                         if "optimistic" in protocol:
-                            if buffer_type == "FIFO":
-                                if "1" in strat:
-                                    Epidemic_opt1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_opt2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_opt3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_opt5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_opt[t][i] = float(line_arr[p_id])
-
-
+                            if "1" in strat:
+                                Epidemic_opt_PQ1[t, i, j] = float(line_arr[p_id])
+                            elif "3" in strat:
+                                Epidemic_opt_PQ3[t, i, j] = float(line_arr[p_id])
+                            elif "5" in strat:
+                                Epidemic_opt_PQ5[t, i, j] = float(line_arr[p_id])
                             else:
-                                if "1" in strat:
-                                    Epidemic_opt_PQ1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_opt_PQ2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_opt_PQ3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_opt_PQ5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_opt_PQ[t][i] = float(line_arr[p_id])
+                                Epidemic_opt_PQ[t, i, j] = float(line_arr[p_id])
                         elif "pessimistic" in protocol:
-                            if buffer_type == "FIFO":
-                                if "1" in strat:
-                                    Epidemic_pes1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_pes2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_pes3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_pes5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_pes[t][i] = float(line_arr[p_id])
-
-
+                            if "1" in strat:
+                                Epidemic_pes_PQ1[t, i, j] = float(line_arr[p_id])
+                            elif "3" in strat:
+                                Epidemic_pes_PQ3[t, i, j] = float(line_arr[p_id])
+                            elif "5" in strat:
+                                Epidemic_pes_PQ5[t, i, j] = float(line_arr[p_id])
                             else:
-                                if "1" in strat:
-                                    Epidemic_pes_PQ1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_pes_PQ2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_pes_PQ3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_pes_PQ5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_pes_PQ[t][i] = float(line_arr[p_id])
-
-                        elif "random" in protocol:
-                            if buffer_type == "FIFO":
-                                if "1" in strat:
-                                    Epidemic_rnd1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_rnd2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_rnd3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_rnd5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_rnd[t][i] = float(line_arr[p_id])
-
-
-                            else:
-                                if "1" in strat:
-                                    Epidemic_rnd_PQ1[t][i] = float(line_arr[p_id])
-                                elif "2" in strat:
-                                    Epidemic_rnd_PQ2[t][i] = float(line_arr[p_id])
-                                elif "3" in strat:
-                                    Epidemic_rnd_PQ3[t][i] = float(line_arr[p_id])
-                                elif "5" in strat:
-                                    Epidemic_rnd_PQ5[t][i] = float(line_arr[p_id])
-                                else:
-                                    Epidemic_rnd_PQ[t][i] = float(line_arr[p_id])
-
-
+                                Epidemic_pes_PQ[t, i, j] = float(line_arr[p_id])
 
                         t += 1
 
-if p_id == 3:
-    for t in range(len(Epidemic_opt)):
-        for run in range(runs):
-            Epidemic_opt[t][run] = float(Epidemic_opt[t][run]) / 1000
-            Epidemic_pes[t][run] = float(Epidemic_pes[t][run]) / 1000
-            Epidemic_rnd[t][run] = float(Epidemic_rnd[t][run]) / 1000
-            Epidemic_opt_PQ[t][run] = float(Epidemic_opt_PQ[t][run]) / 1000
-            Epidemic_pes_PQ[t][run] = float(Epidemic_pes_PQ[t][run]) / 1000
-            Epidemic_rnd_PQ[t][run] = float(Epidemic_rnd_PQ[t][run]) / 1000
-
-            Epidemic_opt1[t][run] = float(Epidemic_opt1[t][run]) / 1000
-            Epidemic_pes1[t][run] = float(Epidemic_pes1[t][run]) / 1000
-            Epidemic_rnd1[t][run] = float(Epidemic_rnd1[t][run]) / 1000
-            Epidemic_opt_PQ1[t][run] = float(Epidemic_opt_PQ1[t][run]) / 1000
-            Epidemic_pes_PQ1[t][run] = float(Epidemic_pes_PQ1[t][run]) / 1000
-            Epidemic_rnd_PQ1[t][run] = float(Epidemic_rnd_PQ1[t][run]) / 1000
-
-            Epidemic_opt2[t][run] = float(Epidemic_opt2[t][run]) / 1000
-            Epidemic_pes2[t][run] = float(Epidemic_pes2[t][run]) / 1000
-            Epidemic_rnd2[t][run] = float(Epidemic_rnd2[t][run]) / 1000
-            Epidemic_opt_PQ2[t][run] = float(Epidemic_opt_PQ2[t][run]) / 1000
-            Epidemic_pes_PQ2[t][run] = float(Epidemic_pes_PQ2[t][run]) / 1000
-            Epidemic_rnd_PQ2[t][run] = float(Epidemic_rnd_PQ2[t][run]) / 1000
-
-            Epidemic_opt3[t][run] = float(Epidemic_opt3[t][run]) / 1000
-            Epidemic_pes3[t][run] = float(Epidemic_pes3[t][run]) / 1000
-            Epidemic_rnd3[t][run] = float(Epidemic_rnd3[t][run]) / 1000
-            Epidemic_opt_PQ3[t][run] = float(Epidemic_opt_PQ3[t][run]) / 1000
-            Epidemic_pes_PQ3[t][run] = float(Epidemic_pes_PQ3[t][run]) / 1000
-            Epidemic_rnd_PQ3[t][run] = float(Epidemic_rnd_PQ3[t][run]) / 1000
-
-            Epidemic_opt5[t][run] = float(Epidemic_opt5[t][run]) / 1000
-            Epidemic_pes5[t][run] = float(Epidemic_pes5[t][run]) / 1000
-            Epidemic_rnd5[t][run] = float(Epidemic_rnd5[t][run]) / 1000
-            Epidemic_opt_PQ5[t][run] = float(Epidemic_opt_PQ5[t][run]) / 1000
-            Epidemic_pes_PQ5[t][run] = float(Epidemic_pes_PQ5[t][run]) / 1000
-            Epidemic_rnd_PQ5[t][run] = float(Epidemic_rnd_PQ5[t][run]) / 1000
+opt1_mean = []
+opt1_sd = []
+pes1_mean = []
+pes1_sd = []
+opt3_mean = []
+opt3_sd = []
+pes3_mean = []
+pes3_sd = []
+opt5_mean = []
+opt5_sd = []
+pes5_mean = []
+pes5_sd = []
+optB_mean = []
+optB_sd = []
+pesB_mean = []
+pesB_sd = []
 
 
+opt1_temp = []
+pes1_temp = []
+opt3_temp = []
+pes3_temp = []
+opt5_temp = []
+pes5_temp = []
+optB_temp = []
+pesB_temp = []
 
-x = np.array([x for x in range(0, T +1, 30)])
-plt.xticks(fontsize=20)
+for t in range(len(Epidemic_opt_PQ3)):
+    t_arr_opt1 = []
+    t_arr_pes1 = []
+    t_arr_opt3 = []
+    t_arr_pes3 = []
+    t_arr_opt5 = []
+    t_arr_pes5 = []
+    t_arr_optB = []
+    t_arr_pesB = []
+    for i in range(len(Epidemic_opt_PQ3[t])):
+        for j in range(len(Epidemic_opt_PQ3[t][i])):
+            t_arr_opt1.append(Epidemic_opt_PQ1[t,i,j])
+            t_arr_pes1.append(Epidemic_pes_PQ1[t,i,j])
+            t_arr_opt3.append(Epidemic_opt_PQ3[t,i,j])
+            t_arr_pes3.append(Epidemic_pes_PQ3[t,i,j])
+            t_arr_opt5.append(Epidemic_opt_PQ5[t,i,j])
+            t_arr_pes5.append(Epidemic_pes_PQ5[t,i,j])
+            t_arr_optB.append(Epidemic_opt_PQ[t,i,j])
+            t_arr_pesB.append(Epidemic_pes_PQ[t,i,j])
+
+    opt1_temp.append(t_arr_opt1)
+    pes1_temp.append(t_arr_pes1)
+    opt3_temp.append(t_arr_opt3)
+    pes3_temp.append(t_arr_pes3)
+    opt5_temp.append(t_arr_opt5)
+    pes5_temp.append(t_arr_pes5)
+    optB_temp.append(t_arr_optB)
+    pesB_temp.append(t_arr_pesB)
+
+for i in range(len(opt1_temp)):
+    opt1_mean.append(np.mean(opt1_temp[i]))
+    pes1_mean.append(np.mean(pes1_temp[i]))
+    opt1_sd.append(np.std(opt1_temp[i]))
+    pes1_sd.append(np.std(pes1_temp[i]))
+    opt3_mean.append(np.mean(opt3_temp[i]))
+    pes3_mean.append(np.mean(pes3_temp[i]))
+    opt3_sd.append(np.std(opt3_temp[i]))
+    pes3_sd.append(np.std(pes3_temp[i]))
+    opt5_mean.append(np.mean(opt5_temp[i]))
+    pes5_mean.append(np.mean(pes5_temp[i]))
+    opt5_sd.append(np.std(opt5_temp[i]))
+    pes5_sd.append(np.std(pes5_temp[i]))
+    optB_mean.append(np.mean(optB_temp[i]))
+    pesB_mean.append(np.mean(pesB_temp[i]))
+    optB_sd.append(np.std(optB_temp[i]))
+    pesB_sd.append(np.std(pesB_temp[i]))
+
+
+x = np.array([x for x in range(0, T +1, metric_interval)])
+plt.xticks(fontsize=10)
 plt.yticks(fontsize=25)
-plt.xticks(np.arange(0, 181, 30))
-title_str = "Messages: " + str(num_messages) + "    Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
+plt.xticks(np.arange(0, T+1, 30))
+title_str = "Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
 # title_str = "Broadcast to everyone in range"
 plt.title(title_str)
 # plt.xlim(0,12)
@@ -205,50 +164,47 @@ fig_name = "dummy.eps"
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-0.05,1.1)
+    plt.ylim(-0.1,1)
     fig_name = "Plots/pdr_Time_SER.png"
 
 if p_id == 2:
-    plt.ylim(-1, 20)
+    # plt.ylim(-1, 13)
     plt.ylabel('Network delay (min)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
 
     fig_name = "Plots/latency_time_SER.png"
 
 if p_id == 3:
-    plt.ylabel('Energy expenditure (KJ)', fontsize=25)
+    plt.ylabel('Energy per packet (KJ)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-0.01, 12.5)
     fig_name = "Plots/energy_time_SER.png"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-1, 20)
+    # plt.ylim(-1, 20)
     fig_name = "Plots/overhead_Time_SER.png"
 
-# plt.errorbar(x, Epidemic_opt5, 0, marker='h', markersize=10, linestyle='--', linewidth=3)
-# plt.errorbar(x, Epidemic_pes5, 0, marker='p', markersize=10, linestyle='--', linewidth=3)
-# plt.errorbar(x, Epidemic_opt_PQ5, 0, marker='h', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, Epidemic_pes_PQ5, 0, marker='p', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, Epidemic_rnd, 0, marker='h', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_rnd_PQ2, 0, marker='h', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, Epidemic_rnd1, 0, marker='p', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_opt_PQ2, 0, marker='p', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, Epidemic_rnd3, 0, marker='v', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, Epidemic_pes_PQ2, 0, marker='v', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, Epidemic_rnd5, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
-# plt.errorbar(x, Epidemic_rnd_PQ2, 0, marker='x', markersize=10, linestyle='-', linewidth=3)
+
+plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+plt.errorbar(x, opt1_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color ="blue")
+plt.errorbar(x, opt3_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="green")
+plt.errorbar(x, opt5_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color = "black")
+plt.errorbar(x, pesB_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="red")
+plt.errorbar(x, pes1_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color ="blue")
+plt.errorbar(x, pes3_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="green")
+plt.errorbar(x, pes5_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color = "black")
+
 
 
 if p_id == 1:
-    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 2, frameon=False)
 elif p_id == 2:
-    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 2, frameon=False)
 elif p_id ==3:
-    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=12, ncol = 4, frameon=False)
 elif p_id ==4:
-    plt.legend(["Weighted", "Optimistic", "Pessimistic"], loc="upper left", fontsize=15, ncol = 1, frameon=False)
+    plt.legend(["Opt-B","Opt-1","Opt-3","Opt-5", "Pes-B", "Pes-1", "Pes-3", "Pes-5"], loc="lower right", fontsize=15, ncol = 2, frameon=False)
 
 
 plt.tight_layout()
