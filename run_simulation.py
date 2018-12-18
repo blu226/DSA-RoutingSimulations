@@ -118,14 +118,16 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         if not os.path.exists(path_to_metrics):
             os.makedirs(path_to_metrics)
 
-    # os.system("python3 STB_main_path.py")
+    if generate_LE == True:
+        os.system("python3 STB_main_path.py")
 
     #
     # if generate_messages == True and pkl_fold_num == 1 and V + NoOfDataCenters + NoOfSources == Max_Nodes:
     # os.system("python3 generateMessage_new.py")
 
-    os.system("python3 main.py")
-    os.system("python3 metrics.py")
+    if generate_LE == False:
+        os.system("python3 main.py")
+        os.system("python3 metrics.py")
 
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
@@ -151,31 +153,31 @@ nodes_tofwd = 3
 msg_round = 0
 puser_round = 0
 
-for msg_round in range(5):
-    for band in bands:
-        for nodes_tofwd in [1, 3, 5, 7, 9, 11, 13, 15, 20]:
-            print("\nNum Nodes fwd:", nodes_tofwd, "Band:", band)
+if generate_LE == False:
+    for msg_round in range(5):
+        for band in bands:
+            for nodes_tofwd in [1, 3, 5, 9, 15, 20]:
+                print("\nNum Nodes fwd:", nodes_tofwd, "Band:", band)
 
-            # print("-----------------------------------------------------------------------")
-            # print( "msgfile:", msg_round, "\tpuserfile:", puser_round)
-            # print("-----------------------------------------------------------------------")
+                if band == "ALL":
+                    run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                                   "optimistic", nodes_tofwd, msg_round, puser_round)
 
-            # print("\nOptimistic")
+                    run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                                   "pessimistic", nodes_tofwd, msg_round, puser_round)
 
-
-            # print("\nPessimistic")
-            if band == "ALL":
-                run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "optimistic", nodes_tofwd, msg_round, puser_round)
-
-                run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "pessimistic", nodes_tofwd, msg_round, puser_round)
-
-            else:
-                run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               band, nodes_tofwd, msg_round, puser_round)
+                else:
+                    run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                                   band, nodes_tofwd, msg_round, puser_round)
 
 
+
+
+#Generate Link exists
+else:
+    run_simulation(data, day, 1, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
+                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                                   "optimistic", nodes_tofwd, msg_round, puser_round)
