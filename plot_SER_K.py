@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from constants import *
 
-time_epochs = 5
+time_epochs = 9
 
-msg_files = 3
+msg_files = 1
 puser_files = 1
 
 # arrays for broadcast
@@ -21,16 +21,16 @@ num_channels = 6
 num_Pusers = 100
 T = 360
 startTime = 1
-days = "25"
+days = "50"
 dataset = "Lexington"
 buffer_type = "PQ"
 protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
-fwd_strat = [1, 3, 5, 10, 20]
+fwd_strat = [1, 3, 5, 7, 9, 11, 13, 15, 20]
 metrics_file = "metrics.txt"
 
-p_id = 4 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
@@ -42,10 +42,18 @@ for i in range(msg_files):
                     t = 1
                 elif strat == 5:
                     t = 2
-                elif strat == 10:
+                elif strat == 7:
                     t = 3
-                else:
+                elif strat == 9:
                     t = 4
+                elif strat == 11:
+                    t = 5
+                elif strat == 13:
+                    t = 6
+                elif strat == 15:
+                    t = 7
+                else:
+                    t = 8
 
 
                 if strat <= 20:
@@ -147,15 +155,15 @@ for i in range(len(optB_temp)):
     ISM_sd.append(np.std(ISM_temp[i]))
 
 print(len(optB_mean))
-x = [1, 3, 5, 10, 20]
+x = [1, 3, 5, 7, 9, 11, 13, 15, 20]
 # x.append(0)
 plt.xticks(fontsize=10)
 plt.yticks(fontsize=25)
-plt.xticks([1, 3, 5, 10, 20])
+plt.xticks([0, 1, 5, 10, 15, 20])
 title_str = "Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
 # title_str = "Broadcast to everyone in range"
 plt.title(title_str)
-plt.xlim(1, 20)
+plt.xlim(0, 20)
 
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
@@ -186,13 +194,13 @@ if p_id == 4:
     fig_name = "Plots/overhead_K_SER.png"
 
 
-plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
-plt.errorbar(x, pesB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
+plt.errorbar(x, optB_mean, optB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+plt.errorbar(x, pesB_mean, pesB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
 
-plt.errorbar(x, TV_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="green")
-plt.errorbar(x, LTE_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="black")
-plt.errorbar(x, CBRS_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="brown")
-plt.errorbar(x, ISM_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="gray")
+plt.errorbar(x, TV_mean, TV_sd, marker='x', markersize=5, linestyle='--', linewidth=1, color="green")
+plt.errorbar(x, LTE_mean, LTE_sd, marker='x', markersize=5, linestyle='--', linewidth=1, color="black")
+plt.errorbar(x, CBRS_mean, CBRS_sd, marker='x', markersize=5, linestyle='--', linewidth=1, color="brown")
+plt.errorbar(x, ISM_mean, ISM_sd, marker='x', markersize=5, linestyle='--', linewidth=1, color="gray")
 
 
 if p_id == 1:

@@ -3,7 +3,7 @@ import math
 
 
 time_window = T
-print_metrics = False
+print_metrics = True
 
 
 def find_num_msg_gen(t):

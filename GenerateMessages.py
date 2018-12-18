@@ -2,8 +2,7 @@ from constants import *
 import random
 
 def get_possible_msgs(t, path_lines):
-    small_msg = []
-    large_msg = []
+    msgs = []
     for line in path_lines:
         line_arr = line.strip().split()
 
@@ -11,21 +10,18 @@ def get_possible_msgs(t, path_lines):
                 and int(line_arr[1]) < NoOfSources + NoOfDataCenters and int(line_arr[1]) >= NoOfSources \
                 and len(line_arr) > 8:
 
+                msgs.append(line)
 
-            if int(line_arr[3]) > 600:
-                large_msg.append(line)
-            else:
-                small_msg.append(line)
 
-            path_lines.remove(line)
-    return small_msg, large_msg
+            # path_lines.remove(line)
+    return msgs
 
 
 
 
 
 
-num_gen = 5
+num_gen = 10
 
 
 for i in range(num_gen):
@@ -38,47 +34,45 @@ for i in range(num_gen):
         path_lines = fp.readlines()[1:]
     fp.close()
 
-    min_burst = 5
+    min_burst = 10
     max_burst = 15
 
-    min_wait = 2
-    max_wait = 13
+    min_wait = 5
+    max_wait = 15
 
     t = 0
     msg_count = 0
+
+    small_sizes = [60, 900]
+    large_sizes = [2400, 3000]
 
     while t < 240:
         # print(t)
         num_msg_to_gen = random.randint(min_burst, max_burst)
         time_to_next_burst = random.randint(min_wait, max_wait)
 
-        small, large = get_possible_msgs(t, path_lines)
+        msgs = get_possible_msgs(t, path_lines)
 
 
         for i in range(num_msg_to_gen):
 
-            p = random.randint(0,100)
-            generate = False
+            if len(msgs) > 0:
+                msg_line = random.choice(msgs)
+                msgs.remove(msg_line)
+                p = random.randint(0, 100)
 
-            if p < 80:
-                if len(small) > 0:
-                    msg_line = random.choice(small)
-                    small.remove(msg_line)
-                    generate = True
-            else:
-                if len(large) > 0:
-                    msg_line = random.choice(large)
-                    large.remove(msg_line)
-                    generate = True
-
-            if generate:
                 msg_line_arr = msg_line.strip().split()
 
                 src = int(msg_line_arr[0])
                 dst = int(msg_line_arr[1])
                 genT = int(msg_line_arr[2])
-                size = int(msg_line_arr[3])
                 desired_TTL = random.randint(minTTL, TTL)
+
+                if p < 80:
+                    size = random.choice(small_sizes)
+                else:
+                    size = random.choice(large_sizes)
+
 
 
                 line = str(msg_count) + "\t" + str(src) + "\t" + str(dst) + "\t" + str(TTL) + "\t" \

@@ -136,7 +136,7 @@ day = "50"
 len_T = 360                     #length of simulation
 start_time = 0                #start time (to find Link Exists)
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
-num_mules = 25                  #number of data mules to use
+num_mules = 30                  #number of data mules to use
 generate_LE = False             #generate Link Exists
 pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
@@ -145,15 +145,15 @@ max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of d
 speed = [350, 600]                  #Lex data only
 proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
 num_messages = 206
-num_Pusers = 100
-num_channels = 6
+num_Pusers = 250
+num_channels = 5
 nodes_tofwd = 3
 msg_round = 0
 puser_round = 0
 
 for msg_round in range(5):
     for band in bands:
-        for nodes_tofwd in [0, 1, 3, 5, 7, 9, 11, 13, 15, 20]:
+        for nodes_tofwd in [1, 3, 5, 7, 9, 11, 13, 15, 20]:
             print("\nNum Nodes fwd:", nodes_tofwd, "Band:", band)
 
             # print("-----------------------------------------------------------------------")
