@@ -149,17 +149,19 @@ proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progres
 num_messages = 206
 num_Pusers = 250
 num_channels = 5
-nodes_tofwd = 3
-msg_round = 0
+# nodes_tofwd = 0
+# msg_round = 0
 puser_round = 0
 
 if generate_LE == False:
-    for msg_round in range(5):
+    for msg_round in range(10, 50):
+        print("MSG File:", msg_round)
         for band in bands:
-            for nodes_tofwd in [1, 3, 5, 9, 15, 20]:
-                print("\nNum Nodes fwd:", nodes_tofwd, "Band:", band)
 
-                if band == "ALL":
+            print("Band:", band)
+
+            if band == "ALL":
+                for nodes_tofwd in [0, 3]:
                     run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                    pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                                    "optimistic", nodes_tofwd, msg_round, puser_round)
@@ -168,8 +170,9 @@ if generate_LE == False:
                                    pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                                    "pessimistic", nodes_tofwd, msg_round, puser_round)
 
-                else:
-                    run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+            else:
+                nodes_tofwd = 3
+                run_simulation(data, day, 1, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                    pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                                    band, nodes_tofwd, msg_round, puser_round)
 

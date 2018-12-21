@@ -419,10 +419,10 @@ class Network(object):
 
                 if broadcast == True and len(nodes_in_range) > 0:
                     for msg in node.buf:
-                        # nodes_to_broadcast = []
-                        # for i in range(len(nodes_in_range)):
-                        #     if to_send(msg, nodes_in_range[i], t) == True:
-                        #         nodes_to_broadcast.append(nodes_in_range[i])
+                        nodes_to_broadcast = []
+                        for i in range(len(nodes_in_range)):
+                            if to_send(msg, nodes_in_range[i], t) == True:
+                                nodes_to_broadcast.append(nodes_in_range[i])
 
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
                                                                                          nodes_in_range[0].ID, t)
@@ -433,7 +433,7 @@ class Network(object):
                         # check if there is enough time to broadcast msg
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             # broadcast msg to everyone in range
-                            msg_sent = node.try_broadcasting_message_epi(nodes_in_range, msg, t, LINK_EXISTS, specBW, self, s)
+                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
                             else:
