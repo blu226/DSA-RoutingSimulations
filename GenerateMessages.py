@@ -17,14 +17,9 @@ def get_possible_msgs(t, path_lines):
     return msgs
 
 
+num_gen = 50
 
-
-
-
-num_gen = 10
-
-
-for i in range(num_gen):
+for i in range(num_gen - 10, num_gen):
     print(i)
 
     message_file = open("Generated_Messages/generated_messages" + str(i) + ".txt", "w")
@@ -37,8 +32,8 @@ for i in range(num_gen):
     min_burst = 10
     max_burst = 15
 
-    min_wait = 5
-    max_wait = 15
+    min_wait = 10
+    max_wait = 20
 
     t = 0
     msg_count = 0
