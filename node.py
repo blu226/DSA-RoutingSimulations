@@ -195,6 +195,17 @@ class Node(object):                                                             
 
         return channel_available
 
+    def is_there_an_open_channel(self, s):
+
+        chan_avail = False
+
+        for chan in range(num_channels):
+            if self.channels[s][chan] == np.inf:
+                chan_avail = True
+
+        return chan_avail
+
+
 
 
     def load_pkl(self):

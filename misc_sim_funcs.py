@@ -233,21 +233,25 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
     if priority_queue == True:
         is_dest_node_found = False
         for s in S:
-            if (node.ID == "15" and t == 60 and debug_mode == 1):
-                print("S:", s)
-            nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
 
-            if (node.ID == "15" and t == 60 and debug_mode == 1):
-                print("nodes in range", [node.ID for node in nodes_in_range])
+            if node.is_there_an_open_channel(s) == True:
 
-            if len(nodes_in_range) > 0:
-                # if any destinations are in range use this band
-                if des_in_range(nodes_in_range, node, t) == True:
+                if (node.ID == "15" and t == 60 and debug_mode == 1):
+                    print("S:", s)
 
-                    is_dest_node_found = True
-                    chosen_spec = s
+                nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
 
-                    return chosen_spec, nodes_in_range
+                if (node.ID == "15" and t == 60 and debug_mode == 1):
+                    print("nodes in range", [node.ID for node in nodes_in_range])
+
+                if len(nodes_in_range) > 0:
+                    # if any destinations are in range use this band
+                    if des_in_range(nodes_in_range, node, t) == True:
+
+                        is_dest_node_found = True
+                        chosen_spec = s
+
+                        return chosen_spec, nodes_in_range
 
 
         if is_dest_node_found == False:
@@ -264,33 +268,29 @@ def default_spec_band(node, net, LINK_EXISTS, t):
     chosen_spec = S[0]
     nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
 
-    # if weighted approach, choose CBRS band if LTE and CBRS have the same nodes in range
-    if len(nodes_in_range) > 0 and smart_setting == "random":
-        CBRS_nodes_in_range = find_nodes_in_range(node, net, S[1], LINK_EXISTS, t)
-        if nodes_in_range == CBRS_nodes_in_range:
-            chosen_spec = S[1]
-            return chosen_spec, CBRS_nodes_in_range
 
-    elif len(nodes_in_range) > 0 and smart_setting != "pessimistic":
+
+    if len(nodes_in_range) > 0 and smart_setting != "pessimistic" and node.is_there_an_open_channel(chosen_spec) == True:
         return chosen_spec, nodes_in_range
 
     #If NOT pessimistic, and no nodes in range or is a pessimistic approach
     # loop through bands until a valid one is chosen
     for i in range(1, 4):
-        next_nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
-        if len(next_nodes_in_range) > 0:
-            if smart_setting != "pessimistic":
-                chosen_spec = S[i]
-                nodes_in_range = next_nodes_in_range
-                break
-
-            else:
-                if nodes_in_range == next_nodes_in_range:
-                    nodes_in_range = next_nodes_in_range
+        if node.is_there_an_open_channel(chosen_spec) == True:
+            next_nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
+            if len(next_nodes_in_range) > 0:
+                if smart_setting != "pessimistic":
                     chosen_spec = S[i]
+                    nodes_in_range = next_nodes_in_range
+                    break
 
                 else:
-                    break
+                    if nodes_in_range == next_nodes_in_range:
+                        nodes_in_range = next_nodes_in_range
+                        chosen_spec = S[i]
+
+                    else:
+                        break
 
     return chosen_spec, nodes_in_range
 
