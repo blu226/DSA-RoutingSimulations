@@ -167,7 +167,11 @@ def sort_by_genT(msg_list):
         sorted_list.append(msg_list[lowest_ind])
         msg_list.pop(lowest_ind)
 
+    #sort by highest genT
     return list(reversed(sorted_list))
+    #sort by lowest genT
+    # return list(sorted_list)
+
 
 def get_msg_lists(nodes_in_range, curr_node):
     nodes_in_range_IDs = []

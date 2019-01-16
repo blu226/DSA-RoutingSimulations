@@ -68,7 +68,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
     f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [1200,180,800,300]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 120\nminTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60,600,1500,3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("TTL = 60\nminTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60,600,1500,3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)

@@ -124,12 +124,21 @@ def getSourceDesCoordinates(src_start, src_end, des_end):
     #         new_dir = DataMule_path + "Day2/" + str(i) + ".txt"
     #         shutil.copyfile(curr_dir, new_dir)
 
-def getBusRoutes(bus_start, bus_end):
+def getBusRoutes(bus_end):
     bus_routes = []
-    for srcID in range(bus_start, bus_end, 1):
-        bus_routes.append(random.randint(0, len(DMTrajectories)-1))
+    num_buses = 0
+    srcID = 0
+
+    while num_buses < bus_end:
+        bus_routes.append(srcID)
+        num_buses += 1
+        if srcID == len(DMTrajectories)-1:
+            srcID = 0
+        else:
+            srcID += 1
 
     f = open(DataMule_path +  "bus_route_ids.pkl", 'wb')
+    print("bus route IDs:", bus_routes)
     pickle.dump(bus_routes, f)
     f.close()
 
@@ -167,11 +176,12 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
 
 def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
     dmID = startIndex + NoOfSources + NoOfDataCenters - 1
+    wait_time_dict = {}
+    wait_interval = 20
     bus_route_ids = pickle.load(open(DataMule_path+ "bus_route_ids.pkl", "rb"))
 
     for ind in range(startIndex, endIndex, 1):
         dmID = dmID + 1
-        currTime = random.randint(route_start_time1, route_start_time2)
         currCoorID = 0
         nextCoorID = 1
         dmSpeed = random.randint(VMIN, VMAX)
@@ -181,6 +191,14 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
         chosen_trajectory_id  = bus_route_ids[ind]
         eachDM = DMTrajectories[chosen_trajectory_id]
 
+        # update wait time dictionary to keep track of buses on same trajectory
+        if chosen_trajectory_id in wait_time_dict:
+            wait_time_dict[chosen_trajectory_id] += 1
+        else:
+            wait_time_dict[chosen_trajectory_id] = 0
+
+        currTime = wait_interval * wait_time_dict[chosen_trajectory_id]
+
         villageCoor = pickle.load(open(DataMule_path + "village_coor.pkl", "rb"))
 
         # print("Village coors", villageCoor)
@@ -188,7 +206,7 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 
         # print("Trajectory " +  str(len(eachDM)) + " : " + str(eachDM))
 
-        with open(DataMule_path + "Day" + str(day_num) +"/"+ str(dmID)+".txt", "w") as dmP:
+        with open(DataMule_path + "Day" + str(day_num) +"/"+ str(dmID + NoOfSources + NoOfDataCenters)+".txt", "w") as dmP:
             # print ("For DM: " + str(dmID) + " Speed: " + str(dmSpeed))
             dmP.write("T X Y ");
             for s in S:
@@ -288,12 +306,12 @@ if V + NoOfDataCenters + NoOfSources == max_nodes:
 
     if generate_link_exists == True:
         print("New locations generated\n")
-        getBusRoutes(0, V + NoOfSources + NoOfDataCenters)
+        getBusRoutes(V)
         getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
 
     # Randomly place sources and destination nodes (index from 0 to S -1)
     getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
 
     # Place DMs on selected Routes (index from (S - DM)
-    getLocationsOfDMs(DMTrajectories, 0, V + NoOfSources + NoOfDataCenters)
+    getLocationsOfDMs(DMTrajectories, 0, V)
 
