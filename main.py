@@ -22,6 +22,7 @@ for t in range(0, T, tau):
 net.not_delivered_messages()
 # Handle messages that got delivered
 net.messages_delivered()
+net.save_packets_per_tau()
 
 # print("Band Usage:", net.band_usage)
 

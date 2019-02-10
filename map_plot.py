@@ -5,7 +5,7 @@ import random
 import math
 
 def getPath():
-    pathToFolder = "DieselNet-2007/gps_logs"
+    pathToFolder = "DataMules/Lexington/50/1/Day1"
 
 
 def findfiles(directory):
@@ -27,7 +27,7 @@ def isFile(object):
 def readFile(fileName):
     currPath = []
     with open(fileName) as f:
-        listOfLines = f.readlines()
+        listOfLines = f.readlines()[1:]
         count = 0
 
         for line in listOfLines:
@@ -37,6 +37,8 @@ def readFile(fileName):
             # print(lineStr[3])
             # if(float(lineStr[0]) >= 840) and float(lineStr[0]) <= 1020:
             if (float(lineStr[0]) >= 660) and float(lineStr[0]) <= 840:
+            # if (float(lineStr[0]) >= 0):
+
                 currPath.append((float(lineStr[2]), float(lineStr[3])))
 
                 count += 1
@@ -51,7 +53,7 @@ def readFile(fileName):
 
 allPaths = []
 #NOTE: RUN THIS ONE TIME
-directory = "DataMules/UMass/2007-11-01/1/"
+directory = "DataMules/UMass/2007-11-06/1/"
 #generateData(directory)
 #
 # folders = findfiles(directory)
@@ -102,7 +104,7 @@ if not os.path.exists("HTML"):
 os.chdir("HTML")
 
 for pInd in range(len(allPaths)):
-    gmap = gmplot.GoogleMapPlotter(42.393658, -72.53295, 12)
+    # gmap = gmplot.GoogleMapPlotter(42.393658, -72.53295, 12)
 
     # if pInd == 1 or pInd == 4 or pInd == 6 : #or pInd == 6 or pInd > 0
     # print(str(pInd) + " " + str(len(allPaths[pInd])) + " " + str(allPaths[pInd]))
@@ -112,7 +114,7 @@ for pInd in range(len(allPaths)):
     gmap.scatter(path_lats, path_lons, colors[colorInd], size=60, marker=False)
 
     # Draw
-    gmap.draw(str(pInd) + "_" + "round1.html")
+    # gmap.draw(str(pInd) + "_" + "round1.html")
     # os.chdir(curr)
 
 gmap.draw("test.html")

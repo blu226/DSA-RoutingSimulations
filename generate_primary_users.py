@@ -16,7 +16,7 @@ def pu_on_off_arr():
 
 max_puser = 500
 rounds = 5
-files = findfiles(DataMule_path)
+files = findfiles(DataMule_path + "Day1/")
 
 
 for it in range(rounds):
@@ -28,7 +28,7 @@ for it in range(rounds):
     for x in range(max_puser):
         chosen_file = random.choice(files)
 
-        with open(DataMule_path + chosen_file, 'r') as f:
+        with open(DataMule_path + "Day1/" + chosen_file, 'r') as f:
             lines = f.readlines()[1:]
 
 

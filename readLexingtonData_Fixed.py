@@ -6,6 +6,12 @@ import numpy
 
 from STB_help import *
 
+def dist_between_first_last_coord(coords):
+    start_coord = coords[0].strip().split()
+    end_coord = coords[len(coords) - 1].strip().split()
+
+    dist = euclideanDistance(float(start_coord[0]), float(start_coord[1]), float(end_coord[0]), float(end_coord[1]))
+    return dist
 def readTrajectoryFile(DMTrajectories):
     filepath = "primaryRoads.osm.wkt"
     with open(filepath) as fp:
@@ -13,15 +19,29 @@ def readTrajectoryFile(DMTrajectories):
 
         for index in range(0, len(lines)):
             patternMatch = re.match(r'^LINESTRING \((.*)\)', lines[index], re.M | re.I)
-
             if patternMatch:
                 # print ("Pattern 1: ", patternMatch.group(1))
                 trajectoryCoord = patternMatch.group(1)
-                if len(trajectoryCoord.strip().split(',')) > 30:
+                trajCoordArr = trajectoryCoord.strip().split(',')
+                eachDM = trajCoordArr
+                start_coord = eachDM[0].strip().split(" ")
+                end_coord = eachDM[len(eachDM) - 1].strip().split(" ")
+                traj_len = euclideanDistance(start_coord[0], start_coord[1], end_coord[0], end_coord[1])
+                if traj_len > 1000:
+                    print("trajectory", index, "distance:", traj_len)
+
+                if len(trajectoryCoord.strip().split(',')) > 25:
+                # if dist_between_first_last_coord(trajCoordArr) > 1600:
                     DMTrajectories.append(trajectoryCoord.strip().split(','))
 
             else:
                 print ("No Match !!!")
+        # for line in lines:
+        #     line_arr = line.strip().split()
+        #     print(line_arr)
+
+
+
     fp.close()
 
 def check_dist_between_all_src_des(vil_src, vil_des, new_src, new_des):
@@ -176,8 +196,9 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
 
 def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
     dmID = startIndex + NoOfSources + NoOfDataCenters - 1
-    wait_time_dict = {}
-    wait_interval = 20
+
+    num_mules_on_traj = {}
+    wait_interval = 10
     bus_route_ids = pickle.load(open(DataMule_path+ "bus_route_ids.pkl", "rb"))
 
     for ind in range(startIndex, endIndex, 1):
@@ -186,18 +207,17 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
         nextCoorID = 1
         dmSpeed = random.randint(VMIN, VMAX)
 
-        # chosen_trajectory_id = random.randint(0, len(DMTrajectories)-1)
-
         chosen_trajectory_id  = bus_route_ids[ind]
         eachDM = DMTrajectories[chosen_trajectory_id]
 
         # update wait time dictionary to keep track of buses on same trajectory
-        if chosen_trajectory_id in wait_time_dict:
-            wait_time_dict[chosen_trajectory_id] += 1
+        if chosen_trajectory_id in num_mules_on_traj:
+            num_mules_on_traj[chosen_trajectory_id] += 1
         else:
-            wait_time_dict[chosen_trajectory_id] = 0
+            num_mules_on_traj[chosen_trajectory_id] = 0
 
-        currTime = wait_interval * wait_time_dict[chosen_trajectory_id]
+
+        currTime = wait_interval * num_mules_on_traj[chosen_trajectory_id]
 
         villageCoor = pickle.load(open(DataMule_path + "village_coor.pkl", "rb"))
 
@@ -206,7 +226,7 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 
         # print("Trajectory " +  str(len(eachDM)) + " : " + str(eachDM))
 
-        with open(DataMule_path + "Day" + str(day_num) +"/"+ str(dmID + NoOfSources + NoOfDataCenters)+".txt", "w") as dmP:
+        with open(DataMule_path + "Day" + str(day_num) +"/"+ str(dmID)+".txt", "w") as dmP:
             # print ("For DM: " + str(dmID) + " Speed: " + str(dmSpeed))
             dmP.write("T X Y ");
             for s in S:
@@ -224,7 +244,8 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 
                 consumedTime = euclideanDistance(prevCoors[0], prevCoors[1], currCoors[0], currCoors[1])/dmSpeed
                 # print("Curr " + str(currCoorID) + " Next " + str(nextCoorID) + " consTime: " + str(consumedTime))
-
+                # if consumedTime > 1:
+                #     print("dist:", euclideanDistance(prevCoors[0], prevCoors[1], currCoors[0], currCoors[1]), "speed:", dmSpeed, "consumed time:", consumedTime)
 
                 # if prevCoors in villageCoor:
                 if eachDM[currCoorID] in villageCoor and chosen_wait_time > 0:

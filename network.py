@@ -13,6 +13,10 @@ class Network(object):
         self.message_num = 0
         self.time = 0
         self.band_usage = [0, 0, 0, 0]
+        self.packets_per_tau = 0
+        self.parallel_coms = 0
+        self.packets_per_tau_list = []
+        self.parallel_coms_list = []
 
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
@@ -165,6 +169,12 @@ class Network(object):
                     f.write(line)
                     f.close()
                     break
+
+    def save_packets_per_tau(self):
+        with open(path_to_metrics + "packets_per_tau.txt", "w") as f:
+            f.write("T\tPacket per tau\tTransmissions per tau\n")
+            for i in range(T):
+                f.write(str(i) + "\t" + str(self.packets_per_tau_list[i]) + "\t" + str(self.parallel_coms_list[i]) + "\n")
 
 
 
@@ -378,12 +388,14 @@ class Network(object):
         elif "Epidemic_Smart" in protocol:
             # add messages to source nodes
             self.other_add_messages(msg_lines, t)
+            self.packets_per_tau = 0
+            self.parallel_coms = 0
 
             # print("Nodes:", [(i, self.nodes[i].ID) for i in range(len(self.nodes)) ])
            # loop over each node
             for node in self.nodes:
                 # init band based on smart setting
-
+                did_node_transmit = False
                 if smart_setting == "optimistic" or smart_setting == "pessimistic":
                     s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
                 else:
@@ -409,7 +421,8 @@ class Network(object):
                             if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
                                 break
                             else:
-                                self.band_usage[s] += 1
+                                self.packets_per_tau += 1
+                                did_node_transmit = True
                         else:
                             msg_index += 1
 
@@ -433,22 +446,17 @@ class Network(object):
                         # check if there is enough time to broadcast msg
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             # broadcast msg to everyone in range
-                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
                             else:
-                                self.band_usage[s] += 1
+                                self.packets_per_tau += num_packet_broadcasted
+                                did_node_transmit = True
 
                 elif geographical_routing == True and len(nodes_in_range) > 0: #geographical paradigm
 
                     # print("broadcast: Hi this function runs")
                     for msg in node.buf:
-                        # # get list of node priority to forward to
-                        # if msg.ID == debug_message:
-                        #     # print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
-                        #     nodeIDIR = [node.ID for node in nodes_in_range]
-                        #     if "20" in nodeIDIR:
-                        #         print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range
                         if node_priority_list != -1:
@@ -472,27 +480,22 @@ class Network(object):
 
                         # check if there is enough time to broadcast msg
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
-                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
                                                                          specBW, self, s)
                             # if msg wasn't broadcasted then give transfer time back to node
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
                             else:
-                                self.band_usage[s] += 1
-                        # else:
-                        #     node.mes_fwd_time_limit -= transfer_time_in_sec
+                                self.packets_per_tau += num_packet_broadcasted
+                                did_node_transmit = True
 
+                if did_node_transmit:
+                    self.parallel_coms += 1
 
-                # multiple unicast
-                # else:
-                #     for des_node in nodes_in_range:
-                #         for msg in node.buf:
-                #             # check if des_node already has packet
-                #             if to_send(msg, des_node, t) == True:
-                #                 node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
+                self.band_usage[s] += 1
 
-
-
+            self.packets_per_tau_list.append(self.packets_per_tau)
+            self.parallel_coms_list.append(self.parallel_coms)
         else:
             self.other_add_messages(msg_lines,t)
 

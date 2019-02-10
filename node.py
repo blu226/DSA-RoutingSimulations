@@ -372,6 +372,7 @@ class Node(object):                                                             
         # variable to see if message is sent to any nodes in range
         message_broadcasted = False
         channel_to_use = -1
+        packets_sent = 0
         # find an open channel
         for des_node in nodes_in_range:
             temp_channel = self.is_channel_available(des_node, s, ts, net, LINK_EXISTS)
@@ -399,6 +400,8 @@ class Node(object):                                                             
                                       [0], 0, mes.packet_id, mes.hops)
                 new_message.set(ts + 1, mes.replica + 1, des_node.ID)
                 new_message.band_used(s)
+                packets_sent += 1
+
                 # handle if msg is sent to destination
 
                 if int(des_node.ID) == (mes.des):
@@ -410,11 +413,13 @@ class Node(object):                                                             
                     # handle msg if it is being sent to a relay node
                 else:
                     des_node.buf.append(new_message)
+                    if mes in self.buf and num_nodes_to_fwd > 0:
+                        self.buf.remove(mes)
 
         if(message_broadcasted == True):
             self.energy += consumedEnergy
 
-        return message_broadcasted
+        return message_broadcasted, packets_sent
 
 
     def choose_messages_to_send(self, mesID):
