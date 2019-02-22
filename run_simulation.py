@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem):
 
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes
@@ -105,7 +105,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
                      generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
                      priority_queue_active, \
                      broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
-                     msg_mean, ttl)
+                     msg_mean, ttl, max_mem)
 
     if generate_new_primary_users == True:
         os.system("python3 generate_primary_users.py")
@@ -146,12 +146,12 @@ def run_various_sims():
                 print("Optimistic")
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl)
+                               "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
                 print()
                 print("Pessimistic")
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl)
+                               "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
 
         else:
 
@@ -159,7 +159,7 @@ def run_various_sims():
                 print("Band:", band, "K:", nodes_tofwd)
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl)
+                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
 
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
@@ -170,7 +170,7 @@ day = "50"
 len_T = 360                     #length of simulation
 start_time = 0                #start time (to find Link Exists)
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
-num_mules = 32                  #number of data mules to use
+num_mules = 48                  #number of data mules to use
 generate_LE = False             #generate Link Exists
 pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
@@ -186,26 +186,35 @@ msg_round = 0
 puser_round = 0
 msg_mean = 15
 ttl = 216
+mem_size = 150
 
 if generate_LE == False:
 
-    for ttl in [72, 144, 216, 288, 360]:
+    for msg_mean in [5, 10, 20, 25]:
         run_various_sims()
 
+    # for mem_size in [50, 100, 150, 200, -1]:
+    #     run_various_sims()
+    #
+    # mem_size = 150
+    # for ttl in [72, 144, 216, 288, 360]:
+    #     run_various_sims()
+    #
     # varying num of mules
-    for num_mules in [8, 16, 32, 48, 64]:
-        ttl = 216
-        run_various_sims()
+    # print("Testing num mules")
+    # ttl = 216
+    # for num_mules in [8, 16, 32, 48, 64]:
+    #     run_various_sims()
 
-    # varying num of channels
-    for num_channels in [2, 4, 6, 8, 10]:
-        num_mules = 32
-        run_various_sims()
-
-    # varying num primary users
-    for num_Pusers in [50, 150, 250, 350, 450]:
-        num_channels = 6
-        run_various_sims()
+    # # varying num of channels
+    # for num_channels in [2, 4, 6, 8, 10]:
+    #     num_mules = 32
+    #     run_various_sims()
+    #
+    # # varying num primary users
+    # for num_Pusers in [50, 150, 250, 350, 450]:
+    #     num_channels = 6
+    #     run_various_sims()
 
 
 

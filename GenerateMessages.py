@@ -31,8 +31,8 @@ for i in range(num_gen):
     min_burst = 5
     max_burst = 15
 
-    min_wait = 15
-    max_wait = 25
+    min_wait = 20
+    max_wait = 30
 
     msg_file_path = "Generated_Messages/mean" + str(int((min_wait + max_wait)/ 2))
     if not os.path.exists(msg_file_path):

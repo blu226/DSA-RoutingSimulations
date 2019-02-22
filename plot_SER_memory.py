@@ -8,8 +8,8 @@ msg_files = 1
 puser_files = 1
 
 # arrays for broadcast
-geo_opt = np.zeros(shape=(time_epochs, msg_files, puser_files))
-geo_pes = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_opt_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
+Epidemic_pes_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
 bro_opt_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
 bro_pes_PQ = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_TV = np.zeros(shape=(time_epochs, msg_files, puser_files))
@@ -18,19 +18,19 @@ Epidemic_CBRS = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 
-
-num_mules = [8, 16, 32, 48, 64]
-num_channels = 6
+num_mules = 48
+# num_channels = 5
 num_Pusers = 250
 msg_mean = 15
-ttl = 216
-max_mem = 150
 T = 360
+channels = 6
+ttl = 216
+max_memory = [50, 100, 150, 200, -1]
 startTime = 1
 days = "50"
 dataset = "Lexington"
 buffer_type = "PQ"
-protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
+protocols = ["optimistic", "pessimistic"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
 fwd_strat = 1
@@ -40,30 +40,16 @@ p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhe
 
 for i in range(msg_files):
     for j in range(puser_files):
-        for mules in num_mules:
-            for protocol in ["optimistic", "pessimistic"]:
-                if mules == 8:
-                    t = 0
-                elif mules == 16:
-                    t = 1
-                elif mules == 32:
-                    t = 2
-                elif mules == 48:
-                    t = 3
-                else:
-                    t = 4
+        for max_mem in max_memory:
+            for protocol in protocols:
+                t = max_memory.index(max_mem)
 
+                path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
+                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(fwd_strat) + "/mules_" + \
+                       str(num_mules) + "/channels_" + str(channels) + "/P_users_" + str(num_Pusers) + \
+                       "/msgfile" + str(i) + "_" + str(msg_mean)+ "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" \
+                        + str(max_mem) + "/"
 
-                if fwd_strat > 0:
-                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(fwd_strat) + "/mules_" + \
-                           str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
-                else:
-                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
-                           str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
 
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
@@ -72,37 +58,23 @@ for i in range(msg_files):
                     line_arr = line.strip().split()
                     if int(line_arr[0]) == 360:
                         if "optimistic" in protocol:
-                            geo_opt[t, i, j] = float(line_arr[p_id])
+                            Epidemic_opt_PQ[t, i, j] = float(line_arr[p_id])
                         elif "pessimistic" in protocol:
-                             geo_pes[t, i, j] = float(line_arr[p_id])
-                        # elif "TV" in protocol:
-                        #     Epidemic_TV[t, i, j] = float(line_arr[p_id])
-                        # elif "LTE" in protocol:
-                        #     Epidemic_LTE[t, i, j] = float(line_arr[p_id])
-                        # elif "CBRS" in protocol:
-                        #     Epidemic_CBRS[t, i, j] = float(line_arr[p_id])
-                        # elif "ISM" in protocol:
-                        #     Epidemic_ISM[t, i, j] = float(line_arr[p_id])
+                             Epidemic_pes_PQ[t, i, j] = float(line_arr[p_id])
+
 
 for i in range(msg_files):
     for j in range(puser_files):
-        for mules in num_mules:
+        for max_mem in max_memory:
             for protocol in ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]:
-                if mules == 8:
-                    t = 0
-                elif mules == 16:
-                    t = 1
-                elif mules == 32:
-                    t = 2
-                elif mules == 48:
-                    t = 3
-                else:
-                    t = 4
+                t = max_memory.index(max_mem)
+
 
                 path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
                        "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
-                       str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                       "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+                       str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                       "/msgfile" + str(i) + "_" + str(msg_mean)+ "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" \
+                        + str(max_mem) + "/"
 
 
                 with open(path + metrics_file, "r") as f:
@@ -110,7 +82,7 @@ for i in range(msg_files):
 
                 for line in lines:
                     line_arr = line.strip().split()
-                    if int(line_arr[0]) % 5 == 0:
+                    if int(line_arr[0]) == 360:
                         if "optimistic" in protocol:
                             bro_opt_PQ[t, i, j] = float(line_arr[p_id])
                         elif "pessimistic" in protocol:
@@ -123,6 +95,7 @@ for i in range(msg_files):
                             Epidemic_CBRS[t, i, j] = float(line_arr[p_id])
                         elif "ISM" in protocol:
                             Epidemic_ISM[t, i, j] = float(line_arr[p_id])
+
 
 
 
@@ -158,7 +131,7 @@ LTE_temp = []
 CBRS_temp = []
 ISM_temp = []
 
-for t in range(len(geo_opt)):
+for t in range(len(Epidemic_opt_PQ)):
 
     t_arr_optB = []
     t_arr_pesB = []
@@ -169,10 +142,10 @@ for t in range(len(geo_opt)):
     t_arr_lte = []
     t_arr_cbrs = []
     t_arr_ism = []
-    for i in range(len(geo_opt[t])):
-        for j in range(len(geo_opt[t][i])):
-            t_arr_optB.append(geo_opt[t, i, j])
-            t_arr_pesB.append(geo_pes[t, i, j])
+    for i in range(len(Epidemic_opt_PQ[t])):
+        for j in range(len(Epidemic_opt_PQ[t][i])):
+            t_arr_optB.append(Epidemic_opt_PQ[t,i,j])
+            t_arr_pesB.append(Epidemic_pes_PQ[t,i,j])
             t_arr_optBro.append(bro_opt_PQ[t, i, j])
             t_arr_pesBro.append(bro_pes_PQ[t, i, j])
             t_arr_tv.append(Epidemic_TV[t, i, j])
@@ -208,42 +181,63 @@ for i in range(len(optB_temp)):
     ISM_mean.append(np.mean(ISM_temp[i]))
     ISM_sd.append(np.std(ISM_temp[i]))
 
-x = num_mules
+print(len(optB_mean))
+x = [50, 100, 150, 200, 250]
 # x.append(0)
 plt.xticks(fontsize=10)
 plt.yticks(fontsize=25)
-plt.xticks(num_mules)
+plt.xticks(x, ["50", "100", "150", "200", "Unlimited"])
+# title_str = "Broadcast to everyone in range"
+# plt.title(title_str)
 
+# plt.xlim(0,12)
 fig_name = "dummy.eps"
-plt.xlabel('# Datamules', fontsize=25)
+plt.xlabel('Max buffer size', fontsize=25)
 
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.ylim(-0.1,1)
 
-    fig_name = "Plots/pdr_K_SER.png"
+    fig_name = "Plots/pdr_mem_SER.png"
 
 if p_id == 2:
+    # plt.ylim(13, 48)
     plt.ylabel('Network delay (min)', fontsize=25)
-    fig_name = "Plots/latency_K_SER.png"
+    fig_name = "Plots/latency_mem_SER.png"
 
 if p_id == 3:
+
     plt.ylabel('Energy per packet (J)', fontsize=25)
-    fig_name = "Plots/energy_K_SER.png"
+    fig_name = "Plots/energy_mem_SER.png"
 
 if p_id == 4:
+    plt.ylim(0, 65)
+
     plt.ylabel('Message overhead', fontsize=25)
-    fig_name = "Plots/overhead_K_SER.png"
+    # plt.ylim(-1, 20)
+    fig_name = "Plots/overhead_mem_SER.png"
 
 
-plt.errorbar(x, optB_mean, optB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
-plt.errorbar(x, pesB_mean, pesB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
+# plt.errorbar(x, optB_mean, optB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+# plt.errorbar(x, pesB_mean, pesB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
+# plt.errorbar(x, optBro_mean, optBro_sd, marker='x', markersize=5, linestyle='-', linewidth=1, color="pink")
+# plt.errorbar(x, pesBro_mean, pesBro_sd, marker='x', markersize=5, linestyle='-', linewidth=1, color="cyan")
+# plt.errorbar(x, TV_mean, TV_sd, marker='o', markersize=5, linestyle='--', linewidth=1, color="green")
+# plt.errorbar(x, LTE_mean, LTE_sd, marker='o', markersize=5, linestyle='--', linewidth=1, color="black")
+# plt.errorbar(x, CBRS_mean, CBRS_sd, marker='o', markersize=5, linestyle='--', linewidth=1, color="brown")
+# plt.errorbar(x, ISM_mean, ISM_sd, marker='o', markersize=5, linestyle='--', linewidth=1, color="gray")
+
+plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+plt.errorbar(x, pesB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
 plt.errorbar(x, optBro_mean, 0, marker='x', markersize=5, linestyle='-', linewidth=1, color="pink")
 plt.errorbar(x, pesBro_mean, 0, marker='x', markersize=5, linestyle='-', linewidth=1, color="cyan")
 plt.errorbar(x, TV_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1, color="green")
 plt.errorbar(x, LTE_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1, color="black")
 plt.errorbar(x, CBRS_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1, color="brown")
 plt.errorbar(x, ISM_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1, color="gray")
+
+
+
 
 if p_id == 1:
     plt.legend(["Geo-opt", "Geo-pes", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="lower right", fontsize=12, ncol = 2, frameon=False)

@@ -23,6 +23,7 @@ num_channels = 6
 num_Pusers = 50
 msg_mean = 15
 ttl = 216
+max_mem = 100
 T = 360
 startTime = 1
 days = "50"
@@ -42,7 +43,7 @@ for i in range(msg_files):
                    "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(
                 fwd_strat) + "/mules_" + \
                    str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + "/msgfile" + str(
-                i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/"
+                i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
 
             with open(path + metrics_file, "r") as f:
                 lines = f.readlines()[1:]
@@ -74,7 +75,7 @@ for i in range(msg_files):
             path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
                    "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
                    str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                   "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/"
+                   "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
 
 
             with open(path + metrics_file, "r") as f:

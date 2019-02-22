@@ -21,6 +21,36 @@ class Node(object):                                                             
         self.can_receive = np.inf
         self.channels = np.full(shape=(len(S), num_channels), fill_value=np.inf)
 
+    def handle_buffer_overflow(self, mem_size):
+        if len(self.buf) > mem_size and mem_size > 0:
+            min_gen_t = T
+
+            # find smallest generation time
+            for mes in self.buf:
+                if mes.genT < min_gen_t:
+                    min_gen_t = mes.genT
+
+            # find smallest message size packet to delete
+            for mes in self.buf:
+                if mes.genT == min_gen_t:
+                    self.buf.remove(mes)
+                    return
+
+            # for mes in self.buf:
+            #     if mes.genT == min_gen_t and mes.size == M[1]:
+            #         self.buf.remove(mes)
+            #         return
+            #
+            # for mes in self.buf:
+            #     if mes.genT == min_gen_t and mes.size == M[2]:
+            #         self.buf.remove(mes)
+            #         return
+            #
+            # for mes in self.buf:
+            #     if mes.genT == min_gen_t and mes.size == M[3]:
+            #         self.buf.remove(mes)
+            #         return
+
     def update_channel_occupancy(self, node1, node2, ts, net, s, channel, LINK_EXISTS):
         if ts == T - 1:
             te = ts
@@ -323,6 +353,7 @@ class Node(object):                                                             
                             # mes.hops += 1
                             write_delivered_msg_to_file(new_message, mes.last_sent + 1)
                             des_node.delivered.append(new_message)
+                            des_node.handle_buffer_overflow(max_packets_in_buffer)
                             # self.buf.remove(mes)
                             return True
 
@@ -403,6 +434,7 @@ class Node(object):                                                             
                 packets_sent += 1
 
                 # handle if msg is sent to destination
+                des_node.handle_buffer_overflow(max_packets_in_buffer)
 
                 if int(des_node.ID) == (mes.des):
                     write_delivered_msg_to_file(new_message, new_message.last_sent)

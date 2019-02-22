@@ -5,7 +5,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
                      pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
                      smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_file, puser_file, \
-                     debug_m, metric_int, msg_mean, ttl):
+                     debug_m, metric_int, msg_mean, ttl, mem_size):
 
     f = open("constants.py", "w")
 
@@ -21,7 +21,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     st_line = "StartTime = " + str(start_time) + "\n"
     dm_line = "debug_message = " + str(debug_message) + "\n"
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
-    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" + str(puser_file) + "/TTL_" + str(ttl) + "/\'\n"
+    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" \
+               + str(puser_file) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/\'\n"
     queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
@@ -44,6 +45,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     oh_file = "overhead_file = 'overhead.txt'\n"
     met_int = "metric_interval = " + str(metric_int) + "\n"
     ttl_line = "TTL = " + str(ttl) + "\n"
+    mem_line = "max_packets_in_buffer = " + str(mem_size) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -102,6 +104,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(pts_line)
     f.write(puser_round)
     f.write(ttl_line)
+    f.write(mem_line)
 
 
     f.write(lef_line)
