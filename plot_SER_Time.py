@@ -5,7 +5,7 @@ from constants import *
 time_epochs = 13
 runs = 10
 
-msg_files = 10
+msg_files = 5
 puser_files = 1
 
 # arrays for broadcast
@@ -18,30 +18,31 @@ Epidemic_LTE = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_CBRS = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
-num_mules = 30
-num_channels = 5
-num_Pusers = 250
+num_mules = 64
+num_channels = 6
+num_Pusers = 50
+msg_mean = 15
+ttl = 216
 T = 360
 startTime = 1
 days = "50"
 dataset = "Lexington"
 buffer_type = "PQ"
-protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
-fwd_strat = 3
+protocols = ["optimistic", "pessimistic"]
+fwd_strat = 1
 metrics_file = "metrics.txt"
 
-p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
         for protocol in protocols:
             t = 0
-            path = "./DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
+            path = "./DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
                    "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(
                 fwd_strat) + "/mules_" + \
                    str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + "/msgfile" + str(
-                i) + \
-                   "/puserfile" + str(j) + "/"
+                i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/"
 
             with open(path + metrics_file, "r") as f:
                 lines = f.readlines()[1:]
@@ -70,10 +71,10 @@ for i in range(msg_files):
         for protocol in ["optimistic", "pessimistic"]:
             t = 0
 
-            path = "DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
+            path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
                    "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
                    str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                   "/msgfile" + str(i) + "/puserfile" + str(j) + "/"
+                   "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/"
 
 
             with open(path + metrics_file, "r") as f:
@@ -225,13 +226,13 @@ plt.errorbar(x, ISM_mean, 0, marker='o', markersize=5, linestyle='--', linewidth
 
 
 if p_id == 1:
-    plt.legend(["Geo-opt [3]", "Geo-pes [3]", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=12, ncol = 1, frameon=False)
+    plt.legend(["Geo-opt", "Geo-pes", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=12, ncol = 2, frameon=False)
 elif p_id == 2:
-    plt.legend(["Geo-opt [3]", "Geo-pes [3]", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=12, ncol = 1, frameon=False)
+    plt.legend(["Geo-opt", "Geo-pes", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=12, ncol = 1, frameon=False)
 elif p_id ==3:
-    plt.legend(["Geo-opt [3]", "Geo-pes [3]", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper right", fontsize=12, ncol = 1, frameon=False)
+    plt.legend(["Geo-opt", "Geo-pes", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper right", fontsize=12, ncol = 1, frameon=False)
 elif p_id ==4:
-    plt.legend(["Geo-opt [3]", "Geo-pes [3]", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper right", fontsize=12, ncol = 1, frameon=False)
+    plt.legend(["Geo-opt", "Geo-pes", "SER-opt", "SER-pes", "TV", "LTE", "CBRS", "ISM"], loc="upper right", fontsize=12, ncol = 1, frameon=False)
 
 
 plt.tight_layout()

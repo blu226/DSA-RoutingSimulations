@@ -457,11 +457,12 @@ class Network(object):
 
                     # print("broadcast: Hi this function runs")
                     for msg in node.buf:
+                        nodes_to_broadcast = []
+
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range
-                        if node_priority_list != -1:
+                        if node_priority_list != -1 and node_priority_list[0] != node:
                             # find the nodes to broadcast to
-                            nodes_to_broadcast = []
                             node_counter = 0
                             for i in range(len(node_priority_list)):
                                 if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:

@@ -12,7 +12,111 @@ def dist_between_first_last_coord(coords):
 
     dist = euclideanDistance(float(start_coord[0]), float(start_coord[1]), float(end_coord[0]), float(end_coord[1]))
     return dist
-def readTrajectoryFile(DMTrajectories):
+
+def connect_close_trajectories(DM):
+    newDMTrajectories = {}
+    do_not_compare = []
+    for i in DM.keys():
+        if i not in do_not_compare:
+            mule1 = DM[i]
+            dm1_start = mule1[0].strip().split(" ")
+            dm1_end = mule1[len(mule1) - 1].strip().split(" ")
+            newDMTrajectories[i] = mule1
+            for j in DM.keys():
+                if i != j and j not in do_not_compare:
+
+                    mule2 = DM[j]
+                    dm2_start = mule2[0].strip().split(" ")
+                    dm2_end = mule2[len(mule2) - 1].strip().split(" ")
+
+                    dist1 = euclideanDistance(dm1_end[0], dm1_end[1], dm2_start[0], dm2_start[1])
+                    dist2 = euclideanDistance(dm1_start[0], dm1_start[1], dm2_end[0], dm2_end[1])
+                    dist3 = euclideanDistance(dm1_end[0], dm1_end[1], dm2_end[0], dm2_end[1])
+                    dist4 = euclideanDistance(dm1_start[0], dm1_start[1], dm2_start[0], dm2_start[1])
+
+                    if dist2 < 100:
+                        new_mule = mule2 + mule1
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                    elif dist1 < 100:
+                        new_mule = mule1 + mule2
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                    elif dist3 < 100:
+                        new_mule = mule2 + mule1[::-1]
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                    elif dist4 < 100:
+                        new_mule = mule2[::-1] + mule1
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+    return newDMTrajectories
+
+def connectTrajectories(DM):
+    newDMTrajectories = {}
+    do_not_compare = []
+    for i in DM.keys():
+        if i not in do_not_compare:
+            mule1 = DM[i]
+            dm1_start = mule1[0].strip().split(" ")
+            dm1_end = mule1[len(mule1) - 1].strip().split(" ")
+            newDMTrajectories[i] = mule1
+            for j in DM.keys():
+                if i != j and j not in do_not_compare:
+
+                    mule2 = DM[j]
+                    dm2_start = mule2[0].strip().split(" ")
+                    dm2_end = mule2[len(mule2) - 1].strip().split(" ")
+
+                    if dm1_start == dm2_end:
+                        new_mule = mule2 + mule1
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                        break
+
+                    elif dm2_start == dm1_end:
+                        new_mule = mule1 + mule2
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                        break
+
+                    elif dm2_start == dm1_start:
+                        new_mule = mule2[::-1] + mule1
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                        break
+
+                    elif dm2_end == dm1_end:
+                        new_mule = mule2 + mule1[::-1]
+                        newDMTrajectories[i] = new_mule
+                        do_not_compare.append(j)
+                        do_not_compare.append(i)
+
+                        break
+
+
+
+
+
+
+    return newDMTrajectories
+
+def readTrajectoryFile():
+    trajectories = {}
     filepath = "primaryRoads.osm.wkt"
     with open(filepath) as fp:
         lines = fp.readlines()
@@ -23,26 +127,41 @@ def readTrajectoryFile(DMTrajectories):
                 # print ("Pattern 1: ", patternMatch.group(1))
                 trajectoryCoord = patternMatch.group(1)
                 trajCoordArr = trajectoryCoord.strip().split(',')
-                eachDM = trajCoordArr
-                start_coord = eachDM[0].strip().split(" ")
-                end_coord = eachDM[len(eachDM) - 1].strip().split(" ")
-                traj_len = euclideanDistance(start_coord[0], start_coord[1], end_coord[0], end_coord[1])
-                if traj_len > 1000:
-                    print("trajectory", index, "distance:", traj_len)
+                # eachDM = trajCoordArr
+                # start_coord = eachDM[0].strip().split(" ")
+                # end_coord = eachDM[len(eachDM) - 1].strip().split(" ")
+                # traj_len = euclideanDistance(start_coord[0], start_coord[1], end_coord[0], end_coord[1])
+                # if traj_len > 1000:
+                #     print("trajectory", index, "distance:", traj_len)
 
-                if len(trajectoryCoord.strip().split(',')) > 25:
+                if len(trajectoryCoord.strip().split(',')) > 1:
                 # if dist_between_first_last_coord(trajCoordArr) > 1600:
-                    DMTrajectories.append(trajectoryCoord.strip().split(','))
+                    trajectories[index] = trajectoryCoord.strip().split(',')
 
             else:
                 print ("No Match !!!")
-        # for line in lines:
-        #     line_arr = line.strip().split()
-        #     print(line_arr)
-
-
 
     fp.close()
+
+
+    final_trajectories = connectTrajectories(trajectories)
+    final_trajectories = connectTrajectories(final_trajectories)
+    final_trajectories = connectTrajectories(final_trajectories)
+    final_trajectories = connectTrajectories(final_trajectories)
+    final_trajectories = connectTrajectories(final_trajectories)
+    final_trajectories = connectTrajectories(final_trajectories)
+
+
+    final_trajectories = connect_close_trajectories(final_trajectories)
+
+    traj_list = []
+    for i in final_trajectories.keys():
+        if len(final_trajectories[i]) > 30:
+            traj_list.append(final_trajectories[i])
+
+    return traj_list
+
+
 
 def check_dist_between_all_src_des(vil_src, vil_des, new_src, new_des):
     add_new_src_des = True
@@ -196,6 +315,7 @@ def getLocationsOfSourcesAndDataCenters(startIndex, endIndex):
 
 def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
     dmID = startIndex + NoOfSources + NoOfDataCenters - 1
+    num_busses_per_traj = math.floor(V / len(DMTrajectories))
 
     num_mules_on_traj = {}
     wait_interval = 10
@@ -203,8 +323,6 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
 
     for ind in range(startIndex, endIndex, 1):
         dmID = dmID + 1
-        currCoorID = 0
-        nextCoorID = 1
         dmSpeed = random.randint(VMIN, VMAX)
 
         chosen_trajectory_id  = bus_route_ids[ind]
@@ -213,11 +331,18 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
         # update wait time dictionary to keep track of buses on same trajectory
         if chosen_trajectory_id in num_mules_on_traj:
             num_mules_on_traj[chosen_trajectory_id] += 1
+            currCoorID = math.floor(len(DMTrajectories[chosen_trajectory_id]) * (
+                        num_mules_on_traj[chosen_trajectory_id] / num_busses_per_traj))
+            nextCoorID = currCoorID + 1
         else:
             num_mules_on_traj[chosen_trajectory_id] = 0
+            currCoorID = 0
+            nextCoorID = currCoorID + 1
 
 
-        currTime = wait_interval * num_mules_on_traj[chosen_trajectory_id]
+        currTime = 0
+
+        # print("Traj:", chosen_trajectory_id, "startCoord:", currCoorID)
 
         villageCoor = pickle.load(open(DataMule_path + "village_coor.pkl", "rb"))
 
@@ -288,6 +413,36 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
                 dmP.write("\n")
         dmP.close()
 
+
+def remove_uneeded_coords(dm_traj):
+    new_dm_traj = []
+    for mule in dm_traj:
+        dmSpeed = random.randint(VMIN, VMAX)
+        new_traj = []
+        prev_coord = mule[0].strip().split(' ')
+        i = 0
+        while i < len(mule) - 1:
+            new_traj.append(prev_coord[0] + " " + prev_coord[1])
+            i += 1
+            next_coord = mule[i].strip().split(" ")
+
+            consumed_time = euclideanDistance(prev_coord[0], prev_coord[1], next_coord[0], next_coord[1])/dmSpeed
+
+            while consumed_time < .75:
+                i += 1
+                if i >= len(mule):
+                    break
+                prev_coord = mule[i - 1].strip().split(" ")
+                next_coord = mule[i].strip().split(" ")
+                consumed_time += euclideanDistance(prev_coord[0], prev_coord[1], next_coord[0], next_coord[1]) / dmSpeed
+
+            prev_coord = next_coord
+
+        new_dm_traj.append(new_traj)
+
+    return new_dm_traj
+
+
 #
 # def copy_files():
 #     # for run in range(1, 11, 1):
@@ -313,11 +468,16 @@ T = T + 30
 if not os.path.exists(DataMule_path):
     os.makedirs(DataMule_path)
 
-DMTrajectories = []         #stores the coordinates for each data mule
 
 # Read trajectory for each data mule
-readTrajectoryFile(DMTrajectories)
-# selectedDMTrajectories = DMTrajectories[:3]
+DMTrajectories = readTrajectoryFile()
+DMTrajectories = remove_uneeded_coords(DMTrajectories)
+
+for i in range(len(DMTrajectories)):
+    eachDM = DMTrajectories[i]
+    print("Trajectory", i, "length:", len(eachDM))
+
+
 
 print("Length of DM trajectories: ", len(DMTrajectories))
 
@@ -332,6 +492,7 @@ if V + NoOfDataCenters + NoOfSources == max_nodes:
 
     # Randomly place sources and destination nodes (index from 0 to S -1)
     getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
+
 
     # Place DMs on selected Routes (index from (S - DM)
     getLocationsOfDMs(DMTrajectories, 0, V)

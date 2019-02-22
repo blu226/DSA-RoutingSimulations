@@ -83,6 +83,8 @@ def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
         if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts)] == 1:
             nodes_in_range.append(node)
 
+
+    nodes_in_range.append(src_node)
     return nodes_in_range
 
 def initialize_s():

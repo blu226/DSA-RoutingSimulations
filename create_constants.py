@@ -5,7 +5,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
                      pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
                      smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_file, puser_file, \
-                     debug_m, metric_int, msg_mean):
+                     debug_m, metric_int, msg_mean, ttl):
 
     f = open("constants.py", "w")
 
@@ -21,7 +21,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     st_line = "StartTime = " + str(start_time) + "\n"
     dm_line = "debug_message = " + str(debug_message) + "\n"
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
-    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" + str(puser_file) + "/\'\n"
+    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" + str(puser_file) + "/TTL_" + str(ttl) + "/\'\n"
     queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
@@ -43,6 +43,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     debug_mode = "debug_mode = " + str(debug_m) + "\n"
     oh_file = "overhead_file = 'overhead.txt'\n"
     met_int = "metric_interval = " + str(metric_int) + "\n"
+    ttl_line = "TTL = " + str(ttl) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -68,7 +69,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
     f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [1200,180,800,300]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 360\nminTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60,600,1500,3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60,600,1500,3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -100,6 +101,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(puser_line)
     f.write(pts_line)
     f.write(puser_round)
+    f.write(ttl_line)
 
 
     f.write(lef_line)

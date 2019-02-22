@@ -43,7 +43,7 @@ def readFile(fileName):
     return currPath
 
 #Get filnames
-directory = "DataMules/Lexington/50/2/Day1/"
+directory = "DataMules/Lexington/50/3/Day1/"
 currFiles = findfiles(directory)
 currFiles.sort()
 
@@ -58,9 +58,9 @@ for fInd in range(0, numOfFiles, 1):
 
     # for i in range(0, 100, 10):
 
-    # if currFiles[fInd] in ["0.txt", "1.txt", "2.txt", "4.txt", "6.txt", "12.txt", "13.txt"]:
-    currPath = readFile(filePath)
-    allPaths.append(currPath)
+    if currFiles[fInd] in ["3.txt", "4.txt", "5.txt"]:
+        currPath = readFile(filePath)
+        allPaths.append(currPath)
 
 
 for route in allPaths:
@@ -75,7 +75,7 @@ for route in allPaths:
     plt.scatter(x, y)
 
 # plt.legend(legend)
-plt.title(str(startTime) + "-" + str(endTime))
+plt.title(str(len(allPaths)))
 plt.savefig("LexRouteTraj.png")
 plt.show()
 

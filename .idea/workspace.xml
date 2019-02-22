@@ -2,30 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="28641045-d5b7-4ed6-b65d-7b6774b66644" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/map_plot_LEX.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/plot_SER_nodes.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/plot_SER_ttl.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/GenerateMessages.py" beforeDir="false" afterPath="$PROJECT_DIR$/GenerateMessages.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages0.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages2.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages3.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages4.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages5.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages6.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages7.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages8.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Generated_Messages/generated_messages9.txt" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/create_constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/create_constants.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/generate_primary_users.py" beforeDir="false" afterPath="$PROJECT_DIR$/generate_primary_users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/map_plot.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_plot.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/map_plot_LEX.py" beforeDir="false" afterPath="$PROJECT_DIR$/map_plot_LEX.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/misc_sim_funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/misc_sim_funcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/network.py" beforeDir="false" afterPath="$PROJECT_DIR$/network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/node.py" beforeDir="false" afterPath="$PROJECT_DIR$/node.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plot_SER_K.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_K.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/plot_geo_fwd.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_geo_fwd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_SER_Time.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_Time.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_SER_nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_nodes.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_SER_numChannels.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_numChannels.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/plot_SER_primary_users.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_primary_users.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/readLexingtonData_Fixed.py" beforeDir="false" afterPath="$PROJECT_DIR$/readLexingtonData_Fixed.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_simulation.py" afterDir="false" />
     </list>
@@ -120,24 +108,27 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="6322" />
+          <entry key="dummy" value="15" />
+          <entry key="py" value="10948" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="6322" />
+          <entry key="PLAIN_TEXT" value="15" />
+          <entry key="Python" value="10948" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="48" />
+          <entry key="py" value="59" />
+          <entry key="txt" value="1" />
           <entry key="wkt" value="2" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="PLAIN_TEXT" value="2" />
-          <entry key="Python" value="48" />
+          <entry key="PLAIN_TEXT" value="3" />
+          <entry key="Python" value="59" />
         </counts>
       </usages-collector>
     </session>
@@ -147,60 +138,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_simulation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-143">
-              <caret line="148" column="18" selection-start-line="148" selection-start-column="18" selection-end-line="148" selection-end-column="18" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/computeLINKEXISTS_Lex.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="977">
-              <caret line="181" column="31" selection-start-line="180" selection-end-line="181" selection-end-column="31" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/STB_main_path.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="228">
-              <caret line="54" selection-start-line="54" selection-end-line="54" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/LLC_path.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="113">
-              <caret line="121" column="21" selection-start-line="121" selection-start-column="21" selection-end-line="121" selection-end-column="21" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/readLexingtonData_Fixed.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1266">
-              <caret line="30" column="4" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
+            <state relative-caret-position="234">
+              <caret line="196" column="17" selection-start-line="196" selection-start-column="17" selection-end-line="196" selection-end-column="17" />
               <folding>
-                <element signature="e#0#9#0" expanded="true" />
-                <marker date="1549827892831" expanded="true" signature="132:367" ph="..." />
+                <marker date="1550850471799" expanded="true" signature="5812:7209" ph="..." />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/GenerateMessages.py">
+        <entry file="file://$PROJECT_DIR$/plot_SER_Time.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="144">
-              <caret line="20" column="11" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
-              <folding>
-                <element signature="e#0#23#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="-2551">
+              <caret line="76" column="111" selection-start-line="76" selection-start-column="111" selection-end-line="76" selection-end-column="111" />
             </state>
           </provider>
         </entry>
@@ -208,17 +159,50 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/create_constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="198">
-              <caret line="23" column="105" selection-start-line="23" selection-start-column="105" selection-end-line="23" selection-end-column="105" />
+            <state relative-caret-position="414">
+              <caret line="23" column="159" selection-start-line="23" selection-start-column="159" selection-end-line="23" selection-end-column="159" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/plot_SER_K.py">
+        <entry file="file://$PROJECT_DIR$/plot_SER_primary_users.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="378">
-              <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
+            <state relative-caret-position="324">
+              <caret line="220" column="99" selection-start-line="220" selection-start-column="99" selection-end-line="220" selection-end-column="99" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="352">
+              <caret line="247" column="99" selection-start-line="247" selection-start-column="99" selection-end-line="247" selection-end-column="99" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/plot_SER_ttl.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="234">
+              <caret line="223" column="99" selection-start-line="223" selection-start-column="99" selection-end-line="223" selection-end-column="99" />
+              <folding>
+                <element signature="e#0#18#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/plot_SER_numChannels.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="216">
+              <caret line="38" selection-start-line="38" selection-end-line="177" selection-end-column="38" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -229,23 +213,29 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1296">
-              <caret line="72" column="21" selection-start-line="71" selection-start-column="19" selection-end-line="72" selection-end-column="21" />
+            <state relative-caret-position="806">
+              <caret line="75" selection-start-line="75" selection-end-line="75" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/network.py">
+        <entry file="file://$PROJECT_DIR$/GenerateMessages.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-150">
-              <caret line="297" column="8" selection-start-line="297" selection-start-column="8" selection-end-line="297" selection-end-column="8" />
+            <state relative-caret-position="396">
+              <caret line="34" column="16" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
               <folding>
-                <marker date="1549302504519" expanded="true" signature="3442:3449" ph="..." />
-                <marker date="1549302504519" expanded="true" signature="3974:4565" ph="..." />
-                <marker date="1549302504519" expanded="true" signature="6445:6743" ph="..." />
-                <marker date="1549302504519" expanded="true" signature="6785:6794" ph="..." />
+                <element signature="e#0#23#0" expanded="true" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/map_plot_LEX.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="306">
+              <caret line="60" column="47" selection-start-line="60" selection-start-column="47" selection-end-line="60" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -261,7 +251,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>debug</find>
       <find>check</find>
       <find>messages_delivered</find>
       <find>not</find>
@@ -291,6 +280,7 @@
       <find>LTE</find>
       <find>wait_time</find>
       <find>TTL</find>
+      <find>consumedTime</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -302,7 +292,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/X-CHANTS_UMass/run_simulation_day2.py" />
         <option value="$PROJECT_DIR$/Epidemic_UMass/network.py" />
         <option value="$PROJECT_DIR$/X-CHANTS_UMass/message2.py" />
         <option value="$PROJECT_DIR$/create_pickles.py" />
@@ -326,7 +315,6 @@
         <option value="$PROJECT_DIR$/plot_Nodes_routing_UMass.py" />
         <option value="$PROJECT_DIR$/packet_count.py" />
         <option value="$PROJECT_DIR$/temp.py" />
-        <option value="$PROJECT_DIR$/plot_SER_primary_users.py" />
         <option value="$PROJECT_DIR$/computeLINKEXISTS_Lex.py" />
         <option value="$PROJECT_DIR$/LLC_path.py" />
         <option value="$PROJECT_DIR$/STB_help.py" />
@@ -335,24 +323,26 @@
         <option value="$PROJECT_DIR$/plot_packetsGenerated.py" />
         <option value="$PROJECT_DIR$/0.txt" />
         <option value="$PROJECT_DIR$/constants.py" />
-        <option value="$PROJECT_DIR$/plot_SER_numChannels.py" />
-        <option value="$PROJECT_DIR$/plot_SER_Time.py" />
         <option value="$PROJECT_DIR$/plot_SER_msgmean.py" />
-        <option value="$PROJECT_DIR$/misc_sim_funcs.py" />
         <option value="$PROJECT_DIR$/map_plot.py" />
-        <option value="$PROJECT_DIR$/map_plot_LEX.py" />
         <option value="$PROJECT_DIR$/plot_geo_fwd.py" />
-        <option value="$PROJECT_DIR$/plot_SER_nodes.py" />
         <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/node.py" />
         <option value="$PROJECT_DIR$/metrics.py" />
-        <option value="$PROJECT_DIR$/network.py" />
         <option value="$PROJECT_DIR$/generate_primary_users.py" />
-        <option value="$PROJECT_DIR$/create_constants.py" />
         <option value="$PROJECT_DIR$/plot_SER_K.py" />
-        <option value="$PROJECT_DIR$/GenerateMessages.py" />
-        <option value="$PROJECT_DIR$/run_simulation.py" />
         <option value="$PROJECT_DIR$/readLexingtonData_Fixed.py" />
+        <option value="$PROJECT_DIR$/map_plot_LEX.py" />
+        <option value="$PROJECT_DIR$/node.py" />
+        <option value="$PROJECT_DIR$/misc_sim_funcs.py" />
+        <option value="$PROJECT_DIR$/network.py" />
+        <option value="$PROJECT_DIR$/GenerateMessages.py" />
+        <option value="$PROJECT_DIR$/plot_SER_numChannels.py" />
+        <option value="$PROJECT_DIR$/create_constants.py" />
+        <option value="$PROJECT_DIR$/run_simulation.py" />
+        <option value="$PROJECT_DIR$/plot_SER_Time.py" />
+        <option value="$PROJECT_DIR$/plot_SER_ttl.py" />
+        <option value="$PROJECT_DIR$/plot_SER_nodes.py" />
+        <option value="$PROJECT_DIR$/plot_SER_primary_users.py" />
       </list>
     </option>
   </component>
@@ -403,7 +393,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.GenerateMessages">
+  <component name="RunManager" selected="Python.plot_SER_ttl">
     <configuration default="true" type="tests" factoryName="Attests">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -444,48 +434,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="generate_primary_users" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="combine_sims" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/generate_primary_users.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="plot_SER_K" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="combine_sims" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_SER_K.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="plot_SER_nodes" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="combine_sims" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -507,7 +455,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="plot_geo_fwd" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="plot_SER_numChannels" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="combine_sims" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -519,7 +467,49 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_geo_fwd.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_SER_numChannels.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="plot_SER_primary_users" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="combine_sims" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_SER_primary_users.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="plot_SER_ttl" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="combine_sims" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_SER_ttl.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -530,18 +520,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.GenerateMessages" />
-      <item itemvalue="Python.plot_SER_K" />
-      <item itemvalue="Python.plot_geo_fwd" />
       <item itemvalue="Python.plot_SER_nodes" />
-      <item itemvalue="Python.generate_primary_users" />
+      <item itemvalue="Python.plot_SER_numChannels" />
+      <item itemvalue="Python.plot_SER_primary_users" />
+      <item itemvalue="Python.plot_SER_ttl" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.GenerateMessages" />
-        <item itemvalue="Python.plot_SER_K" />
-        <item itemvalue="Python.generate_primary_users" />
+        <item itemvalue="Python.plot_SER_ttl" />
+        <item itemvalue="Python.plot_SER_primary_users" />
         <item itemvalue="Python.plot_SER_nodes" />
-        <item itemvalue="Python.plot_geo_fwd" />
+        <item itemvalue="Python.plot_SER_numChannels" />
+        <item itemvalue="Python.GenerateMessages" />
       </list>
     </recent_temporary>
   </component>
@@ -562,13 +552,13 @@
     <frame x="1334" y="27" width="1226" height="1051" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23960066" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23960066" />
       <window_info id="Structure" order="1" weight="0.24958813" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.499002" visible="true" weight="0.35973597" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.1529153" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.499002" visible="true" weight="0.35973597" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.49614963" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
@@ -595,10 +585,6 @@
           <line>15</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/readLexingtonData_Fixed.py</url>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
@@ -613,8 +599,6 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/DataMules/Lexington/30/1/Link_Exists/LE_1_180/Epidemic_Smart_optimistic/PQ/geo_5/mules_30/channels_10/P_users_0/176/delivered_messages.txt" />
-    <entry file="file://$PROJECT_DIR$/DataMules/Lexington/30/1/Link_Exists/generated_messages.txt" />
     <entry file="file://$PROJECT_DIR$/DataMules/Lexington/30/1/Link_Exists/LE_1_180/Epidemic_Smart_optimistic/PQ/geo_3/mules_30/channels_5/P_users_200/200/not_delivered.txt" />
     <entry file="file://$PROJECT_DIR$/plot_channels.py">
       <provider selected="true" editor-type-id="text-editor">
@@ -659,13 +643,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="414">
           <caret line="23" column="22" selection-start-line="23" selection-start-column="22" selection-end-line="23" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/plot_SER_primary_users.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="39" column="8" selection-start-line="39" selection-start-column="8" selection-end-line="39" selection-end-column="8" />
         </state>
       </provider>
     </entry>
@@ -728,20 +705,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plot_SER_numChannels.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="34" column="8" selection-start-line="34" selection-start-column="8" selection-end-line="34" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/plot_SER_Time.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3366">
-          <caret line="189" column="22" selection-start-line="189" selection-start-column="22" selection-end-line="189" selection-end-column="22" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/plot_SER_msgmean.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="630">
@@ -788,34 +751,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/map_plot_LEX.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="360">
-          <caret line="32" column="8" selection-start-line="32" selection-start-column="8" selection-end-line="32" selection-end-column="8" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="396">
           <caret line="24" column="26" selection-start-line="24" selection-start-column="26" selection-end-line="24" selection-end-column="26" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1560">
-          <caret line="415" column="63" selection-start-line="415" selection-start-column="63" selection-end-line="415" selection-end-column="63" />
         </state>
       </provider>
     </entry>
@@ -830,24 +769,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/generate_primary_users.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="324">
-          <caret line="18" column="40" selection-start-line="18" selection-start-column="40" selection-end-line="18" selection-end-column="40" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/STB_help.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5058">
           <caret line="286" column="56" lean-forward="true" selection-start-line="286" selection-start-column="56" selection-end-line="286" selection-end-column="56" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/misc_sim_funcs.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="424">
-          <caret line="347" column="28" selection-start-line="347" selection-start-column="28" selection-end-line="347" selection-end-column="28" />
         </state>
       </provider>
     </entry>
@@ -857,36 +782,6 @@
           <caret line="33" column="8" selection-start-line="33" selection-start-column="8" selection-end-line="33" selection-end-column="8" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/create_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="23" column="105" selection-start-line="23" selection-start-column="105" selection-end-line="23" selection-end-column="105" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/GenerateMessages.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="20" column="11" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
-          <folding>
-            <element signature="e#0#23#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/network.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-150">
-          <caret line="297" column="8" selection-start-line="297" selection-start-column="8" selection-end-line="297" selection-end-column="8" />
-          <folding>
-            <marker date="1549302504519" expanded="true" signature="3442:3449" ph="..." />
-            <marker date="1549302504519" expanded="true" signature="3974:4565" ph="..." />
-            <marker date="1549302504519" expanded="true" signature="6445:6743" ph="..." />
-            <marker date="1549302504519" expanded="true" signature="6785:6794" ph="..." />
           </folding>
         </state>
       </provider>
@@ -905,13 +800,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1296">
-          <caret line="72" column="21" selection-start-line="71" selection-start-column="19" selection-end-line="72" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/computeLINKEXISTS_Lex.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="977">
@@ -919,20 +807,138 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/run_simulation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-143">
-          <caret line="148" column="18" selection-start-line="148" selection-start-column="18" selection-end-line="148" selection-end-column="18" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/new_traj.txt">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
     <entry file="file://$PROJECT_DIR$/readLexingtonData_Fixed.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1266">
-          <caret line="30" column="4" selection-start-line="30" selection-start-column="4" selection-end-line="30" selection-end-column="4" />
+        <state relative-caret-position="354">
+          <caret line="345" selection-start-line="345" selection-end-line="345" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
-            <marker date="1549827892831" expanded="true" signature="132:367" ph="..." />
+            <marker date="1550514975561" expanded="true" signature="132:4101" ph="..." />
+            <marker date="1550514975561" expanded="true" signature="403:2352" ph="..." />
+            <marker date="1550514975561" expanded="true" signature="2431:4101" ph="..." />
+            <marker date="1550514975561" expanded="true" signature="16125:17047" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/generate_primary_users.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="162">
+          <caret line="18" column="40" selection-start-line="18" selection-start-column="40" selection-end-line="18" selection-end-column="40" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="174">
+          <caret line="41" column="14" selection-start-line="41" selection-start-column="14" selection-end-line="41" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/misc_sim_funcs.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="86" column="34" selection-start-line="86" selection-start-column="34" selection-end-line="86" selection-end-column="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/network.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-654">
+          <caret line="460" selection-start-line="460" selection-end-line="460" />
+          <folding>
+            <marker date="1550695237659" expanded="true" signature="3442:3449" ph="..." />
+            <marker date="1550695237659" expanded="true" signature="3974:4565" ph="..." />
+            <marker date="1550695237659" expanded="true" signature="6445:6743" ph="..." />
+            <marker date="1550695237659" expanded="true" signature="6785:6794" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/map_plot_LEX.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="60" column="47" selection-start-line="60" selection-start-column="47" selection-end-line="60" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/GenerateMessages.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="396">
+          <caret line="34" column="16" selection-start-line="34" selection-start-column="16" selection-end-line="34" selection-end-column="16" />
+          <folding>
+            <element signature="e#0#23#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="806">
+          <caret line="75" selection-start-line="75" selection-end-line="75" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_numChannels.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="216">
+          <caret line="38" selection-start-line="38" selection-end-line="177" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/create_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="414">
+          <caret line="23" column="159" selection-start-line="23" selection-start-column="159" selection-end-line="23" selection-end-column="159" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/run_simulation.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="196" column="17" selection-start-line="196" selection-start-column="17" selection-end-line="196" selection-end-column="17" />
+          <folding>
+            <marker date="1550850471799" expanded="true" signature="5812:7209" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="352">
+          <caret line="247" column="99" selection-start-line="247" selection-start-column="99" selection-end-line="247" selection-end-column="99" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_primary_users.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="220" column="99" selection-start-line="220" selection-start-column="99" selection-end-line="220" selection-end-column="99" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_Time.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2551">
+          <caret line="76" column="111" selection-start-line="76" selection-start-column="111" selection-end-line="76" selection-end-column="111" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_ttl.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="223" column="99" selection-start-line="223" selection-start-column="99" selection-end-line="223" selection-end-column="99" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
           </folding>
         </state>
       </provider>
