@@ -333,6 +333,8 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
             num_mules_on_traj[chosen_trajectory_id] += 1
             currCoorID = math.floor(len(DMTrajectories[chosen_trajectory_id]) * (
                         num_mules_on_traj[chosen_trajectory_id] / num_busses_per_traj))
+            if currCoorID == len(DMTrajectories[chosen_trajectory_id]) - 1:
+                currCoorID -= 1
             nextCoorID = currCoorID + 1
         else:
             num_mules_on_traj[chosen_trajectory_id] = 0
