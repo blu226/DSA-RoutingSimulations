@@ -279,7 +279,6 @@ def default_spec_band(node, net, LINK_EXISTS, t):
             if len(next_nodes_in_range) > 0:
                 # if optimistic, once we find a band with nodes in range return
                 if smart_setting != "pessimistic":
-                    chosen_spec = S[i]
                     nodes_in_range = next_nodes_in_range
                     break
                 # if pessimistic, if the current nodes in range are equal to the previous nodes in range, then continue
@@ -287,7 +286,6 @@ def default_spec_band(node, net, LINK_EXISTS, t):
                 else:
                     if nodes_in_range == next_nodes_in_range:
                         nodes_in_range = next_nodes_in_range
-                        chosen_spec = S[i]
 
                     else:
                         break

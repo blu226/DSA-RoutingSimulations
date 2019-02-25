@@ -174,7 +174,7 @@ src_dst = [3, 3]                #num src and dst
 max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of datamules + src + dst
 speed = [135, 400]                  #Lex data only
 proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-num_Pusers = 250
+num_Pusers = 150
 num_channels = 6
 nodes_tofwd = 0
 msg_round = 0
@@ -185,8 +185,8 @@ mem_size = 150
 
 if generate_LE == False:
 
-    for msg_mean in [5, 10, 20, 25]:
-        run_various_sims()
+    # for msg_mean in [5, 10, 20, 25]:
+    #     run_various_sims()
 
     # for mem_size in [50, 100, 150, 200, -1]:
     #     run_various_sims()
@@ -196,10 +196,9 @@ if generate_LE == False:
     #     run_various_sims()
     #
     # varying num of mules
-    # print("Testing num mules")
-    # ttl = 216
-    # for num_mules in [8, 16, 32, 48, 64]:
-    #     run_various_sims()
+    ttl = 216
+    for num_mules in [8, 16, 32, 48, 64]:
+        run_various_sims()
 
     # # varying num of channels
     # for num_channels in [2, 4, 6, 8, 10]:

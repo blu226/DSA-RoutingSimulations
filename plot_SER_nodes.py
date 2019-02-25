@@ -36,7 +36,7 @@ protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
 fwd_strat = 1
 metrics_file = "metrics.txt"
 
-p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
