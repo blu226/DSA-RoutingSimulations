@@ -2,6 +2,7 @@ from misc_sim_funcs import *
 from network import *
 from constants import  *
 
+
 initialize_output_files()
 
 #create/init network
@@ -15,6 +16,7 @@ path_lines, spec_lines, msg_lines, specBW, LINK_EXISTS = get_data_structs()
 #loop thru each tau
 for t in range(0, T, tau):
 
+    # does all routing and sending of packets in the tau = t
     net.network_GO(t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS)
 
 
@@ -22,10 +24,8 @@ for t in range(0, T, tau):
 net.not_delivered_messages()
 # Handle messages that got delivered
 net.messages_delivered()
+# saves packets per tau and parallel communications
 net.save_packets_per_tau()
 
-# print("Band Usage:", net.band_usage)
-
-# net.network_status()
 
 
