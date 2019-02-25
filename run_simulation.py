@@ -133,9 +133,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 # function to run simulations for ISC2 paper
 def run_various_sims():
-    for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
+    # for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
-
+    for band in ["ALL"]:
         if band == "ALL":
             for nodes_tofwd in [1, 0]:
                 print("K:", nodes_tofwd)

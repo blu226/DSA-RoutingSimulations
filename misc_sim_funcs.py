@@ -258,37 +258,36 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
 
 
 def default_spec_band(node, net, LINK_EXISTS, t):
-    # choose first priority spectrum
+    # # choose first priority spectrum
     chosen_spec = S[0]
-    # get nodes in range with that spectrum
+    # # get nodes in range with that spectrum
     nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
-    # if node is in range of band and there is an open channel and it isnt pessimistic, return the band and nodes in range
-    # if it is pessimistic, more testing needs to be done to see if a band with more bandwidth has the same nodes in range
-    if len(nodes_in_range) > 0 and smart_setting != "pessimistic" and node.is_there_an_open_channel(chosen_spec) == True:
-        return chosen_spec, nodes_in_range
+    # # if node is in range of band and there is an open channel and it isnt pessimistic, return the band and nodes in range
+    # # if it is pessimistic, more testing needs to be done to see if a band with more bandwidth has the same nodes in range
+    # if len(nodes_in_range) > 0 and smart_setting != "pessimistic" and node.is_there_an_open_channel(chosen_spec) == True:
+    #     return chosen_spec, nodes_in_range
 
     #If NOT pessimistic, and no nodes in range or is a pessimistic approach
     # loop through bands until a valid one is chosen
-    for i in range(1, 4):
+    for i in range(0, 4):
         chosen_spec = S[i]
         # check if an open channel exists on band
         if node.is_there_an_open_channel(chosen_spec) == True:
             # find nodes in range of band
-            next_nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
+            nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
             # if there are nodes in range
-            if len(next_nodes_in_range) > 0:
+            if len(nodes_in_range) > 0:
                 # if optimistic, once we find a band with nodes in range return
                 if smart_setting != "pessimistic":
-                    nodes_in_range = next_nodes_in_range
                     break
                 # if pessimistic, if the current nodes in range are equal to the previous nodes in range, then continue
                 # looping through bands to see if an even better bandwidth band exists with the same nodes in range.
                 else:
-                    if nodes_in_range == next_nodes_in_range:
-                        nodes_in_range = next_nodes_in_range
+                    if i < 3:
+                        next_nodes_in_range = find_nodes_in_range(node, net, S[i+1], LINK_EXISTS, t)
+                        if nodes_in_range != next_nodes_in_range:
+                            break
 
-                    else:
-                        break
 
     return chosen_spec, nodes_in_range
 

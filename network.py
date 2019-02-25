@@ -21,6 +21,10 @@ class Network(object):
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
 
+    def print_bandusage(self):
+        total = self.band_usage[0] + self.band_usage[1] + self.band_usage[2] + self.band_usage[3]
+        print("TV:", self.band_usage[0]/total, "ISM:", self.band_usage[1]/total, "LTE:", self.band_usage[2]/total, "CBRS:", self.band_usage[3]/total)
+
     def network_status(self):              #console output for debugging (prints all messages in each nodes buffer)
         for i in range(len(self.nodes)):
             self.nodes[i].print_buf()
@@ -431,8 +435,8 @@ class Network(object):
                 # if node transmitted at least 1 packet account for it in parallel communications
                 if did_node_transmit:
                     self.parallel_coms += 1
-                # account for band chosen by this node in this tau
-                self.band_usage[s] += 1
+                    # account for band chosen by this node in this tau
+                    self.band_usage[s] += 1
             # keep data for how many packets per tau and parallel coms there were per tau in a list to show change in time
             self.packets_per_tau_list.append(self.packets_per_tau)
             self.parallel_coms_list.append(self.parallel_coms)

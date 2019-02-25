@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="28641045-d5b7-4ed6-b65d-7b6774b66644" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/constants.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/misc_sim_funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/misc_sim_funcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/network.py" beforeDir="false" afterPath="$PROJECT_DIR$/network.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/plot_SER_nodes.py" beforeDir="false" afterPath="$PROJECT_DIR$/plot_SER_nodes.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run_simulation.py" beforeDir="false" afterPath="$PROJECT_DIR$/run_simulation.py" afterDir="false" />
     </list>
@@ -100,19 +102,19 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="dummy" value="15" />
-          <entry key="py" value="22447" />
+          <entry key="py" value="22935" />
           <entry key="txt" value="2059" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
           <entry key="PLAIN_TEXT" value="2074" />
-          <entry key="Python" value="22447" />
+          <entry key="Python" value="22935" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="py" value="82" />
+          <entry key="py" value="83" />
           <entry key="txt" value="2" />
           <entry key="wkt" value="2" />
         </counts>
@@ -120,7 +122,7 @@
       <usages-collector id="statistics.file.types.open">
         <counts>
           <entry key="PLAIN_TEXT" value="4" />
-          <entry key="Python" value="82" />
+          <entry key="Python" value="83" />
         </counts>
       </usages-collector>
     </session>
@@ -130,8 +132,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/run_simulation.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="5">
-              <caret line="176" column="14" selection-start-line="176" selection-start-column="14" selection-end-line="176" selection-end-column="14" />
+            <state relative-caret-position="558">
+              <caret line="85" selection-start-line="85" selection-end-line="85" />
             </state>
           </provider>
         </entry>
@@ -139,8 +141,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="38" column="8" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+            <state relative-caret-position="-720">
+              <caret line="23" column="14" selection-start-line="23" selection-start-column="14" selection-end-line="23" selection-end-column="14" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
               </folding>
@@ -151,8 +153,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="174">
-              <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
+            <state relative-caret-position="361">
+              <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
               </folding>
@@ -172,7 +174,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/constants.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="18">
+            <state relative-caret-position="324">
               <caret line="18" selection-start-line="18" selection-end-line="18" />
             </state>
           </provider>
@@ -181,20 +183,12 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/network.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="332" column="49" selection-start-line="332" selection-start-column="49" selection-end-line="332" selection-end-column="49" />
+            <state relative-caret-position="342">
+              <caret line="25" column="85" selection-start-line="25" selection-start-column="85" selection-end-line="25" selection-end-column="85" />
               <folding>
                 <element signature="e#0#23#0" expanded="true" />
+                <marker date="1551133711219" expanded="true" signature="1205:1361" ph="..." />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/choose_spec_TEST.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="180">
-              <caret line="11" column="9" selection-start-line="11" selection-start-column="9" selection-end-line="11" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -202,8 +196,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/node.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="419">
-              <caret line="466" column="88" selection-start-line="466" selection-start-column="88" selection-end-line="466" selection-end-column="88" />
+            <state relative-caret-position="273">
+              <caret line="82" column="63" selection-start-line="82" selection-start-column="60" selection-end-line="82" selection-end-column="63" />
               <folding>
                 <element signature="e#0#13#0" expanded="true" />
                 <marker date="1551126561120" expanded="true" signature="1363:2541" ph="..." />
@@ -212,11 +206,24 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/metrics.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="572">
+              <caret line="192" column="8" selection-start-line="192" selection-start-column="8" selection-end-line="192" selection-end-column="8" />
+              <folding>
+                <element signature="e#0#23#0" expanded="true" />
+                <marker date="1549297602959" expanded="true" signature="2744:3201" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/misc_sim_funcs.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="589">
-              <caret line="288" selection-start-line="288" selection-end-line="288" />
+            <state relative-caret-position="349">
+              <caret line="285" column="28" selection-start-line="285" selection-start-column="28" selection-end-line="285" selection-end-column="28" />
             </state>
           </provider>
         </entry>
@@ -244,8 +251,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>messages_delivered</find>
-      <find>not</find>
       <find>generate_me</find>
       <find>2	9	0	1500</find>
       <find>3	6	0	1500</find>
@@ -274,6 +279,8 @@
       <find>TTL</find>
       <find>consumedTime</find>
       <find>restri</find>
+      <find>net</find>
+      <find>band</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -330,11 +337,11 @@
         <option value="$PROJECT_DIR$/GenerateMessages.py" />
         <option value="$PROJECT_DIR$/README.txt" />
         <option value="$PROJECT_DIR$/plot_SER_msgmean.py" />
-        <option value="$PROJECT_DIR$/main.py" />
-        <option value="$PROJECT_DIR$/network.py" />
         <option value="$PROJECT_DIR$/node.py" />
         <option value="$PROJECT_DIR$/plot_SER_nodes.py" />
         <option value="$PROJECT_DIR$/run_simulation.py" />
+        <option value="$PROJECT_DIR$/main.py" />
+        <option value="$PROJECT_DIR$/network.py" />
         <option value="$PROJECT_DIR$/misc_sim_funcs.py" />
       </list>
     </option>
@@ -490,7 +497,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="plot_SER_ttl" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="run_simulation" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="combine_sims" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -502,7 +509,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/plot_SER_ttl.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/run_simulation.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -513,18 +520,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.plot_SER_nodes" />
-      <item itemvalue="Python.plot_SER_ttl" />
       <item itemvalue="Python.plot_SER_memory" />
       <item itemvalue="Python.GenerateMessages" />
       <item itemvalue="Python.plot_SER_msgmean" />
+      <item itemvalue="Python.run_simulation" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.plot_SER_nodes" />
+        <item itemvalue="Python.run_simulation" />
         <item itemvalue="Python.plot_SER_msgmean" />
         <item itemvalue="Python.GenerateMessages" />
         <item itemvalue="Python.plot_SER_memory" />
-        <item itemvalue="Python.plot_SER_ttl" />
       </list>
     </recent_temporary>
   </component>
@@ -545,12 +552,12 @@
     <frame x="903" y="27" width="1657" height="1051" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.17636253" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.17636253" />
       <window_info id="Structure" order="1" weight="0.24958813" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4983361" weight="0.35973597" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.4983361" visible="true" weight="0.35973597" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.49614963" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -727,13 +734,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/metrics.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="113" column="19" selection-start-line="113" selection-start-column="19" selection-end-line="113" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/STB_help.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5058">
@@ -880,30 +880,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/create_constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="4" column="100" selection-start-line="4" selection-start-column="100" selection-end-line="4" selection-end-column="100" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/constants.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="18">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/main.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="174">
-          <caret line="10" column="12" selection-start-line="10" selection-start-column="12" selection-end-line="10" selection-end-column="12" />
-          <folding>
-            <element signature="e#0#28#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/choose_spec_TEST.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="180">
@@ -913,8 +889,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/node.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="419">
-          <caret line="466" column="88" selection-start-line="466" selection-start-column="88" selection-end-line="466" selection-end-column="88" />
+        <state relative-caret-position="273">
+          <caret line="82" column="63" selection-start-line="82" selection-start-column="60" selection-end-line="82" selection-end-column="63" />
           <folding>
             <element signature="e#0#13#0" expanded="true" />
             <marker date="1551126561120" expanded="true" signature="1363:2541" ph="..." />
@@ -922,37 +898,73 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
+    <entry file="file://$PROJECT_DIR$/metrics.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="38" column="8" selection-start-line="38" selection-start-column="8" selection-end-line="38" selection-end-column="8" />
+        <state relative-caret-position="572">
+          <caret line="192" column="8" selection-start-line="192" selection-start-column="8" selection-end-line="192" selection-end-column="8" />
           <folding>
-            <element signature="e#0#18#0" expanded="true" />
+            <element signature="e#0#23#0" expanded="true" />
+            <marker date="1549297602959" expanded="true" signature="2744:3201" ph="..." />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/run_simulation.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="5">
-          <caret line="176" column="14" selection-start-line="176" selection-start-column="14" selection-end-line="176" selection-end-column="14" />
+        <state relative-caret-position="558">
+          <caret line="85" selection-start-line="85" selection-end-line="85" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/plot_SER_nodes.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-720">
+          <caret line="23" column="14" selection-start-line="23" selection-start-column="14" selection-end-line="23" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#18#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="361">
+          <caret line="29" lean-forward="true" selection-start-line="29" selection-end-line="29" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/network.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="332" column="49" selection-start-line="332" selection-start-column="49" selection-end-line="332" selection-end-column="49" />
+        <state relative-caret-position="342">
+          <caret line="25" column="85" selection-start-line="25" selection-start-column="85" selection-end-line="25" selection-end-column="85" />
           <folding>
             <element signature="e#0#23#0" expanded="true" />
+            <marker date="1551133711219" expanded="true" signature="1205:1361" ph="..." />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="324">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/create_constants.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="4" column="100" selection-start-line="4" selection-start-column="100" selection-end-line="4" selection-end-column="100" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/misc_sim_funcs.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="589">
-          <caret line="288" selection-start-line="288" selection-end-line="288" />
+        <state relative-caret-position="349">
+          <caret line="285" column="28" selection-start-line="285" selection-start-column="28" selection-end-line="285" selection-end-column="28" />
         </state>
       </provider>
     </entry>

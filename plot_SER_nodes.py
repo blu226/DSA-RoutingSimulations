@@ -21,7 +21,7 @@ Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 num_mules = [8, 16, 32, 48, 64]
 num_channels = 6
-num_Pusers = 250
+num_Pusers = 150
 msg_mean = 15
 ttl = 216
 max_mem = 150
