@@ -21,7 +21,7 @@ Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 num_mules = [8, 16, 32, 48, 64]
 num_channels = 6
-num_Pusers = 250
+num_Pusers = 150
 msg_mean = 15
 ttl = 216
 max_mem = 150
@@ -36,7 +36,7 @@ protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
 fwd_strat = 1
 metrics_file = "metrics.txt"
 
-p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
