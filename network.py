@@ -340,9 +340,9 @@ class Network(object):
                 else:
                     s = S[0]
                     nodes_in_range = find_nodes_in_range(node, self, s, LINK_EXISTS, t)
+
                 # send msgs to destinations first if priority queue is enabled
                 if priority_queue == True:
-
                     # order the msg buffer based on genT and if its in range of des
                     node.order_priority_queue(nodes_in_range)
                     # loop until msg at top of buffer can't be sent to its destination

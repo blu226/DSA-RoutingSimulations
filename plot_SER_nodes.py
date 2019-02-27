@@ -221,19 +221,19 @@ if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.ylim(-0.1,1)
 
-    fig_name = "Plots/pdr_K_SER.png"
+    fig_name = "Plots/pdr_nodes_SER.png"
 
 if p_id == 2:
     plt.ylabel('Network delay (min)', fontsize=25)
-    fig_name = "Plots/latency_K_SER.png"
+    fig_name = "Plots/latency_nodes_SER.png"
 
 if p_id == 3:
     plt.ylabel('Energy per packet (J)', fontsize=25)
-    fig_name = "Plots/energy_K_SER.png"
+    fig_name = "Plots/energy_nodes_SER.png"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
-    fig_name = "Plots/overhead_K_SER.png"
+    fig_name = "Plots/overhead_nodes_SER.png"
 
 
 plt.errorbar(x, optB_mean, optB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")

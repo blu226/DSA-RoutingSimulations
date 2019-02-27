@@ -80,8 +80,6 @@ def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
         if node != src_node and LINK_EXISTS[int(src_node.ID), int(node.ID), int(s), int(ts)] == 1:
             nodes_in_range.append(node)
 
-
-    nodes_in_range.append(src_node)
     return nodes_in_range
 
 def initialize_s():
@@ -132,8 +130,8 @@ def write_to_not_delivered(mes):
 def to_send(msg, node, t):
 
     #check if message was received by node in current time slot
-    if t < msg.last_sent:
-        return False
+    # if t < msg.last_sent:
+    #     return False
 
     # check if packet is in buffer
     for m in node.buf:
@@ -226,15 +224,13 @@ def des_in_range(nodes_in_range, node, t):
     return False
 
 def choose_spectrum(node, net, LINK_EXISTS, t):
-    # initialize chosen spectrum to the first spectrum in list
-    chosen_spec = S[0]
-
     #Handle priority queue
     # if priority queue is active send to destinations first
     if priority_queue == True:
         # loop thru each spectrum trying to find if a msg is in range of destination over any band, giving priority
         # to the bands we want to use first
-        for s in S:
+        #Irrespective of Optimistic or Pessimistic approach, always choose highest bandwidth band for destination nodes
+        for s in [3,2,1,0]:
             # check if the current node has an open channel on the band
             if node.is_there_an_open_channel(s) == True:
                 # if channel exists find other nodes in range of that node on the current band
@@ -249,27 +245,21 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
                         return chosen_spec, nodes_in_range
 
         # if no msg in range of destination, choose default spectrum
-        chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
+        chosen_spec, nodes_in_range = default_spec_band(node, net, LINK_EXISTS, t)
     # if no priority queue, choose default spectrum
     else:
-        chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
+        chosen_spec, nodes_in_range = default_spec_band(node, net, LINK_EXISTS, t)
 
-    return chosen_spec
+    return chosen_spec, nodes_in_range
 
 
 def default_spec_band(node, net, LINK_EXISTS, t):
-    # # choose first priority spectrum
-    chosen_spec = S[0]
-    # # get nodes in range with that spectrum
+    chosen_spec = 1 #ISM by default
     nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
-    # # if node is in range of band and there is an open channel and it isnt pessimistic, return the band and nodes in range
-    # # if it is pessimistic, more testing needs to be done to see if a band with more bandwidth has the same nodes in range
-    # if len(nodes_in_range) > 0 and smart_setting != "pessimistic" and node.is_there_an_open_channel(chosen_spec) == True:
-    #     return chosen_spec, nodes_in_range
 
     #If NOT pessimistic, and no nodes in range or is a pessimistic approach
     # loop through bands until a valid one is chosen
-    for i in range(0, 4):
+    for i in range(0, len(S)):
         chosen_spec = S[i]
         # check if an open channel exists on band
         if node.is_there_an_open_channel(chosen_spec) == True:

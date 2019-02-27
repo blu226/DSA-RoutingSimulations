@@ -55,15 +55,17 @@ class Node(object):
             te = ts
         else:
             te = ts + 1
-        # node 1 is transmitting to node 2, so make it so node2 can only receive msgs from node1 for the remainder of this tau
-        node2.can_receive = int(node1.ID)
-        # change this channel in node1 to node1's ID so node1 knows it is the only person allowed to transmit on this channel
-        node1.channels[s, channel] = int(node1.ID)
-        # for every other node in the network, if they are in range with node1 over current band, make sure they know
-        # only node1 can transmit on that channel
-        for other_node in net.nodes:
-            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1:
-                other_node.channels[s, channel] = int(node1.ID)
+        # ISM does not have channel restrictions
+        if s != 1:
+            # node 1 is transmitting to node 2, so make it so node2 can only receive msgs from node1 for the remainder of this tau
+            node2.can_receive = int(node1.ID)
+            # change this channel in node1 to node1's ID so node1 knows it is the only person allowed to transmit on this channel
+            node1.channels[s, channel] = int(node1.ID)
+            # for every other node in the network, if they are in range with node1 over current band, make sure they know
+            # only node1 can transmit on that channel
+            for other_node in net.nodes:
+                if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1:
+                    other_node.channels[s, channel] = int(node1.ID)
 
     def handle_energy(self, mes, des_node, s, ts, specBW):      # energy handling for xchants
         consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, s, ts, specBW)
