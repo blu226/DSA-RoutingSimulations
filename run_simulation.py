@@ -135,7 +135,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 def run_various_sims():
     # for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
-    for band in ["ALL"]:
+    for band in ["LTE"]:
         if band == "ALL":
             for nodes_tofwd in [1, 0]:
                 print("K:", nodes_tofwd)
@@ -196,8 +196,8 @@ if generate_LE == False:
     #     run_various_sims()
     #
     # varying num of mules
-    ttl = 216
-    for num_mules in [8, 16, 32, 48, 64]:
+    # ttl = 216
+    for num_mules in [32]:
         run_various_sims()
 
     # # varying num of channels
