@@ -23,7 +23,8 @@ class Network(object):
 
     def print_bandusage(self):
         total = self.band_usage[0] + self.band_usage[1] + self.band_usage[2] + self.band_usage[3]
-        print("TV:", self.band_usage[0]/total, "ISM:", self.band_usage[1]/total, "LTE:", self.band_usage[2]/total, "CBRS:", self.band_usage[3]/total)
+        if total > 0:
+            print("TV:", self.band_usage[0]/total, "ISM:", self.band_usage[1]/total, "LTE:", self.band_usage[2]/total, "CBRS:", self.band_usage[3]/total)
 
     def network_status(self):              #console output for debugging (prints all messages in each nodes buffer)
         for i in range(len(self.nodes)):
@@ -226,6 +227,7 @@ class Network(object):
         f.close()
 
     def get_node_fwd_priority(self, nodes_in_range, msg, t): # finds which nodes should be prioritized in geographic routing
+        #nodes_in_range.append(self.)
         if len(nodes_in_range) == 0:
             return -1
 
@@ -403,6 +405,8 @@ class Network(object):
                         # get a priority list of nodes that are in range that should get the msg first, if number of nodes
                         # to forward to this is used to see which k nodes will receive the forwarded packet
                         nodes_to_broadcast = []
+                        #add the node in
+                        nodes_in_range.append(node)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range and the best node is not the node that currently is trying to forward it
                         if node_priority_list != -1 and node_priority_list[0] != node:
