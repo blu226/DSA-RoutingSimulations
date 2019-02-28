@@ -132,10 +132,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         os.system("python3 metrics.py")
 
 # function to run simulations for ISC2 paper
-def run_various_sims():
-    # for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
+def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size):
+    for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
-    for band in ["LTE"]:
         if band == "ALL":
             for nodes_tofwd in [1, 0]:
                 print("K:", nodes_tofwd)
@@ -185,30 +184,35 @@ mem_size = 150
 
 if generate_LE == False:
 
-    # for msg_mean in [5, 10, 20, 25]:
-    #     run_various_sims()
+    for msg_round in range(5):
 
-    # for mem_size in [50, 100, 150, 200, -1]:
-    #     run_various_sims()
-    #
-    # mem_size = 150
-    # for ttl in [72, 144, 216, 288, 360]:
-    #     run_various_sims()
-    #
-    # varying num of mules
-    # ttl = 216
-    for num_mules in [32]:
-        run_various_sims()
+        for msg_mean in [5, 10, 15, 20, 25]:
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
 
-    # # varying num of channels
-    # for num_channels in [2, 4, 6, 8, 10]:
-    #     num_mules = 32
-    #     run_various_sims()
-    #
-    # # varying num primary users
-    # for num_Pusers in [50, 150, 250, 350, 450]:
-    #     num_channels = 6
-    #     run_various_sims()
+        msg_mean = 15
+        for mem_size in [50, 100, 150, 200, -1]:
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+
+        mem_size = 150
+        for ttl in [72, 144, 216, 288, 360]:
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+
+        # varying num of mules
+        ttl = 216
+        for num_mules in [8, 16, 32, 48, 64]:
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+
+        num_mules = 48
+        # varying num of channels
+        for num_channels in [2, 4, 6, 8, 10]:
+            num_mules = 32
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+
+        num_channels = 6
+        # varying num primary users
+        for num_Pusers in [50, 150, 250, 350, 450]:
+            num_channels = 6
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
 
 
 
