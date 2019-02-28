@@ -226,6 +226,7 @@ class Network(object):
         f.close()
 
     def get_node_fwd_priority(self, nodes_in_range, msg, t): # finds which nodes should be prioritized in geographic routing
+        #nodes_in_range.append(self.)
         if len(nodes_in_range) == 0:
             return -1
 
@@ -403,6 +404,8 @@ class Network(object):
                         # get a priority list of nodes that are in range that should get the msg first, if number of nodes
                         # to forward to this is used to see which k nodes will receive the forwarded packet
                         nodes_to_broadcast = []
+                        #add the node in
+                        nodes_in_range.append(node)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
                         # if there are nodes in range and the best node is not the node that currently is trying to forward it
                         if node_priority_list != -1 and node_priority_list[0] != node:
