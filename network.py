@@ -422,8 +422,8 @@ class Network(object):
                         if limited_time_to_transfer == True:
                             node.mes_fwd_time_limit += transfer_time_in_sec
 
-                        # check if there is enough time to broadcast msg
-                        if node.mes_fwd_time_limit <= num_sec_per_tau:
+                        # check if there is enough time to broadcast msg and enough copies to send
+                        if node.mes_fwd_time_limit <= num_sec_per_tau and msg.copies > 1:
                             msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
                                                                          specBW, self, s)
                             # if msg wasn't broadcasted then give transfer time back to node

@@ -280,7 +280,7 @@ class Node(object):
                 transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, s, specBW, mes.curr, des_node.ID, ts)
 
                 # account for time it takes to send if resources aren't infinite
-                if is_queuing_active == True:
+                if limited_time_to_transfer == True:
                     self.mes_fwd_time_limit += transfer_time_in_sec
 
                 # Check if there is enough time to transfer packet
@@ -301,7 +301,8 @@ class Node(object):
                             write_delivered_msg_to_file(new_message, mes.last_sent + 1)
                             des_node.delivered.append(new_message)
                             des_node.handle_buffer_overflow(max_packets_in_buffer)
-                            # self.buf.remove(mes)
+                            if geographical_routing:
+                                self.buf.remove(mes)
                             return True
 
                         else:
@@ -373,7 +374,13 @@ class Node(object):
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
                                       [0], 0, mes.packet_id, mes.hops)
-                new_message.set(ts + 1, mes.replica + 1, des_node.ID)
+                copies_to_send = math.floor(mes.copies / 2)
+                copies_to_keep = math.ceil(mes.copies / 2)
+                if geographical_routing == True:
+                    new_message.set(ts + 1, copies_to_send, des_node.ID)
+                    mes.change_num_copies(copies_to_keep)
+                else:
+                    new_message.set(ts + 1, mes.replica + 1, des_node.ID)
                 new_message.band_used(s)
                 packets_sent += 1
                 # check if the destination nodes buffer will overflow by receiving this packet, and drop a packet if necessary
@@ -500,7 +507,7 @@ class Node(object):
                 if channel_available == True:
                     nodes[next].can_receive = self.ID
 
-                    if is_queuing_active == True:
+                    if limited_time_to_transfer == True:
                         self.mes_fwd_time_limit += transfer_time_in_secs
 
                     if self.mes_fwd_time_limit <= num_sec_per_tau:

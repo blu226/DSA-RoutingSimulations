@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active):
 
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
@@ -14,7 +14,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     limited_time_to_transfer = True        # finite resources enabled
     restrict_band_access = True     # for xchants, forget how it works
     restrict_channel_access = True  # is there a limited amount of channels
-    priority_queue_active = True    # do you want to order the msgs in a nodes buffer in some way and send to destination first
+    # priority_queue_active = True    # do you want to order the msgs in a nodes buffer in some way and send to destination first
     if num_fwd == 0:                # if/else statement for epidemic protocol vs forwarding, 0 = broadcast/epidemic
         broadcast = True
         geo_routing = False
@@ -128,7 +128,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         os.system("python3 metrics.py")
 
 # function to run simulations for ISC2 paper
-def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size):
+def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas):
     for band in ["TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
         if band == "ALL":
@@ -137,12 +137,12 @@ def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, t
                 print("Optimistic")
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
+                               "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, True)
                 print()
                 print("Pessimistic")
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
+                               "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, True)
 
         else:
 
@@ -150,7 +150,7 @@ def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, t
                 print("Band:", band, "K:", nodes_tofwd)
                 run_simulation(data, day, 3, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size)
+                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, False)
 
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
@@ -177,38 +177,40 @@ puser_round = 0
 msg_mean = 15
 ttl = 216
 mem_size = 150
+num_replicas = 10       # number of replicas/copies for geographic SnW
+
 
 if generate_LE == False:
 
     for msg_round in range(5):
 
         for msg_mean in [5, 10, 15, 20, 25]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
         msg_mean = 15
         for mem_size in [50, 100, 150, 200, -1]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
         mem_size = 150
         for ttl in [72, 144, 216, 288, 360]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
         # varying num of mules
         ttl = 216
         for num_mules in [8, 16, 32, 48, 64]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
         num_mules = 48
         # varying num of channels
         for num_channels in [2, 4, 6, 8, 10]:
             num_mules = 32
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
         num_channels = 6
         # varying num primary users
         for num_Pusers in [50, 150, 250, 350, 450]:
             num_channels = 6
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size)
+            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
 
 
@@ -216,4 +218,4 @@ if generate_LE == False:
 else:
     run_simulation(data, day, 3, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                                    pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                                   "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean)
+                                   "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, True)
