@@ -16,11 +16,14 @@ class Message(object):                                                          
         self.num_copies = -1
         self.hops = hops
 
-    def set(self, lastSent, rep, curr):
+    def set(self, lastSent, copies, curr):
         self.last_sent = lastSent
-        self.replica = rep
+        self.num_copies = copies
         self.curr = curr
         self.hops += 1
+
+    def change_num_copies(self, copies):
+        self.num_copies = copies
 
     def band_used(self, s):
         self.band_usage[s] += 1

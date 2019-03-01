@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas):
 
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
@@ -11,10 +11,10 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     debug_message = -1              # if a certain msg # needs to be debugged put it here and include if statement in area to debug
     debug_mode = -1                 # same as above but for more general debug purposes
     metric_interval = 30            # interval in which metrics should be generated: every "metric interval" tau
-    is_queuing_active = True        # do you transmit msgs that are in range with there destination first?
+    limited_time_to_transfer = True        # finite resources enabled
     restrict_band_access = True     # for xchants, forget how it works
     restrict_channel_access = True  # is there a limited amount of channels
-    priority_queue_active = True    # do you want to order the msgs in a nodes buffer in some way
+    priority_queue_active = True    # do you want to order the msgs in a nodes buffer in some way and send to destination first
     if num_fwd == 0:                # if/else statement for epidemic protocol vs forwarding, 0 = broadcast/epidemic
         broadcast = True
         geo_routing = False
@@ -97,15 +97,11 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
     # create the constants file based on all of these parameters
     create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, metrics_path, link_exists_path,
-                     debug_message, \
-                     protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,
-                     pkl_fold_num, \
-                     path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access,
-                     restrict_channel_access, \
-                     generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
-                     priority_queue_active, \
-                     broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
-                     msg_mean, ttl, max_mem)
+                     debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,
+                     pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access,
+                     restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
+                     priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
+                     msg_mean, ttl, max_mem, replicas)
 
     # generate a link exists if needed
     if generate_link_exists == True and max_nodes == V + NoOfSources + NoOfDataCenters:
@@ -133,7 +129,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 # function to run simulations for ISC2 paper
 def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size):
-    for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
+    for band in ["TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
         if band == "ALL":
             for nodes_tofwd in [1, 0]:

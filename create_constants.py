@@ -2,10 +2,10 @@
 
 def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message,\
                      protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,\
-                     pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, \
+                     pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
                      smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_file, puser_file, \
-                     debug_m, metric_int, msg_mean, ttl, mem_size):
+                     debug_m, metric_int, msg_mean, ttl, mem_size, num_replicas):
 
     f = open("constants.py", "w")
 
@@ -23,7 +23,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
     ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" \
                + str(puser_file) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/\'\n"
-    queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
+    limited_time_to_transfer_line = "limited_time_to_transfer = " + str(limited_time_to_transfer) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
     pq_line = "priority_queue = " + str(priority_queue_active) + "\n"
@@ -46,6 +46,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     met_int = "metric_interval = " + str(metric_int) + "\n"
     ttl_line = "TTL = " + str(ttl) + "\n"
     mem_line = "max_packets_in_buffer = " + str(mem_size) + "\n"
+    rep_line = "num_replicas = " + str(num_replicas) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -62,11 +63,6 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         metrics_file = "metrics.txt"
         packet_delivered_file = "packets_delivered.txt"
         LLC_line = "path_to_LLC = \'" + str(path_to_day1_LLC) + "\'\n"
-
-    if protocol == "SprayNWait":
-        num_reps_line = "num_replicas = 20\n"
-    else:
-        num_reps_line = "num_replicas = 1\n"
 
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
     f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [1200,180,800,300]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
@@ -90,8 +86,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(ptm_line)
     f.write(pkl_line)
     f.write(LLC_line)
-    f.write(num_reps_line)
-    f.write(queue_line)
+    f.write(rep_line)
+    f.write(limited_time_to_transfer_line)
     f.write(rb_line)
     f.write(rc_line)
     f.write(pq_line)

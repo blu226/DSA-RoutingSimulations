@@ -384,7 +384,7 @@ class Network(object):
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
                                                                                          nodes_in_range[0].ID, t)
                         # account for time it takes to send if resources aren't infinite
-                        if is_queuing_active == True:
+                        if limited_time_to_transfer == True:
                             node.mes_fwd_time_limit += transfer_time_in_sec
 
                         # check if there is enough time to broadcast msg
@@ -417,12 +417,9 @@ class Network(object):
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
                         # find transfer time
-                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,
-                                                                                         msg.curr,
-                                                                                         nodes_in_range[0].ID,
-                                                                                         t)
+                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
                         # account for time it takes to send if resources aren't infinite
-                        if is_queuing_active == True:
+                        if limited_time_to_transfer == True:
                             node.mes_fwd_time_limit += transfer_time_in_sec
 
                         # check if there is enough time to broadcast msg
