@@ -22,33 +22,38 @@ class Node(object):
     def handle_buffer_overflow(self, mem_size):     # handle a buffer overflow
         # if the size of the buffer is larger than the mem size and mem size isnt 0 (means infinite buffer)
         if len(self.buf) > mem_size and mem_size > 0:
-            min_gen_t = T
 
-            # find smallest generation time
-            for mes in self.buf:
-                if mes.genT < min_gen_t:
-                    min_gen_t = mes.genT
+            if smart_setting != "optimistic" and smart_setting != "pessimistic":
+                self.buf.remove(self.buf[0])
 
-            # find smallest message size packet to delete
-            for mes in self.buf:
-                if mes.genT == min_gen_t:
-                    self.buf.remove(mes)
-                    return
-            # Possible code to delete the smallest msg sized packet in buffer
-            # for mes in self.buf:
-            #     if mes.genT == min_gen_t and mes.size == M[1]:
-            #         self.buf.remove(mes)
-            #         return
-            #
-            # for mes in self.buf:
-            #     if mes.genT == min_gen_t and mes.size == M[2]:
-            #         self.buf.remove(mes)
-            #         return
-            #
-            # for mes in self.buf:
-            #     if mes.genT == min_gen_t and mes.size == M[3]:
-            #         self.buf.remove(mes)
-            #         return
+            else:
+                min_gen_t = T
+
+                # find smallest generation time
+                for mes in self.buf:
+                    if mes.genT < min_gen_t:
+                        min_gen_t = mes.genT
+
+                # find smallest message size packet to delete
+                for mes in self.buf:
+                    if mes.genT == min_gen_t:
+                        self.buf.remove(mes)
+                        return
+                # Possible code to delete the smallest msg sized packet in buffer
+                # for mes in self.buf:
+                #     if mes.genT == min_gen_t and mes.size == M[1]:
+                #         self.buf.remove(mes)
+                #         return
+                #
+                # for mes in self.buf:
+                #     if mes.genT == min_gen_t and mes.size == M[2]:
+                #         self.buf.remove(mes)
+                #         return
+                #
+                # for mes in self.buf:
+                #     if mes.genT == min_gen_t and mes.size == M[3]:
+                #         self.buf.remove(mes)
+                #         return
 
     def update_channel_occupancy(self, node1, node2, ts, net, s, channel, LINK_EXISTS): # update channels being used between 2 nodes
         if ts == T - 1:
