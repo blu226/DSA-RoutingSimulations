@@ -30,3 +30,6 @@ class Message(object):                                                          
 
     def create_copies(self, nc):
         self.num_copies = nc
+
+    def get_num_copies(self):
+        return self.num_copies

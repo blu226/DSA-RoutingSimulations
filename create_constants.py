@@ -1,6 +1,6 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message,\
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, path_to_metrics, link_exists_folder, debug_message,\
                      protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,\
                      pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
@@ -21,8 +21,11 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     st_line = "StartTime = " + str(start_time) + "\n"
     dm_line = "debug_message = " + str(debug_message) + "\n"
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
-    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" \
-               + str(puser_file) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/\'\n"
+    ptm_line = 'path_to_metrics = \'' + str(path_to_metrics) + "\'\n"
+
+    #ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" \
+               # + str(puser_file) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/\'\n"
+
     limited_time_to_transfer_line = "limited_time_to_transfer = " + str(limited_time_to_transfer) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"

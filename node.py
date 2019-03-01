@@ -72,10 +72,10 @@ class Node(object):
                 if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1:
                     other_node.channels[s, channel] = int(node1.ID)
 
-    def handle_energy(self, mes, des_node, s, ts, specBW):      # energy handling for xchants
-        consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, s, ts, specBW)
+    def handle_energy(self, mes, next_node, s, ts, specBW):      # energy handling for xchants
+        consumedEnergy = self.calculate_energy_consumption(mes, next_node.ID, s, ts, specBW)
         self.energy += consumedEnergy
-        des_node.energy += consumedEnergy
+        next_node.energy += consumedEnergy
 
     def order_priority_queue(self, nodes_in_range):         # orders the buffer of a node based on msgs in range of destination
         # get all IDs of nodes in range
@@ -301,8 +301,9 @@ class Node(object):
                             write_delivered_msg_to_file(new_message, mes.last_sent + 1)
                             des_node.delivered.append(new_message)
                             des_node.handle_buffer_overflow(max_packets_in_buffer)
-                            if geographical_routing:
-                                self.buf.remove(mes)
+
+                            #if geographical_routing:
+                            self.buf.remove(mes)
                             return True
 
                         else:
@@ -353,23 +354,25 @@ class Node(object):
         channel_to_use = -1
         # variable to keep track of how many packets are sent per tau
         packets_sent = 0
-        # find an open channel
-        for des_node in nodes_in_range:
-            temp_channel = self.is_channel_available(des_node, s, ts, net, LINK_EXISTS)
+
+        # try to find an open channel, and if you don't just give up broadcasting message on the chosen band and leave this module
+        for next_node in nodes_in_range:
+            temp_channel = self.is_channel_available(next_node, s, ts, net, LINK_EXISTS)
             if  temp_channel >= 0:
                 channel_to_use = temp_channel
                 break
+
         # try sending msg over found channel to every node in range
-        for des_node in nodes_in_range:
+        for next_node in nodes_in_range:
              # check if node has the available channel
-            channel_available = self.check_if_channel_available(self, des_node, ts, net, s, LINK_EXISTS, channel_to_use)
+            channel_available = self.check_if_channel_available(self, next_node, ts, net, s, LINK_EXISTS, channel_to_use)
             # if node has the chosen channel available send him the msg
-            if channel_available >= 0 and to_send(mes, des_node, ts) == True:
+            if channel_available >= 0 and to_send(mes, next_node, ts) == True:
                 # msg was broadcasted to at least 1 node
                 message_broadcasted = True
                 # calculate energy consumed
-                consumedEnergy = self.calculate_energy_consumption(mes, des_node.ID, s, ts, specBW)
-                des_node.energy += consumedEnergy
+                consumedEnergy = self.calculate_energy_consumption(mes, next_node.ID, s, ts, specBW)
+                next_node.energy += consumedEnergy
                 # create replica of message
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
@@ -378,26 +381,28 @@ class Node(object):
                 if geographical_routing == True:
                     copies_to_send = math.ceil(mes.num_copies / 2)
                     copies_to_keep = math.floor(mes.num_copies / 2)
-                    new_message.set(ts + 1, copies_to_send, des_node.ID)
+                    new_message.set(ts + 1, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
                 else:
-                    new_message.set(ts + 1, mes.replica + 1, des_node.ID)
+                    new_message.set(ts + 1, mes.replica + 1, next_node.ID)
                 new_message.band_used(s)
                 packets_sent += 1
                 # check if the destination nodes buffer will overflow by receiving this packet, and drop a packet if necessary
-                des_node.handle_buffer_overflow(max_packets_in_buffer)
+                next_node.handle_buffer_overflow(max_packets_in_buffer)
                 # handle if msg is sent to destination
-                if int(des_node.ID) == (mes.des):
+                if int(next_node.ID) == (mes.des):
                     write_delivered_msg_to_file(new_message, new_message.last_sent)
-                    des_node.delivered.append(new_message)
+                    next_node.delivered.append(new_message)
                     break
 
                 # handle msg if it is being sent to a relay node
                 else:
                     # add new msg to destination nodes buffer
-                    des_node.buf.append(new_message)
+                    next_node.buf.append(new_message)
                     # if forwarding and not flooding, delete msg from current nodes buffer after sending
-                    if mes in self.buf and num_nodes_to_fwd > 0:
+
+                    # if mes in self.buf and num_nodes_to_fwd > 0:
+                    if mes in self.buf and geographical_routing and mes.get_num_copies() == 0:
                         self.buf.remove(mes)
         # if a msg was broadcasted, handle energy consumed at the sending nodes end
         if(message_broadcasted == True):
