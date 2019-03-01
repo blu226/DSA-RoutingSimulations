@@ -129,7 +129,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
 # function to run simulations for ISC2 paper
 def run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas):
-    for band in ["TV", "CBRS", "LTE", "ISM"]:
+    for band in ["ALL", "TV", "CBRS", "LTE", "ISM"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
         if band == "ALL":
             for nodes_tofwd in [1, 0]:
@@ -182,35 +182,37 @@ num_replicas = 10       # number of replicas/copies for geographic SnW
 
 if generate_LE == False:
 
-    for msg_round in range(5):
+        run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
-        for msg_mean in [5, 10, 15, 20, 25]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        msg_mean = 15
-        for mem_size in [50, 100, 150, 200, -1]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        mem_size = 150
-        for ttl in [72, 144, 216, 288, 360]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        # varying num of mules
-        ttl = 216
-        for num_mules in [8, 16, 32, 48, 64]:
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        num_mules = 48
-        # varying num of channels
-        for num_channels in [2, 4, 6, 8, 10]:
-            num_mules = 32
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        num_channels = 6
-        # varying num primary users
-        for num_Pusers in [50, 150, 250, 350, 450]:
-            num_channels = 6
-            run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    # for msg_round in range(5):
+    #
+    #     for msg_mean in [5, 10, 15, 20, 25]:
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    #
+    #     msg_mean = 15
+    #     for mem_size in [50, 100, 150, 200, -1]:
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    #
+    #     mem_size = 150
+    #     for ttl in [72, 144, 216, 288, 360]:
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    #
+    #     # varying num of mules
+    #     ttl = 216
+    #     for num_mules in [8, 16, 32, 48, 64]:
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    #
+    #     num_mules = 48
+    #     # varying num of channels
+    #     for num_channels in [2, 4, 6, 8, 10]:
+    #         num_mules = 32
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+    #
+    #     num_channels = 6
+    #     # varying num primary users
+    #     for num_Pusers in [50, 150, 250, 350, 450]:
+    #         num_channels = 6
+    #         run_various_sims(num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
 
 

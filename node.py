@@ -374,9 +374,10 @@ class Node(object):
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
                                       [0], 0, mes.packet_id, mes.hops)
-                copies_to_send = math.floor(mes.copies / 2)
-                copies_to_keep = math.ceil(mes.copies / 2)
+
                 if geographical_routing == True:
+                    copies_to_send = math.ceil(mes.num_copies / 2)
+                    copies_to_keep = math.floor(mes.num_copies / 2)
                     new_message.set(ts + 1, copies_to_send, des_node.ID)
                     mes.change_num_copies(copies_to_keep)
                 else:
