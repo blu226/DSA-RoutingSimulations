@@ -21,6 +21,14 @@ class Network(object):
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
 
+    def debug_num_copies(self, t):
+        print("TIME:", t)
+
+        for node in self.nodes:
+            for msg in node.buf:
+                if msg.ID == 0 and msg.packet_id == 0:
+                    print("Node", node.ID, "num copies:", msg.num_copies)
+
     def print_bandusage(self):
         total = self.band_usage[0] + self.band_usage[1] + self.band_usage[2] + self.band_usage[3]
         if total > 0:
@@ -284,7 +292,6 @@ class Network(object):
         #Calculate energy consumption
         if t % metric_interval == 0 or t == T - 1:
             self.find_avg_energy_consumption(t)
-
 
         #Handle different protocols
         # XCHANT protocol/code is outdated for current implementation. works for 5D link exists, now we have 4D link exists

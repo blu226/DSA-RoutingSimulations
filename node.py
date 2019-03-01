@@ -367,7 +367,7 @@ class Node(object):
              # check if node has the available channel
             channel_available = self.check_if_channel_available(self, next_node, ts, net, s, LINK_EXISTS, channel_to_use)
             # if node has the chosen channel available send him the msg
-            if channel_available >= 0 and to_send(mes, next_node, ts) == True:
+            if channel_available >= 0 and to_send(mes, next_node, ts) == True and mes in self.buf:
                 # msg was broadcasted to at least 1 node
                 message_broadcasted = True
                 # calculate energy consumed
@@ -380,9 +380,10 @@ class Node(object):
 
                 if geographical_routing == True:
                     copies_to_send = math.ceil(mes.num_copies / 2)
-                    copies_to_keep = math.floor(mes.num_copies / 2)
+                    copies_to_keep = mes.num_copies - copies_to_send
                     new_message.set(ts + 1, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
+
                 else:
                     new_message.set(ts + 1, mes.replica + 1, next_node.ID)
                 new_message.band_used(s)
@@ -401,9 +402,9 @@ class Node(object):
                     next_node.buf.append(new_message)
                     # if forwarding and not flooding, delete msg from current nodes buffer after sending
 
-                    # if mes in self.buf and num_nodes_to_fwd > 0:
-                    if mes in self.buf and geographical_routing and mes.get_num_copies() == 0:
-                        self.buf.remove(mes)
+                # if mes in self.buf and num_nodes_to_fwd > 0:
+                if mes in self.buf and geographical_routing and mes.num_copies == 0:
+                    self.buf.remove(mes)
         # if a msg was broadcasted, handle energy consumed at the sending nodes end
         if(message_broadcasted == True):
             self.energy += consumedEnergy
