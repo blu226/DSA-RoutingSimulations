@@ -182,7 +182,7 @@ class Network(object):
         f = open(path_to_metrics + not_delivered_file, "a")
         for node in self.nodes:
             for mes in node.buf:
-                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) +"\n"
+                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
                 f.write(line)
         f.close()
 
@@ -228,7 +228,7 @@ class Network(object):
                     # print("MSG:", mes.ID, "curr:", mes.curr, "t:", t, "TTL expired")
                     line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
                         mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
-                        mes.curr) + "\t" + str(mes.packet_id) + "\n"
+                        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
                     f.write(line)
                     node.buf.remove(mes)
 
