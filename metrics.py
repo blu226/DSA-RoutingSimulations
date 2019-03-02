@@ -18,6 +18,44 @@ def find_num_msg_gen(t):
 
     return num_msg
 
+def compute_overhead_new(time):
+
+    if protocol == "XChant" or protocol == "HotPotato":
+        return 1
+
+    with open(generated_messages_file, 'r') as f:
+        msg_lines = f.readlines()[1:]
+
+    with open(path_to_metrics + not_delivered_file, "r") as f:
+        not_del_lines = f.readlines()[2:]
+
+    with open(path_to_metrics + packet_delivered_file, "r") as f2:
+        del_lines = f2.readlines()[1:]
+
+    gen_packets_until_t = 0
+    packets_delivered_until_t = 0
+    packets_not_delivered_until_t = 0
+
+    for msg in msg_lines:
+        msg_arr = msg.strip().split()
+        size = int(msg_arr[4])
+        gen_t = int(msg_arr[5])
+        if gen_t <= time:
+            num_of_packets = size/packet_size
+            gen_packets_until_t += num_of_packets
+
+    for line in del_lines:
+        line_arr = line.strip().split()
+        if(int(line_arr[4]) <= time):
+            packets_delivered_until_t += 1
+
+    for line in not_del_lines:
+        line_arr = line.strip().split()
+        if (int(line_arr[4]) <= time):
+            packets_not_delivered_until_t += 1
+
+    return round(float(packets_not_delivered_until_t + packets_delivered_until_t)/gen_packets_until_t, 2)
+
 def compute_overhead(time):
 
     if protocol == "XChant" or protocol == "HotPotato":
@@ -201,7 +239,7 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     avg_energy = find_avg_energy(delivery_time)
 
-    overhead = compute_overhead(delivery_time)
+    overhead = compute_overhead_new(delivery_time)
 
     avg_hops_per_packet, num_packets = compute_ave_hop_count(delivery_time)
 
