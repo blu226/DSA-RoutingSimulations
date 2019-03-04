@@ -20,7 +20,7 @@ files = findfiles(DataMule_path + "Day1/")
 
 
 for it in range(rounds):
-    file_path = "Primary_Users/" + str(it)
+    file_path = "Primary_Users/Lexington/" + str(it)
 
     if not os.path.exists(file_path):
         os.makedirs(file_path)
@@ -46,7 +46,7 @@ for it in range(rounds):
             x = float(line_arr[1])
             y = float(line_arr[2])
 
-        band = random.randint(0,len(S) - 1)
+        band = random.choice([0, 2, 3])
         channel = random.randint(0, default_num_channels - 1)
 
         p_line = str(x) + "\t" + str(y) + "\t" + str(channel) + "\t" + str(band) + "\n"
