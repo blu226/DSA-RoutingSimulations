@@ -19,7 +19,8 @@ Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 
 
-num_mules = [8, 16, 32, 48, 64]
+#num_mules = [8, 16, 32, 48, 64]
+num_mules = [8, 32, 64, 92, 128]
 num_channels = 6
 num_Pusers = 150
 msg_mean = 15
@@ -29,41 +30,33 @@ T = 360
 startTime = 1
 days = "50"
 dataset = "Lexington"
-buffer_type = "PQ"
+buffer_type = ["PQ", "FIFO"]
 protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
-fwd_strat = 1
+num_replicas = 10
 metrics_file = "metrics.txt"
+sim_round = 4
 
-p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 4 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
         for mules in num_mules:
             for protocol in ["optimistic", "pessimistic"]:
-                if mules == 8:
-                    t = 0
-                elif mules == 16:
-                    t = 1
-                elif mules == 32:
-                    t = 2
-                elif mules == 48:
-                    t = 3
-                else:
-                    t = 4
+                t = num_mules.index(mules)
 
 
-                if fwd_strat > 0:
-                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(fwd_strat) + "/mules_" + \
-                           str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
-                else:
-                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
-                           str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+                # if fwd_strat > 0:
+                path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(startTime) + \
+                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[0] + "/geo_" + str(num_replicas) + "/mules_" + \
+                       str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                       "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+                # else:
+                #     path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(startTime) + \
+                #            "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
+                #            str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                #            "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
 
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
@@ -88,29 +81,28 @@ for i in range(msg_files):
     for j in range(puser_files):
         for mules in num_mules:
             for protocol in ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]:
-                if mules == 8:
-                    t = 0
-                elif mules == 16:
-                    t = 1
-                elif mules == 32:
-                    t = 2
-                elif mules == 48:
-                    t = 3
+                t = num_mules.index(mules)
+
+                if protocol in ["optimistic", "pessimistic"]:
+                    path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(startTime) + \
+                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[0] + "/broadcast/mules_" + \
+                           str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                           "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+
                 else:
-                    t = 4
-
-                path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
-                       str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                       "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
-
+                    path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(
+                        startTime) + \
+                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[1] + "/broadcast/mules_" + \
+                           str(mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                           "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(
+                        ttl) + "/BuffSize_" + str(max_mem) + "/"
 
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
 
                 for line in lines:
                     line_arr = line.strip().split()
-                    if int(line_arr[0]) % 5 == 0:
+                    if int(line_arr[0]) == 360:
                         if "optimistic" in protocol:
                             bro_opt_PQ[t, i, j] = float(line_arr[p_id])
                         elif "pessimistic" in protocol:
