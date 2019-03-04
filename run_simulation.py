@@ -126,8 +126,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     # if not os.path.exists(path_to_metrics):
     #     os.makedirs(path_to_metrics)
 
-    if generate_LE == True:
-        os.system("python3 STB_main_path.py")
+    # if generate_LE == True:
+    #     os.system("python3 STB_main_path.py")
 
     # run the simulation and metrics if you are not generating link exists
     if generate_LE == False:
