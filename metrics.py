@@ -247,17 +247,17 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     pkt_per_tau, parallel_coms = packets_per_taue(delivery_time)
 
-    if num_packets > 0:
-        eng = round(avg_energy/num_packets, 2)
-    else:
-        eng = 0
+    # if num_packets > 0:
+    #     eng = round(avg_energy/num_packets, 2)
+    # else:
+    #     eng = 0
 
     if print_metrics == True:
 
         print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
-              eng, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms)
+              avg_energy, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms)
 
-    return delivered, latency, eng, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms
+    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms
 
 #Main starts here
 with open(generated_messages_file, "r") as f:
