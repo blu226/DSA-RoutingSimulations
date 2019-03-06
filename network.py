@@ -422,7 +422,7 @@ class Network(object):
                             for i in range(len(node_priority_list)):
                                 #TODO: Confirm with Brian
                                 # if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
-                                if to_send(msg, node_priority_list[i], t) == True:
+                                if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
                         # find transfer time
