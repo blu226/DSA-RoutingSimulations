@@ -16,22 +16,24 @@ Epidemic_LTE = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_CBRS = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
-num_mules = 32
+num_mules = 92
 num_channels = 6
 PU = [50, 150, 250, 350, 450]
 msg_mean = 15
 ttl = 216
-max_mem = 100
+max_mem = 150
 T = 360
 startTime = 1
 days = "50"
 dataset = "Lexington"
 folder_nums = [x for x in range(1,11, 1)]
-buffer_type = "PQ"
+buffer_type = ["PQ", "FIFO"]
 protocols = ["optimistic", "pessimistic"]
 # fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
-fwd_strat = 1
+#fwd_strat = 1
+num_replicas = 10
 metrics_file = "metrics.txt"
+sim_round = 4
 
 p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
@@ -41,10 +43,10 @@ for i in range(msg_files):
             for protocol in protocols:
                 t = PU.index(num_Pusers)
 
-                path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(fwd_strat) + "/mules_" + \
+                path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(startTime) + \
+                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[0] + "/geo_" + str(num_replicas) + "/mules_" + \
                        str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                       "/msgfile" + str(i) + "_" + str(msg_mean)+ "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+                       "/msgfile_" + str(i) + "_" + str(msg_mean)+ "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
 
 
                 with open(path + metrics_file, "r") as f:
@@ -65,12 +67,18 @@ for i in range(msg_files):
             for protocol in ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]:
                 t = PU.index(num_Pusers)
 
-
-                path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
-                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
-                       str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                       "/msgfile" + str(i) + "_" + str(msg_mean) + "/puserfile" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
-
+                if protocol in ["optimistic", "pessimistic"]:
+                    path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(startTime) + \
+                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[0] + "/broadcast/mules_" + \
+                           str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                           "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(max_mem) + "/"
+                else:
+                    path = "DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(
+                        startTime) + \
+                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[1] + "/broadcast/mules_" + \
+                           str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
+                           "/msgfile_" + str(i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(
+                        ttl) + "/BuffSize_" + str(max_mem) + "/"
 
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
@@ -176,10 +184,11 @@ for i in range(len(optB_temp)):
     ISM_mean.append(np.mean(ISM_temp[i]))
     ISM_sd.append(np.std(ISM_temp[i]))
 
-x = np.array([x for x in range(100, 501, 100)])
+#x = np.array([x for x in range(100, 501, 100)])
+x = PU
 plt.xticks(fontsize=20)
 plt.yticks(fontsize=25)
-plt.xticks(np.arange(100, 501, 100))
+#plt.xticks(np.arange(100, 501, 100))
 # title_str = "Broadcast to everyone in range"
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
@@ -187,11 +196,11 @@ fig_name = "dummy.eps"
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.xlabel('Num primary users', fontsize=25)
-    plt.ylim(-0.1,1)
+    #plt.ylim(-0.1,1)
     fig_name = "Plots/pdr_PU_SER.png"
 
 if p_id == 2:
-    plt.ylim(-1, 35)
+    #plt.ylim(-1, 35)
     plt.ylabel('Network delay (min)', fontsize=25)
     plt.xlabel('Num primary users', fontsize=25)
 
@@ -205,7 +214,7 @@ if p_id == 3:
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
     plt.xlabel('Num primary users', fontsize=25)
-    plt.ylim(-1, 20)
+    #plt.ylim(-1, 20)
     fig_name = "Plots/overhead_PU_SER.png"
 
 plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
