@@ -33,7 +33,7 @@ for msg_line in msg_lines:
             ts = line_arr[3]
             te = line_arr[4]
             #packet_id = line_arr[8] #in not_delivered_file
-            packet_id = line_arr[13]
+            packet_id = line_arr[6]
             if int(gen_msg_id) == int(msg_id) and int(gen_packet_id) == int(packet_id):
                 msg_count[int(msg_id)][int(packet_id)] += 1
 

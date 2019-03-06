@@ -254,10 +254,10 @@ class Node(object):
         size = packet_size
         bw = (specBW[curr, int(next), s, ts])
         sensing_energy = math.ceil(size / bw) * t_sd * sensing_power
-        switching_energy = math.ceil(size / (specBW[curr, int(next), int(s), int(ts)])) * idle_channel_prob * switching_delay
+        switching_energy_total = math.ceil(size / (specBW[curr, int(next), int(s), int(ts)])) * idle_channel_prob * switching_energy
         transmission_energy = math.ceil(size / specBW[curr, int(next), int(s), int(ts)]) * idle_channel_prob * t_td * spectPower[s]
 
-        consumedEnergy = sensing_energy + switching_energy + transmission_energy
+        consumedEnergy = sensing_energy + switching_energy_total + transmission_energy
         consumedEnergy = round(consumedEnergy, 2)
 
         return consumedEnergy

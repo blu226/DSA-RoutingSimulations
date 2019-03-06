@@ -54,7 +54,7 @@ def compute_overhead_new(time):
         if (int(line_arr[4]) <= time):
             packets_not_delivered_until_t += 1
 
-    return round(float(packets_not_delivered_until_t + packets_delivered_until_t)/gen_packets_until_t, 2)
+    return round(float(packets_not_delivered_until_t)/gen_packets_until_t, 2)
 
 def compute_overhead(time):
 
