@@ -207,7 +207,7 @@ class Network(object):
                 for packet_id in range(num_packets):
                     band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
 
-                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band, 0, packet_id)  # create the message
+                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band, 0, packet_id, 0)  # create the message
                     curr = int(message.curr)
 
                     # If a path exists for this message
@@ -299,9 +299,8 @@ class Network(object):
         if protocol == "XChant":
             self.xchant_add_messages(msg_lines,t,path_lines,spec_lines)
 
-            #TODO: loop thru nodes randomly instead of linearly
-            for i in range(len(self.nodes)):  # send all messages to their next hop
-                node = self.nodes[i]
+            for node in self.nodes:  # send all messages to their next hop
+
                 isVisited = len(node.buf)   # Get the initial buffer size
                 msg_index = 0               # init index of msg buffer
                 was_sent = False            # init variable to check if a message could send
@@ -310,23 +309,22 @@ class Network(object):
                 if len(node.buf) > 0 and len(node.buf[msg_index].bands) > 0:
                     spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
 
-                while len(node.buf) > 0 and isVisited > 0:
-                    msg = node.buf[msg_index]
-                    #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
-                    if is_queuing_active == True and restrict_band_access == True:
-                        if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
-                            # TODO: get the suitable non-interfered channel
-                            was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+                    while len(node.buf) > 0 and isVisited > 0:
+                        msg = node.buf[msg_index]
+                        #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
+                        if restrict_band_access == True:
+                            if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
+                                # TODO: get the suitable non-interfered channel
+                                was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
 
-                    else:
-                        # TODO: get the suitable non-interfered channel
-                        was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
-                    # the message gets deleted from the current node, and buffer gets shrinked
-                    # isVisited is to get to the end of the node buffer even if it is not empty
-                    isVisited -= 1
-                    if was_sent == False:
-                        # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
-                        msg_index += 1
+
+                        if was_sent == False:
+                            # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
+                            msg_index += 1
+                        else:
+                            # the message gets deleted from the current node, and buffer gets shrinked
+                            # isVisited is to get to the end of the node buffer even if it is not empty
+                            isVisited -= 1
 
         # handles optimistic/pessimistic geo and epidemic along with single band epidemic
         elif "Epidemic_Smart" in protocol:
