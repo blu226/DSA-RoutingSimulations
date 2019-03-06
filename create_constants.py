@@ -70,10 +70,17 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     # Computed Range = TV : 1452 meter, LTE = 840 meter, ISM = 133 meter, and CBRS = 188 meter
     # Resultant Bit rate = TV: 12 Mbps, LTE = 41 Mbps, ISM = 16 Mbps, and CBRS = 82 Mbps
 
+    # Modified: TV = 12 Mbps, LTE = 20 Mbps, ISM = 10 Mbps, and CBRS = 62 Mbps, corresponding to
+    # Channel BW: TV = 6 MHz, LTE = 10 MHz, ISM = 8 MHz, and CBRS = 30 MHz
+    # Sensing duration = 0.1 sec, switching energy = 1 mJ, sensing power = 0.4 mW,
+
+
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
-    f.write("minBW = [12, 16, 41, 82]\nmaxBW = [12, 16, 41, 82]\nspectRange = [1452, 133, 840, 188]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
-    f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [120,1200,3000,6000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("minBW = [12, 16, 30, 62]\nmaxBW = [12, 16, 30, 62]\nspectRange = [2224, 204, 1286, 288]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
+    # f.write("minBW = [12, 10, 20, 62]\nmaxBW = [12, 10, 20, 62]\nspectRange = [1330, 200, 770, 125]\nspectPower = [1,1,1,1]\nepsilon = 0.5\n")
+
+    f.write("t_sd = 0.1\nt_td = 1\nidle_channel_prob = 1\nswitching_energy = 0.0001\nsensing_power = 0.00004\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
+    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60, 600, 1500, 3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
