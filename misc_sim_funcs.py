@@ -304,7 +304,7 @@ def get_suitable_spectrum_list(setting):
         w2 = .8
 
     for i in range(len(spectRange)):
-        sum = (w1 * math.exp(-(1/(spectRange[i]/1000)))) + (w2 * math.exp(-(1/minBW[i])))
+        sum = (w1 * math.exp(-(1/(spectRange[i]/100)))) + (w2 * math.exp(-(1/minBW[i])))
         sum_list.append(sum)
 
 
@@ -313,6 +313,7 @@ def get_suitable_spectrum_list(setting):
         S.append(ind)
         sum_list[ind] = 0
 
+    print(setting, S)
     return S
 
 

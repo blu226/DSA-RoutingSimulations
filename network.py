@@ -341,7 +341,7 @@ class Network(object):
                 # flag to see if a node transmitted to calculate # of parallel communications
                 did_node_transmit = False
                 # init band based on smart setting
-                if smart_setting == "optimistic" or smart_setting == "pessimistic":
+                if smart_setting == "optimistic" or smart_setting == "pessimistic" or smart_setting == "weighted":
                     # chooses spectrum and returns nodes in range for optimistic or pessimistic approaches
                     s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
                 # if not optimistic or pessimistic then a single band, epidemic protocol is being used so just find nodes
