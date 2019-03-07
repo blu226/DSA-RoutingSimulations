@@ -138,7 +138,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
 
 # function to run simulations for ISC2 paper
 def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas):
-    for band in ["ALL"]:
+    for band in bands:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
 
         #For all bands, do smart epidemic and Geographic routing (1 stands for geo, and 0 for epidemic)
@@ -226,7 +226,7 @@ if compute_spec_BW == True:
 else:
     if generate_LE == False :
 
-        for msg_round in range(1):
+        for msg_round in range(5):
 
             #run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
@@ -234,7 +234,7 @@ else:
             #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
             #                      num_replicas)
 
-            for num_mules in [128]:
+            for num_mules in [16, 32, 64, 84, 128]:
                 print("Msg round", msg_round, "Mules", num_mules)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
                                  num_replicas)
@@ -243,28 +243,26 @@ else:
             #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
             # msg_mean = 15
-            for mem_size in [50, 100, -1]:
+            for mem_size in [20, 50, 100, 200, 500, -1]:
                 print("Msg round", msg_round, "Memory", mem_size)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
             # #
             mem_size = 100
-            for ttl in [45, 180, 360]:
+            for ttl in [30, 90, 180, 240, 360]:
                 print("Msg round", msg_round, "TTL", ttl)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
             ttl = 180
             # # varying num of channels
-            for num_channels in [2, 6, 10]:
+            for num_channels in [2, 4, 6, 8, 10]:
                 print("Msg round", msg_round, "Channels", num_channels)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
 
             num_channels = 6
             # varying num primary users
-            for num_Pusers in [50, 200, 500]:
+            for num_Pusers in [50, 100, 200, 300, 500]:
                 print("Msg round", msg_round, "PUs", num_Pusers)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-
 
     #Generate Link exists
     else:
