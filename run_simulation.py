@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, generate_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt):
 
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
@@ -25,7 +25,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
     num_nodes_to_fwd = num_fwd      # if forwarding, how many do you want to forward to, 0 = broadcast/epidemic
 
-    fwd_strat = "broadcast" if broadcast == True else "geo_" + str(replicas) # create part of dynamic file directory for metrics
+    num_replicas_val = "broadcast" if broadcast == True else "geo_" + str(replicas) # create part of dynamic file directory for metrics
 
     dataset = DataSet                   #UMass or Lexington
     day_or_numMules = Day_Or_NumMules   #date (UMass) or number of mules (Lexington)(for lexington this number really doesn't mean anything it is just needed for the file structure)
@@ -40,7 +40,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     else:
         buffer = "FIFO"
     band = Band                    #bands to use in set of [ALL, TV, LTE, ISM, CBRS]
-    generate_link_exists = Gen_LE   # is a new link exist being generated
+    #generate_link_exists = Gen_LE   # is a new link exist being generated
     T = t                         #Length of Simulation
     V = v                          #Number of dataMules
     NoOfSources = src_dst[0]        # # of sources
@@ -52,7 +52,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
     if dataset == "UMass":
         dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
         link_exists_path = dataMule_path + "Link_Exists/" + "LE_" + str(start_time) + "_" + str(T) + "/"
-        metrics_path = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat +"/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+        path_to_metrics = link_exists_path + protocol + "/" + buffer + "/" + num_replicas_val +"/mules_" + str(V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
         path_to_save_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
         if pkl_fold_num == 1:
             path_to_day1_LLC = link_exists_path + protocol + "/" + buffer + "/mules_" + str(V) + "/"
@@ -64,15 +64,15 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         if pkl_fold_num == 1:
             link_exists_path = dataMule_path + "Link_Exists/" + "LE_1_"  + str(T) + "/"
             path_to_day1_LLC = link_exists_path
-            path_to_folder = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat + "/mules_" + str(
-                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+            path_to_folder = link_exists_path + protocol + "/" + buffer + "/" + num_replicas_val + "/mules_" + str(
+                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser)
             path_to_metrics = path_to_folder + "/msgfile_" + str(msg_round) + "_" + str(msg_mean) + "/puserfile_" \
                            + str(puser_round) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) +"/"
 
         else:
             link_exists_path = dataMule_path + "Link_Exists/" + "LE_2_" + str(T) + "/"
-            path_to_folder = link_exists_path + protocol + "/" + buffer + "/" + fwd_strat + "/mules_" + str(
-                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser) + "/"
+            path_to_folder = link_exists_path + protocol + "/" + buffer + "/" + num_replicas_val + "/mules_" + str(
+                V) + "/channels_" + str(num_chan) + "/P_users_" + str(num_puser)
             path_to_metrics = path_to_folder + "/msgfile_" + str(msg_round) + "_" + str(msg_mean) + "/puserfile_" \
                               + str(puser_round) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/"
             path_to_day1_LLC = dataMule_path + "Link_Exists/LE_2_" + str(
@@ -104,14 +104,14 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
 
     # create the constants file based on all of these parameters
     create_constants(T, V, S, start_time, dataset, max_nodes, dataMule_path, path_to_folder, path_to_metrics, link_exists_path,
-                     debug_message, protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,
+                     debug_message, protocol, NoOfDataCenters, NoOfSources, generate_LE, generate_messages, num_messages,
                      pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access,
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
                      priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
                      msg_mean, ttl, max_mem, replicas)
 
     # generate a link exists if needed
-    if generate_link_exists == True and max_nodes == V + NoOfSources + NoOfDataCenters:
+    if generate_LE == True and max_nodes == V + NoOfSources + NoOfDataCenters:
 
         if dataset == "UMass":
             os.system("python3 create_pickles.py")
@@ -121,6 +121,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
             os.system("python3 readLexingtonData_Fixed.py")
             os.system("python3 create_pickles_Lex.py")
             os.system("python3 computeLINKEXISTS_Lex.py")
+            #os.system("python3 computeSpecBW.py")
 
     # if protocol == "XChant":
     # if not os.path.exists(path_to_metrics):
@@ -134,34 +135,43 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Ge
         os.system("python3 main.py")
         os.system("python3 metrics.py")
 
+
 # function to run simulations for ISC2 paper
 def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas):
-    for band in ["TV", "LTE", "ISM", "CBRS"]:
+    for band in ["ALL"]:
         # print("Band:", band, "MSG round:", msg_round, "MSG mean:", msg_mean)
 
         #For all bands, do smart epidemic and Geographic routing (1 stands for geo, and 0 for epidemic)
         if band == "ALL":
             priority_queue_active = True
-            for routing_opt in ["Geo", "Epi"]:
+            for routing_opt in ["Geo"]:
                 print("Routing:", routing_opt)
-                print("Optimistic")
+
+                #print("Weighted")
+                run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                               "weighted", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size,
+                               num_replicas, priority_queue_active, routing_opt)
+                # print()
+                # print("Optimistic")
                 run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                                "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
-                print()
-                print("Pessimistic")
+                # print()
+                # print("Pessimistic")
                 run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
+                            pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                            "pessimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
+
 
         else:
-            priority_queue_active = False
-            #For single bands, lets only do basic epidemic routing - 0 stands for epidemic routing
-            for routing_opt in ["Epi"]:
-                print("Band:", band, "Routing:", routing_opt)
-                run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
+                priority_queue_active = False
+                #For single bands, lets only do basic epidemic routing - 0 stands for epidemic routing
+                for routing_opt in ["Epi"]:
+                    print("Band:", band, "Routing:", routing_opt)
+                    run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                                   band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
 
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
@@ -170,8 +180,10 @@ def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, 
 
 # RF parameter setting
 # Freq: TV = 600 MHz, LTE = 900 MHz, ISM = 2.4 GHz, and CBRS = 3.5 GHz
-# Path loss factor = 2.7 (sub-urban)
-# Sensitivity = -100 dBm
+# Path loss factor = 2.8 (sub-urban)
+# Receiver Sensitivity = -95 dBm
+# White noise = -100 dB
+# SNR = 5 dB
 # Transmitter Antenna Gain = 0 dBi
 # Receiver Antenna Gain = 0 dBi
 # Transmit power = TV, and LTE = 4 Watt, ISM = 1 Watt, CBRS = 100 Watt
@@ -185,69 +197,77 @@ day = "50"
 len_T = 360                     #length of simulation
 start_time = 0                #start time (to find Link Exists)
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
-num_mules = 128                  #number of data mules to use
-generate_LE = True             #generate Link Exists
+num_mules = 84                  #number of data mules to use
+generate_LE = False             #generate Link Exists
 pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
 src_dst = [3, 3]                #num src and dst
 max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of datamules + src + dst
 speed = [135, 400]                  #Lex data only
 proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-num_Pusers = 150
+num_Pusers = 200
 num_channels = 6
 nodes_tofwd = -1
 routing_opt = "Epi"
 msg_round = 0
 puser_round = 0
 msg_mean = 15
-ttl = 216
-mem_size = 150
-num_replicas = 10       # number of replicas/copies for geographic SnW
+ttl = 180
+mem_size = 100
+num_replicas = 1       # number of replicas/copies for geographic SnW
 sim_round = 5
 priority_queue_active = True
-
-if generate_LE == False:
-
-    for msg_round in range(3):
-
-        # for num_replicas in [1, 5, 10, 15, 20]:
-        #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
-        #                      num_replicas)
-
-        for num_mules in [8, 32, 64, 92, 128]:
-            print("Msg round", msg_round, "Mules", num_mules)
-            run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
-                             num_replicas)
-        num_mules = 92
-        # for msg_mean in [5, 10, 15, 20, 25]:
-        #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        # msg_mean = 15
-        for mem_size in [50, 100, 150, 200, -1]:
-            print("Msg round", msg_round, "Memory", mem_size)
-            run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-        #
-        mem_size = 150
-        for ttl in [72, 144, 216, 288, 360]:
-            print("Msg round", msg_round, "TTL", ttl)
-            run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        ttl = 216
-        # varying num of channels
-        for num_channels in [2, 4, 6, 8, 10]:
-            print("Msg round", msg_round, "Channels", num_channels)
-            run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-
-        num_channels = 6
-        # varying num primary users
-        for num_Pusers in [50, 150, 250, 350, 450]:
-            print("Msg round", msg_round, "PUs", num_Pusers)
-            run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+compute_spec_BW = False
 
 
+if compute_spec_BW == True:
+    os.system("python3 computeSpecBW.py")
 
-#Generate Link exists
 else:
-    run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
-                                   pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+    if generate_LE == False :
+
+        for msg_round in range(1):
+
+            #run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+
+            # for num_replicas in [1, 5, 10, 15, 20]:
+            #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
+            #                      num_replicas)
+
+            for num_mules in [128]:
+                print("Msg round", msg_round, "Mules", num_mules)
+                run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
+                                 num_replicas)
+            num_mules = 84
+            # for msg_mean in [5, 10, 15, 20, 25]:
+            #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+
+            # msg_mean = 15
+            for mem_size in [50, 100, -1]:
+                print("Msg round", msg_round, "Memory", mem_size)
+                run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+            # #
+            mem_size = 100
+            for ttl in [45, 180, 360]:
+                print("Msg round", msg_round, "TTL", ttl)
+                run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+
+            ttl = 180
+            # # varying num of channels
+            for num_channels in [2, 6, 10]:
+                print("Msg round", msg_round, "Channels", num_channels)
+                run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+
+            num_channels = 6
+            # varying num primary users
+            for num_Pusers in [50, 200, 500]:
+                print("Msg round", msg_round, "PUs", num_Pusers)
+                run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
+
+
+
+    #Generate Link exists
+    else:
+        run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
+                                       pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                                    "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt)
