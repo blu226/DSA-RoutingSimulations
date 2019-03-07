@@ -499,13 +499,8 @@ class Node(object):
             s = s - 1
 
             transfer_time, transfer_time_in_secs = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
-            te = ts + transfer_time
-
-            if te >= T:
-                te = T - 1
-
-            # and (nodes[next].can_receive == np.inf or nodes[next].can_receive == message.curr)
-            if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts, te] == 1:
+            print("curr:", message.curr, "next:", next, "S:", s, "T:", ts)
+            if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts] == 1:
                 if restrict_channel_access == True:
                     channel_available = self.check_for_available_channel(self, nodes[next], ts, net, s, LINK_EXISTS)
                 else:
