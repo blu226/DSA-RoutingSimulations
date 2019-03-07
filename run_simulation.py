@@ -197,7 +197,7 @@ day = "50"
 len_T = 360                     #length of simulation
 start_time = 0                #start time (to find Link Exists)
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
-num_mules = 84                  #number of data mules to use
+num_mules = 128                  #number of data mules to use
 generate_LE = False             #generate Link Exists
 pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
@@ -217,7 +217,7 @@ mem_size = 100
 num_replicas = 1       # number of replicas/copies for geographic SnW
 sim_round = 5
 priority_queue_active = True
-compute_spec_BW = False
+compute_spec_BW = True
 
 
 if compute_spec_BW == True:
