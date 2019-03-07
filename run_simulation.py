@@ -234,7 +234,7 @@ else:
             #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
             #                      num_replicas)
 
-            for num_mules in [128, 16, 32, 64, 84]:
+            for num_mules in [84, 16, 32, 64]:
                 print("Msg round", msg_round, "Mules", num_mules)
                 run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
                                  num_replicas)
