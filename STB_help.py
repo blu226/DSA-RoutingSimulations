@@ -52,7 +52,7 @@ def getSpecBW(V, S, T):
 
     for i in range(V):
         for j in range(V):
-            for s in S:
+            for s in range(len(S)):
                 for t in range(0, T, tau):
                     specBW[i, j, s, t] = minBW[s]
                     # getMinBWFromDMFiles(directory, i, j, s, t)

@@ -1,11 +1,11 @@
 #Create Constant file for simulation
 
-def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, link_exists_folder, debug_message,\
+def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path_to_folder, path_to_metrics, link_exists_folder, debug_message,\
                      protocol, NoOfDataCenters, NoOfSources, generate_link_exists, generate_messages, num_messages,\
-                     pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, is_queuing_active, restrict_band_access, \
+                     pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
                      smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_file, puser_file, \
-                     debug_m, metric_int):
+                     debug_m, metric_int, msg_mean, ttl, mem_size, num_replicas):
 
     f = open("constants.py", "w")
 
@@ -21,15 +21,19 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     st_line = "StartTime = " + str(start_time) + "\n"
     dm_line = "debug_message = " + str(debug_message) + "\n"
     lef_line = "link_exists_folder = \'" + str(link_exists_folder) + "\'\n"
-    ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) + "/puserfile" + str(puser_file) + "/\'\n"
-    queue_line = "is_queuing_active = " + str(is_queuing_active) + "\n"
+    ptm_line = 'path_to_metrics = \'' + str(path_to_metrics) + "\'\n"
+
+    #ptm_line = "path_to_metrics = '" + path_to_folder + "/msgfile" + str(msg_file) +"_" + str(msg_mean) + "/puserfile" \
+               # + str(puser_file) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) + "/\'\n"
+
+    limited_time_to_transfer_line = "limited_time_to_transfer = " + str(limited_time_to_transfer) + "\n"
     rb_line = "restrict_band_access = " + str(restrict_band_access) + "\n"
     rc_line = "restrict_channel_access = " + str(restrict_channel_access) + "\n"
     pq_line = "priority_queue = " + str(priority_queue_active) + "\n"
     b_line = "broadcast = " + str(broadcast) + "\n"
     geo_line = "geographical_routing = " + str(geo_routing) + "\n"
     gpu_line = "generate_new_primary_users = " + str(generate_new_primary_users) + "\n"
-    generated_messages_file = "Generated_Messages/generated_messages" + str(msg_file) + ".txt'\n"
+    generated_messages_file = "Generated_Messages/mean" + str(msg_mean) +"/generated_messages" + str(msg_file) + ".txt'\n"
     gen_LE_line = "generate_link_exists = " + str(generate_link_exists) + "\n"
     gen_mes_line = "generate_messages = " + str(generate_messages) + "\n"
     num_mes_line = "num_messages = " + str(num_messages) + "\n"
@@ -43,6 +47,9 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     debug_mode = "debug_mode = " + str(debug_m) + "\n"
     oh_file = "overhead_file = 'overhead.txt'\n"
     met_int = "metric_interval = " + str(metric_int) + "\n"
+    ttl_line = "TTL = " + str(ttl) + "\n"
+    mem_line = "max_packets_in_buffer = " + str(mem_size) + "\n"
+    rep_line = "num_replicas = " + str(num_replicas) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -60,15 +67,20 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         packet_delivered_file = "packets_delivered.txt"
         LLC_line = "path_to_LLC = \'" + str(path_to_day1_LLC) + "\'\n"
 
-    if protocol == "SprayNWait":
-        num_reps_line = "num_replicas = 20\n"
-    else:
-        num_reps_line = "num_replicas = 1\n"
+    # Computed Range = TV : 1452 meter, LTE = 840 meter, ISM = 133 meter, and CBRS = 188 meter
+    # Resultant Bit rate = TV: 12 Mbps, LTE = 41 Mbps, ISM = 16 Mbps, and CBRS = 82 Mbps
+
+    # Modified: TV = 12 Mbps, LTE = 20 Mbps, ISM = 10 Mbps, and CBRS = 62 Mbps, corresponding to
+    # Channel BW: TV = 6 MHz, LTE = 10 MHz, ISM = 8 MHz, and CBRS = 30 MHz
+    # Sensing duration = 0.1 sec, switching energy = 1 mJ, sensing power = 0.4 mW,
+
 
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
-    f.write("minBW = [5,20,30,60]\nmaxBW = [5,20,30,60]\nspectRange = [1200,180,800,300]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
-    f.write("t_sd = 0.5\nt_td = 1\nidle_channel_prob = 0.5\nswitching_delay = 0.001\nsensing_power = 0.04\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("TTL = 120\nminTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60,600,1500,3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("minBW = [12, 16, 30, 62]\nmaxBW = [12, 16, 30, 62]\nspectRange = [2224, 204, 1286, 288]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
+    # f.write("minBW = [12, 10, 20, 62]\nmaxBW = [12, 10, 20, 62]\nspectRange = [1330, 200, 770, 125]\nspectPower = [1,1,1,1]\nepsilon = 0.5\n")
+
+    f.write("t_sd = 0.1\nt_td = 1\nidle_channel_prob = 1\nswitching_energy = 0.0001\nsensing_power = 0.00004\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
+    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60, 600, 1500, 3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -87,8 +99,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(ptm_line)
     f.write(pkl_line)
     f.write(LLC_line)
-    f.write(num_reps_line)
-    f.write(queue_line)
+    f.write(rep_line)
+    f.write(limited_time_to_transfer_line)
     f.write(rb_line)
     f.write(rc_line)
     f.write(pq_line)
@@ -100,6 +112,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(puser_line)
     f.write(pts_line)
     f.write(puser_round)
+    f.write(ttl_line)
+    f.write(mem_line)
 
 
     f.write(lef_line)
@@ -122,3 +136,5 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
         f.write("route_start_time1 = 0\nroute_start_time2 = 5\n")
         f.write("lex_data_directory = \'Lexington/\'\n")
         f.write("day_num = " + str(pkl_folder_num) + "\n")
+
+    f.close()

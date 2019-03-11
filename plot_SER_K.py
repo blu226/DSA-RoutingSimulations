@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from constants import *
 
-time_epochs = 9
+time_epochs = 7
 
-msg_files = 10
+msg_files = 1
 puser_files = 1
 
 # arrays for broadcast
@@ -16,9 +16,10 @@ Epidemic_CBRS = np.zeros(shape=(time_epochs, msg_files, puser_files))
 Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 
-num_mules = 30
-num_channels = 5
-num_Pusers = 250
+num_mules = 48
+num_channels = 10
+num_Pusers = 100
+msgMean = 15
 T = 360
 startTime = 1
 days = "50"
@@ -27,10 +28,10 @@ buffer_type = "PQ"
 protocols = ["optimistic", "pessimistic", "TV", "LTE", "CBRS", "ISM"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
-fwd_strat = [1, 3, 5, 7, 9, 11, 13, 15, 20]
+fwd_strat = [1, 2, 3, 4, 5, 6, 7]
 metrics_file = "metrics.txt"
 
-p_id = 4 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
@@ -38,17 +39,17 @@ for i in range(msg_files):
             for protocol in protocols:
                 if strat == 1:
                     t = 0
-                elif strat == 3:
+                elif strat == 2:
                     t = 1
-                elif strat == 5:
+                elif strat == 3:
                     t = 2
-                elif strat == 7:
+                elif strat == 4:
                     t = 3
-                elif strat == 9:
+                elif strat == 5:
                     t = 4
-                elif strat == 11:
+                elif strat == 6:
                     t = 5
-                elif strat == 13:
+                elif strat == 7:
                     t = 6
                 elif strat == 15:
                     t = 7
@@ -56,16 +57,16 @@ for i in range(msg_files):
                     t = 8
 
 
-                if strat <= 20:
-                    path = "DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
+                if strat > 0:
+                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
                            "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/geo_" + str(strat) + "/mules_" + \
                            str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "/puserfile" + str(j) + "/"
+                           "/msgfile" + str(i) + "_" + str(msgMean) + "/puserfile" + str(j) + "/"
                 else:
-                    path = "DataMules/" + dataset + "/" + days + "/1/Link_Exists/LE_" + str(startTime) + \
-                           "_" + str(T) + "/" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
+                    path = "DataMules/" + dataset + "/" + days + "/3/Link_Exists/LE_" + str(startTime) + \
+                           "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type + "/broadcast/mules_" + \
                            str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + \
-                           "/msgfile" + str(i) + "/puserfile" + str(j) + "/"
+                           "/msgfile" + str(i) + "_" + str(msgMean) + "/puserfile" + str(j) + "/"
 
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
@@ -155,15 +156,14 @@ for i in range(len(optB_temp)):
     ISM_sd.append(np.std(ISM_temp[i]))
 
 print(len(optB_mean))
-x = [1, 3, 5, 7, 9, 11, 13, 15, 20]
+x = [1, 2, 3, 4, 5, 6, 7]
 # x.append(0)
 plt.xticks(fontsize=10)
 plt.yticks(fontsize=25)
-plt.xticks([0, 1, 5, 10, 15, 20])
+plt.xticks(x)
 title_str = "Channels: " + str(num_channels) + "    Primary Users: " + str(num_Pusers)
 # title_str = "Broadcast to everyone in range"
 # plt.title(title_str)
-plt.xlim(1, 20)
 
 # plt.xlim(0,12)
 fig_name = "dummy.eps"
@@ -176,7 +176,6 @@ if p_id == 1:
     fig_name = "Plots/pdr_K_SER.png"
 
 if p_id == 2:
-    plt.ylim(13, 48)
     plt.ylabel('Network delay (min)', fontsize=25)
     plt.xlabel('# mules to forward to', fontsize=25)
 
@@ -194,8 +193,8 @@ if p_id == 4:
     fig_name = "Plots/overhead_K_SER.png"
 
 
-plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
-plt.errorbar(x, pesB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
+plt.errorbar(x, optB_mean, optB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="red")
+plt.errorbar(x, pesB_mean, pesB_sd, marker='o', markersize=5, linestyle='-', linewidth=1, color="blue")
 
 plt.errorbar(x, TV_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="green")
 plt.errorbar(x, LTE_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1, color="black")

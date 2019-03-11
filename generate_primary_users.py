@@ -16,11 +16,11 @@ def pu_on_off_arr():
 
 max_puser = 500
 rounds = 5
-files = findfiles(DataMule_path)
+files = findfiles(DataMule_path + "Day1/")
 
 
 for it in range(rounds):
-    file_path = "Primary_Users/" + str(it)
+    file_path = "Primary_Users/Lexington/" + str(it)
 
     if not os.path.exists(file_path):
         os.makedirs(file_path)
@@ -28,7 +28,7 @@ for it in range(rounds):
     for x in range(max_puser):
         chosen_file = random.choice(files)
 
-        with open(DataMule_path + chosen_file, 'r') as f:
+        with open(DataMule_path + "Day1/" + chosen_file, 'r') as f:
             lines = f.readlines()[1:]
 
 
@@ -46,7 +46,7 @@ for it in range(rounds):
             x = float(line_arr[1])
             y = float(line_arr[2])
 
-        band = random.randint(0,len(S) - 1)
+        band = random.choice([0, 2, 3])
         channel = random.randint(0, default_num_channels - 1)
 
         p_line = str(x) + "\t" + str(y) + "\t" + str(channel) + "\t" + str(band) + "\n"

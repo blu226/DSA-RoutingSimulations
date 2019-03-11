@@ -10,25 +10,40 @@ class Network(object):
     def __init__(self):
         self.nodes = []                 #list of nodes in network
         self.primary_users = []            #list of primary users
-        self.message_num = 0
-        self.time = 0
-        self.band_usage = [0, 0, 0, 0]
+        self.message_num = 0            # something for xchants currently
+        self.time = 0                   # keep track of current time in network
+        self.band_usage = [0, 0, 0, 0]  # keep track of band usage in network
+        self.packets_per_tau = 0        # keep track of how many packets per tau are sent
+        self.parallel_coms = 0          # keep track of how many parallel communications are happening per tau
+        self.packets_per_tau_list = []  # keep track of how many packets per tau are sent
+        self.parallel_coms_list = []    # keep track of how many parallel communications are happening per tau
 
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
 
+    def debug_num_copies(self, t):
+        print("TIME:", t)
 
+        for node in self.nodes:
+            for msg in node.buf:
+                if msg.ID == 0 and msg.packet_id == 0:
+                    print("Node", node.ID, "num copies:", msg.num_copies)
 
-    def network_status(self):                          #console output for debugging (prints all messages in each nodes buffer)
+    def print_bandusage(self):
+        total = self.band_usage[0] + self.band_usage[1] + self.band_usage[2] + self.band_usage[3]
+        if total > 0:
+            print("TV:", self.band_usage[0]/total, "ISM:", self.band_usage[1]/total, "LTE:", self.band_usage[2]/total, "CBRS:", self.band_usage[3]/total)
+
+    def network_status(self):              #console output for debugging (prints all messages in each nodes buffer)
         for i in range(len(self.nodes)):
             self.nodes[i].print_buf()
             print(" ")
 
-    def clear_all_channels(self):
+    def clear_all_channels(self):           # clears all channels in each node
         for node in self.nodes:
             node.clear_channels()
 
-    def activate_primary_users(self):
+    def activate_primary_users(self):       # activates all primary users for a given tau
 
         for p_user in self.primary_users:
             if p_user.on_off[0] == 0:
@@ -37,19 +52,13 @@ class Network(object):
             else:
                 p_user.on_off[0] = p_user.on_off[0] - 1
 
-    def create_primary_users(self, num_C):
+    def create_primary_users(self, num_C):  # creates primary users based on current simulation settings
             for x in range(num_primary_users):
                 p_user = PrimaryUser(num_C)
                 p_user.place()
                 self.primary_users.append(p_user)
 
-    def save_primary_users(self, num_C):
-        with open("Primary_Users/" + dataset +  "/" + str(puser_round) + "/primary_users_" + str(num_C) + ".txt", "w") as f:
-            for p_user in self.primary_users:
-                line = str(p_user.x) + "\t" + str(p_user.y) + "\t" + str(p_user.channel) + "\t" + str(p_user.band) + "\n"
-                f.write(line)
-
-    def load_primary_users(self):
+    def load_primary_users(self):           # loads a pre generated file of primary users and how they should operate
         # read in primary user
         if dataset == "UMass":
             with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_users_" + str(num_channels) + ".txt", "r") as f:
@@ -78,7 +87,7 @@ class Network(object):
 
                 self.primary_users.append(p_user)
 
-    def fill_network(self, num_nodes):  # quickly fill network and randomly place nodes
+    def fill_network(self, num_nodes):  # quickly fill network and randomly place nodes for testing purposes
         for i in range(num_nodes):  # create and add nodes to network
             ide = str(i)
             node = Node(ide)
@@ -86,7 +95,7 @@ class Network(object):
             self.add_node(node)
 
 
-    def find_avg_energy_consumption(self, time):
+    def find_avg_energy_consumption(self, time):    # keep track of energy usage during simulation
         total_energy = 0
         num_packets_delivered = 0
 
@@ -101,26 +110,7 @@ class Network(object):
         f.write(str(time) + "\t" + str(total_energy) + "\t" + str(num_packets_delivered) + "\n")
         f.close()
 
-    def compute_overhead(self, time):
-        total_packets_delivered = 0
-        total_packets_in_network = 0
-
-        for node in self.nodes:
-            total_packets_in_network += len(node.buf)
-            total_packets_delivered += len(node.delivered)
-
-
-
-        if(total_packets_delivered == 0):
-            overhead = 0
-        else:
-            overhead = total_packets_in_network / total_packets_delivered
-
-        f = open(path_to_metrics + overhead_file, 'a')
-        f.write(str(time) + "\t" + str(overhead) + "\t" + str(total_packets_in_network) + "\t" + str(total_packets_delivered) + "\n")
-        f.close()
-
-    def get_message_info(self, path_lines, spec_lines, src, des, t, size):
+    def get_message_info(self, path_lines, spec_lines, src, des, t, size): # finds a msg's predetermined path (xchants only)
         path = []
         band = []
         for ind in range(len(path_lines)):  # read each line from file to see if a new message needs to be generated
@@ -136,8 +126,8 @@ class Network(object):
                 band = spec_line_arr[5:]
         return path, band
 
-        # Function messages_delivered: deletes messages that have been delivered
-    def messages_delivered(self):
+
+    def messages_delivered(self): # creates a file of all delivered packets and their meta data so metrics can be calculated
 
         with open(generated_messages_file, "r") as f:
             msg_lines = f.readlines()[1:]
@@ -166,9 +156,15 @@ class Network(object):
                     f.close()
                     break
 
+    def save_packets_per_tau(self):     # creates file for metrics
+        with open(path_to_metrics + "packets_per_tau.txt", "w") as f:
+            f.write("T\tPacket per tau\tTransmissions per tau\n")
+            for i in range(T):
+                f.write(str(i) + "\t" + str(self.packets_per_tau_list[i]) + "\t" + str(self.parallel_coms_list[i]) + "\n")
 
 
-    def other_add_messages(self, lines, time):
+
+    def other_add_messages(self, lines, time): # adds msgs to network that are generated at the current time
         for line in lines:
             line_arr = line.strip().split()
 
@@ -182,19 +178,19 @@ class Network(object):
                     src = int(line_arr[1])
                     self.nodes[src].buf.append(new_mes)
 
-    def not_delivered_messages(self):
+    def not_delivered_messages(self):   # creates file for metrics of packets that are in the network that haven't been delivered
         f = open(path_to_metrics + not_delivered_file, "a")
         for node in self.nodes:
             for mes in node.buf:
-                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) +"\n"
+                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
                 f.write(line)
         f.close()
 
-    def find_delay(self, size, s, specBW, i, j, t):
+    def find_delay(self, size, s, specBW, i, j, t): # finds delay of a packet based on size and bandwidth
         bw = specBW[int(i), int(j), int(s), int(t)]
         return size / bw
 
-    def xchant_add_messages(self, msg_lines, t, path_lines, spec_lines):
+    def xchant_add_messages(self, msg_lines, t, path_lines, spec_lines): # adds msgs to network, xchants only
 
         for msg_id in range(len(msg_lines)):
 
@@ -211,7 +207,7 @@ class Network(object):
                 for packet_id in range(num_packets):
                     band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
 
-                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band, 0, packet_id)  # create the message
+                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band, 0, packet_id, 0)  # create the message
                     curr = int(message.curr)
 
                     # If a path exists for this message
@@ -223,54 +219,7 @@ class Network(object):
                     else:
                         print("Message generated with no path.")
 
-    def try_forwarding_message_to_all1(self,src_node, message, t, LINK_EXISTS, specBW):
-        replica = 0
-        #Check if in range with each node
-        for des_node in self.nodes:
-            to_send = True
-            #Check if next node already has the message
-            if des_node != src_node:
-                for mes in des_node.buf:
-                    if mes.ID == message.ID and mes.packet_id == message.packet_id:
-                        to_send = False
-
-                if to_send == True:
-                    if protocol == "Epidemic":
-                        if src_node.try_sending_message_epi(des_node, message, t, replica, LINK_EXISTS, specBW, self):
-                            replica += 1
-                    elif protocol == "SprayNWait":
-                        # if message.ID == debug_message:
-                        #     print("curr", message.curr, "des", message.des)
-                        src_node.try_sending_message_SnW(des_node, message, t, LINK_EXISTS, specBW)
-
-    def try_forwarding_message_to_all2(self,src_node, message, t, LINK_EXISTS, specBW):
-
-        real_des_node = self.nodes[message.des]
-        #try to send to destination first
-        if src_node.try_sending_message_HP(real_des_node, message, t, LINK_EXISTS, specBW) == False:
-        #if destination not in range, try to send message to node with the least delay
-            delays = []
-
-            for des_node in self.nodes:
-                temp_delays = []
-
-                if des_node != src_node:
-
-                    for s in S:
-                        delay = self.find_delay(message.size, s, specBW, src_node.ID, des_node.ID, t)
-                        temp_delays.append(delay)
-
-                    min_delay = min(temp_delays)
-
-                    delays.append(min_delay)
-
-            best_min_delay = min(delays)
-            MF_des_node = self.nodes[delays.index(best_min_delay)]
-
-            src_node.try_sending_message_HP(MF_des_node, message, t, LINK_EXISTS, specBW)
-
-
-    def clear_old_msgs(self, t):
+    def clear_old_msgs(self, t):                    # clears msgs that have expired their TTL
         f = open(path_to_metrics + not_delivered_file, "a")
 
         for node in self.nodes:
@@ -279,13 +228,14 @@ class Network(object):
                     # print("MSG:", mes.ID, "curr:", mes.curr, "t:", t, "TTL expired")
                     line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
                         mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
-                        mes.curr) + "\t" + str(mes.packet_id) + "\n"
+                        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
                     f.write(line)
                     node.buf.remove(mes)
 
         f.close()
 
-    def get_node_fwd_priority(self, nodes_in_range, msg, t):
+    def get_node_fwd_priority(self, nodes_in_range, msg, t): # finds which nodes should be prioritized in geographic routing
+        #nodes_in_range.append(self.)
         if len(nodes_in_range) == 0:
             return -1
 
@@ -299,6 +249,7 @@ class Network(object):
         else:
             tp = t - 1
 
+        # check each node in range to see their distance from the destination and if they are moving closer or farther from it
         for node in nodes_in_range:
             node_currX = float(node.coord[t][0])
             node_currY = float(node.coord[t][1])
@@ -315,6 +266,8 @@ class Network(object):
             else:
                 nodes_moving_away_dst.append([node, curr_dist])
 
+        # create final node priority list based on who is closest and moving towards the destination and then who is closest
+        # and moving away from the destination
         while(len(nodes_moving_toward_dst) > 0):
             node_dist_arr = find_node_closest_to_dst(nodes_moving_toward_dst)
             node_priority_list.append(node_dist_arr[0])
@@ -330,25 +283,24 @@ class Network(object):
 
 
     def network_GO(self, t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS):  # function that sends all messages at a given tau
-        # clear all channels and check if primary users are active
+        # clear all channels
         self.clear_all_channels()
+        # activate/deactivate primary users
         self.activate_primary_users()
-        # clear out old msgs
+        # clear out old msgs that are past TTL
         self.clear_old_msgs(t)
-        # print("TIME:", t)
         #Calculate energy consumption
         if t % metric_interval == 0 or t == T - 1:
             self.find_avg_energy_consumption(t)
-            # self.compute_overhead(t)
-
 
         #Handle different protocols
+        # XCHANT protocol/code is outdated for current implementation. works for 5D link exists, now we have 4D link exists
+        # and the concept of packets instead of messages.
         if protocol == "XChant":
             self.xchant_add_messages(msg_lines,t,path_lines,spec_lines)
 
-            #TODO: loop thru nodes randomly instead of linearly
-            for i in range(len(self.nodes)):  # send all messages to their next hop
-                node = self.nodes[i]
+            for node in self.nodes:  # send all messages to their next hop
+
                 isVisited = len(node.buf)   # Get the initial buffer size
                 msg_index = 0               # init index of msg buffer
                 was_sent = False            # init variable to check if a message could send
@@ -357,44 +309,47 @@ class Network(object):
                 if len(node.buf) > 0 and len(node.buf[msg_index].bands) > 0:
                     spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
 
-                while len(node.buf) > 0 and isVisited > 0:
-                    msg = node.buf[msg_index]
-                    #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
-                    if is_queuing_active == True and restrict_band_access == True:
-                        if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
-                            # TODO: get the suitable non-interfered channel
-                            was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+                    while len(node.buf) > 0 and isVisited > 0:
+                        msg = node.buf[msg_index]
+                        #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
+                        if restrict_band_access == True:
+                            if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
+                                # TODO: get the suitable non-interfered channel
+                                was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
 
-                    else:
-                        # TODO: get the suitable non-interfered channel
-                        was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
-                    # the message gets deleted from the current node, and buffer gets shrinked
-                    # isVisited is to get to the end of the node buffer even if it is not empty
-                    isVisited -= 1
-                    if was_sent == False:
-                        # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
-                        msg_index += 1
 
+                        if was_sent == False:
+                            # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
+                            msg_index += 1
+                        else:
+                            # the message gets deleted from the current node, and buffer gets shrinked
+                            # isVisited is to get to the end of the node buffer even if it is not empty
+                            isVisited -= 1
+
+        # handles optimistic/pessimistic geo and epidemic along with single band epidemic
         elif "Epidemic_Smart" in protocol:
             # add messages to source nodes
             self.other_add_messages(msg_lines, t)
+            # variables for checking how many packets are sent per tau and # of parallel communications
+            self.packets_per_tau = 0
+            self.parallel_coms = 0
 
-            # print("Nodes:", [(i, self.nodes[i].ID) for i in range(len(self.nodes)) ])
            # loop over each node
             for node in self.nodes:
+                # flag to see if a node transmitted to calculate # of parallel communications
+                did_node_transmit = False
                 # init band based on smart setting
-
-                if smart_setting == "optimistic" or smart_setting == "pessimistic":
+                if smart_setting == "optimistic" or smart_setting == "pessimistic" or smart_setting == "weighted":
+                    # chooses spectrum and returns nodes in range for optimistic or pessimistic approaches
                     s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+                # if not optimistic or pessimistic then a single band, epidemic protocol is being used so just find nodes
+                # in range of that band
                 else:
                     s = S[0]
                     nodes_in_range = find_nodes_in_range(node, self, s, LINK_EXISTS, t)
-                # if t == 10:
-                #     print("curr:", node.ID, "s", s, "Nodes", [n.ID for n in nodes_in_range])
 
                 # send msgs to destinations first if priority queue is enabled
                 if priority_queue == True:
-
                     # order the msg buffer based on genT and if its in range of des
                     node.order_priority_queue(nodes_in_range)
                     # loop until msg at top of buffer can't be sent to its destination
@@ -402,115 +357,94 @@ class Network(object):
                     for i in range(len(node.buf)):
                         # get msg to be sent
                         msg = node.buf[msg_index]
+                        # get destination node of msg
                         des_node = self.nodes[int(msg.des)]
                         # check if msg has already reached its destination
-                        if to_send(msg, des_node, t) == True and int(msg.des) == int(des_node.ID):
+                        if to_send(msg, des_node, t) == True:
                             # if not at destination try sending
                             if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
+                                # if msg can't be sent to destination, then no other nodes in the buffer will be able to
+                                # based on how the buffer is ordered in node.order_priority_queue
                                 break
                             else:
-                                self.band_usage[s] += 1
+                                # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                                self.packets_per_tau += 1
+                                did_node_transmit = True
+                        # if a packet in range of its destination has already been sent to its destination, then increment
+                        # the index of the buffer to choose the next msg from
                         else:
                             msg_index += 1
-
-
                 # continue to flood messages that are not in range of their destinations
-                # broadcast message to everyone in range
 
+                # broadcast message to everyone in range, if there are nodes in range
                 if broadcast == True and len(nodes_in_range) > 0:
+                    # loop through each msg in buffer
                     for msg in node.buf:
+                        # get list of nodes in range that do not currently have the msg that is going to be broadcasted
                         nodes_to_broadcast = []
                         for i in range(len(nodes_in_range)):
                             if to_send(msg, nodes_in_range[i], t) == True:
                                 nodes_to_broadcast.append(nodes_in_range[i])
-
+                        # calculate time to transfer the msg based on size and band
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
                                                                                          nodes_in_range[0].ID, t)
                         # account for time it takes to send if resources aren't infinite
-                        if is_queuing_active == True:
+                        if limited_time_to_transfer == True:
                             node.mes_fwd_time_limit += transfer_time_in_sec
 
                         # check if there is enough time to broadcast msg
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             # broadcast msg to everyone in range
-                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
+                            # if a msg wasn't sent then subtract the time it would've taken to send
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
+                            # if msg was sent add the amount of packets sent set flag of a node transmitting to true
                             else:
-                                self.band_usage[s] += 1
-
+                                self.packets_per_tau += num_packet_broadcasted
+                                did_node_transmit = True
+                # if geographical forwarding, and nodes are in range
                 elif geographical_routing == True and len(nodes_in_range) > 0: #geographical paradigm
-
-                    # print("broadcast: Hi this function runs")
+                    # loop through each msg in buffer
                     for msg in node.buf:
-                        # # get list of node priority to forward to
-                        # if msg.ID == debug_message:
-                        #     # print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
-                        #     nodeIDIR = [node.ID for node in nodes_in_range]
-                        #     if "20" in nodeIDIR:
-                        #         print("Curr:", msg.curr, "Src:", msg.src, "dst:", msg.des, "pid:", msg.packet_id)
+                        # get a priority list of nodes that are in range that should get the msg first, if number of nodes
+                        # to forward to this is used to see which k nodes will receive the forwarded packet
+                        nodes_to_broadcast = []
+                        #add the node in
+                        nodes_in_range.append(node)
                         node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
-                        # if there are nodes in range
-                        if node_priority_list != -1:
-                            # find the nodes to broadcast to
-                            nodes_to_broadcast = []
+                        # if there are nodes in range and the best node is not the node that currently is trying to forward it
+                        if node_priority_list != -1 and node_priority_list[0] != node:
+                            # find the nodes to broadcast to based on how many you are forwarding to
                             node_counter = 0
                             for i in range(len(node_priority_list)):
-                                if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
+                                #TODO: Confirm with Brian
+                                # if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
+                                if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
-
-                        # nodes_to_broadcast = nodes_in_range
                         # find transfer time
-                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,
-                                                                                         msg.curr,
-                                                                                         nodes_in_range[0].ID,
-                                                                                         t)
+                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
                         # account for time it takes to send if resources aren't infinite
-                        if is_queuing_active == True:
+                        if limited_time_to_transfer == True:
                             node.mes_fwd_time_limit += transfer_time_in_sec
 
-                        # check if there is enough time to broadcast msg
+                        # check if there is enough time to broadcast msg and enough copies to send
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
-                            msg_sent = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
                                                                          specBW, self, s)
                             # if msg wasn't broadcasted then give transfer time back to node
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
+                            # if msg was sent adjust variables for counting packets per tau and # of parallel communications
                             else:
-                                self.band_usage[s] += 1
-                        # else:
-                        #     node.mes_fwd_time_limit -= transfer_time_in_sec
-
-
-                # multiple unicast
-                # else:
-                #     for des_node in nodes_in_range:
-                #         for msg in node.buf:
-                #             # check if des_node already has packet
-                #             if to_send(msg, des_node, t) == True:
-                #                 node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s)
-
-
-
-        else:
-            self.other_add_messages(msg_lines,t)
-
-            for i in range(len(self.nodes)):
-                node = self.nodes[i]
-                # For each message in this nodes buffer
-                for mes in node.buf:
-                    if mes.last_sent <= t:
-                        if protocol == "HotPotato":
-                            self.try_forwarding_message_to_all2(node,mes,t,LINK_EXISTS,specBW)
-                        else:
-                            self.try_forwarding_message_to_all1(node, mes, t, LINK_EXISTS, specBW)
-
-
-
-
-
-
-
-
-
+                                self.packets_per_tau += num_packet_broadcasted
+                                did_node_transmit = True
+                # if node transmitted at least 1 packet account for it in parallel communications
+                if did_node_transmit:
+                    self.parallel_coms += 1
+                    # account for band chosen by this node in this tau
+                    self.band_usage[s] += 1
+            # keep data for how many packets per tau and parallel coms there were per tau in a list to show change in time
+            self.packets_per_tau_list.append(self.packets_per_tau)
+            self.parallel_coms_list.append(self.parallel_coms)

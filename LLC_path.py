@@ -51,10 +51,10 @@ def computeADJ_T_2(specBW, LINK_EXISTS):
 
 
                                 sensing_energy = math.ceil(M[m] / (specBW[i, j, s, t])) * t_sd * sensing_power
-                                switching_energy = math.ceil(M[m] / (specBW[i, j, s, t])) * idle_channel_prob * switching_delay
+                                switching_energy_total = math.ceil(M[m] / (specBW[i, j, s, t])) * idle_channel_prob * switching_energy
                                 transmission_energy = math.ceil(M[m]/specBW[i, j, s, t]) * idle_channel_prob * t_td * spectPower[s]
 
-                                consumedEnergy = sensing_energy + switching_energy + transmission_energy
+                                consumedEnergy = sensing_energy + switching_energy_total + transmission_energy
                                 consumedEnergy = round(consumedEnergy, 2)
 
                                 # print(i, j, t, consumedTime, m, specBW[i, j, s, t])

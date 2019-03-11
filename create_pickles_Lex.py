@@ -4,10 +4,8 @@ from constants import *
 
 
 def get_dataMule_ID(filename):
-    if filename[1] == '.':
-        return filename[0]
-    else:
-        return filename[0:2]
+    file_arr = filename.split(".")
+    return file_arr[0]
 
 
 
@@ -38,6 +36,7 @@ def find_index(t, lines):
 
 dataMules = os.listdir(DataMule_path + "Day" + str(day_num))
 dataMules.sort()
+# print(dataMules)
 
 for bus in dataMules:
 

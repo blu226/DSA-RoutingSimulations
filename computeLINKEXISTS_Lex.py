@@ -190,11 +190,3 @@ save_in_file(link_exists_folder + "LINK_EXISTS.txt", LINK_EXISTS)
 #printMAT(LINK_EXISTS)
 
 
-print("Spectrum bandwidth assigned: ")
-specBW = getSpecBW(V + NoOfDataCenters + NoOfSources, S, T)             # Get the dynamic spectrum bandwidth
-
-specBW_file = open(link_exists_folder + "specBW.pkl", 'wb')
-pickle.dump(specBW, specBW_file, protocol = 4)
-specBW_file.close()
-
-save_4D_in_file(link_exists_folder + "specBW.txt", specBW)

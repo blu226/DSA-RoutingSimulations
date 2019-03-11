@@ -2,9 +2,6 @@ import pickle
 from STB_help import *
 import math
 
-
-
-
 def get_data_structs():
     if protocol == "XChant":
         with open(path_to_LLC + "LLC_PATH.txt", "r") as f:
@@ -27,8 +24,8 @@ def get_data_structs():
 
 def initialize_output_files():
 
-    if not os.path.exists(path_to_folder):
-        os.makedirs(path_to_folder)
+    # if not os.path.exists(path_to_folder):
+    #     os.makedirs(path_to_folder)
 
     if not os.path.exists(path_to_metrics):
         os.makedirs(path_to_metrics)
@@ -43,12 +40,12 @@ def initialize_output_files():
     output_file2.close()
 
     output_file3 = open(path_to_metrics + not_delivered_file, "w")
-    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tcurr node\tpacketID\n")
+    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tcurr node\tpacketID\tcopies\n")
     output_file3.write("----------------------------------------------------\n")
     output_file3.close()
 
     output_file4 = open(path_to_metrics + packet_delivered_file, "w")
-    output_file4.write("ID\ts\td\tts\tte\tLLC\tPID\tsize\thops\tband usage\n")
+    output_file4.write("ID\ts\td\tts\tte\tLLC\tPID\tsize\thops\tband usage\tcopies\n")
     output_file4.close()
 
     output_file5 = open(path_to_metrics + overhead_file, "w")
@@ -64,7 +61,7 @@ def write_delivered_msg_to_file(message, te):
 
         output_msg = str(message.ID) + "\t" + str(message.src) + "\t" + str(message.des) + "\t" + str(
             message.genT) + "\t" + str(int(te)) + "\t" + str(
-            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) + "\t" + str(message.hops) + "\t" + band_usage_str + "\n"
+            int(te - message.genT)) + "\t" +  str(message.packet_id) + "\t" + str(message.size) + "\t" + str(message.hops) + "\t" + band_usage_str + "\t" +  str(message.num_copies) + "\n"
 
         output_file.write(output_msg)
         output_file.close()
@@ -97,9 +94,8 @@ def initialize_s():
 
     return s
 
+
 def update_s(s):
-
-
     if smart_setting == "optimistic":
         new_s = s - 1
 
@@ -129,12 +125,13 @@ def write_to_not_delivered(mes):
     f.write(line)
     f.close()
 
+
 # checks if a given packet is already in a nodes buffer
 def to_send(msg, node, t):
 
     #check if message was received by node in current time slot
-    if t < msg.last_sent:
-        return False
+    # if t < msg.last_sent:
+    #     return False
 
     # check if packet is in buffer
     for m in node.buf:
@@ -147,8 +144,8 @@ def to_send(msg, node, t):
 
     return True
 
-# sorts msgs by generation time. original code puts earlier generation times first, returning reversed so newer gen times
 
+# sorts msgs by generation time. original code puts earlier generation times first, returning reversed so newer gen times
 def sort_by_genT(msg_list):
     sorted_list = []
 
@@ -167,7 +164,11 @@ def sort_by_genT(msg_list):
         sorted_list.append(msg_list[lowest_ind])
         msg_list.pop(lowest_ind)
 
+    #sort by highest genT
     return list(reversed(sorted_list))
+    #sort by lowest genT
+    # return list(sorted_list)
+
 
 def get_msg_lists(nodes_in_range, curr_node):
     nodes_in_range_IDs = []
@@ -223,104 +224,65 @@ def des_in_range(nodes_in_range, node, t):
     return False
 
 def choose_spectrum(node, net, LINK_EXISTS, t):
-    chosen_spec = S[0]
-
-    # if (node.ID == "15" and t == 60):
-    #     print("MSG des:", [msg.ID for msg in node.buf])
-
     #Handle priority queue
     # if priority queue is active send to destinations first
     if priority_queue == True:
-        is_dest_node_found = False
-        for s in S:
-
+        # loop thru each spectrum trying to find if a msg is in range of destination over any band, giving priority
+        # to the bands we want to use first
+        #Irrespective of Optimistic or Pessimistic approach, always choose highest bandwidth band for destination nodes
+        for s in [3,2,1,0]:
+            # check if the current node has an open channel on the band
             if node.is_there_an_open_channel(s) == True:
-
-                if (node.ID == "15" and t == 60 and debug_mode == 1):
-                    print("S:", s)
-
+                # if channel exists find other nodes in range of that node on the current band
                 nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
-
-                if (node.ID == "15" and t == 60 and debug_mode == 1):
-                    print("nodes in range", [node.ID for node in nodes_in_range])
-
+                # if there exists a node in range
                 if len(nodes_in_range) > 0:
-                    # if any destinations are in range use this band
+                    # check if any node in range of current node is a destination for any message in the current nodes buffer
                     if des_in_range(nodes_in_range, node, t) == True:
-
-                        is_dest_node_found = True
+                        # destination node found in range, choose current spectrum
                         chosen_spec = s
-
+                        # return chosen spectrum and list of nodes in range
                         return chosen_spec, nodes_in_range
 
-
-        if is_dest_node_found == False:
-            if (node.ID == "15" and t == 60 and debug_mode == 1):
-                print("dest not in range", [node.ID for node in nodes_in_range])
-            chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
-
-    else: #FIFO
-        chosen_spec = default_spec_band(node, net, LINK_EXISTS, t)
-    return chosen_spec
-
-
-def default_spec_band(node, net, LINK_EXISTS, t):
-    chosen_spec = S[0]
-    nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
-
-
-
-    if len(nodes_in_range) > 0 and smart_setting != "pessimistic" and node.is_there_an_open_channel(chosen_spec) == True:
-        return chosen_spec, nodes_in_range
-
-    #If NOT pessimistic, and no nodes in range or is a pessimistic approach
-    # loop through bands until a valid one is chosen
-    for i in range(1, 4):
-        if node.is_there_an_open_channel(chosen_spec) == True:
-            next_nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
-            if len(next_nodes_in_range) > 0:
-                if smart_setting != "pessimistic":
-                    chosen_spec = S[i]
-                    nodes_in_range = next_nodes_in_range
-                    break
-
-                else:
-                    if nodes_in_range == next_nodes_in_range:
-                        nodes_in_range = next_nodes_in_range
-                        chosen_spec = S[i]
-
-                    else:
-                        break
+        # if no msg in range of destination, choose default spectrum
+        chosen_spec, nodes_in_range = default_spec_band(node, net, LINK_EXISTS, t)
+    # if no priority queue, choose default spectrum
+    else:
+        chosen_spec, nodes_in_range = default_spec_band(node, net, LINK_EXISTS, t)
 
     return chosen_spec, nodes_in_range
 
-        # # print("nodes in range", S[i], ":", [node.ID for node in nodes_in_range])
-        # if len(nodes_in_range) > 0:
-        #     # if priority queue is active send to destinations first
-        #     if priority_queue == True:
-        #         # if any destinations are in range use this band
-        #         if des_in_range(nodes_in_range, node) == True:
-        #             return S[i], nodes_in_range
-        #
-        #     else:
-        #         return S[i], nodes_in_range
 
-    # in the case that priority queue is enabled and no msg is in range with its dst over any band, choose
-    # the first band, based on smart setting, that is in range with at least 1 node
+def default_spec_band(node, net, LINK_EXISTS, t):
+    chosen_spec = 1 #ISM by default
+    nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
+
+    #If NOT pessimistic, and no nodes in range or is a pessimistic approach
     # loop through bands until a valid one is chosen
-    # for i in range(4):
-    #     # get nodes in range of s
-    #     nodes_in_range = find_nodes_in_range(node, net, i, LINK_EXISTS, t)
-    #
-    #     if len(nodes_in_range) > 0:
-    #         return S[i], nodes_in_range
-    #
-    # # if a node is not in range with anyone then initial band is returned
-    # s = S[0]
-    # nodes_in_range = find_nodes_in_range(node, net, s, LINK_EXISTS, t)
+    for i in range(0, len(S)):
+        chosen_spec = S[i]
+        # check if an open channel exists on band
+        if node.is_there_an_open_channel(chosen_spec) == True:
+            # find nodes in range of band
+            nodes_in_range = find_nodes_in_range(node, net, S[i], LINK_EXISTS, t)
+            # if there are nodes in range
+            if len(nodes_in_range) > 0:
+                # if optimistic, once we find a band with nodes in range return
+                if smart_setting != "pessimistic":
+                    break
+                # if pessimistic, if the current nodes in range are equal to the previous nodes in range, then continue
+                # looping through bands to see if an even better bandwidth band exists with the same nodes in range.
+                else:
+                    if i < 3:
+                        next_nodes_in_range = find_nodes_in_range(node, net, S[i+1], LINK_EXISTS, t)
+                        if nodes_in_range != next_nodes_in_range:
+                            break
 
 
-def find_distance(x1, y1, x2, y2):
+    return chosen_spec, nodes_in_range
+
+
+def find_distance(x1, y1, x2, y2): # used to calculate distance whether coordinates are GPS coordinates or euclidean
     if dataset == "Lexington":
         dist = euclideanDistance(x1, y1, x2, y2)
     elif dataset == "UMass":
@@ -342,7 +304,7 @@ def get_suitable_spectrum_list(setting):
         w2 = .8
 
     for i in range(len(spectRange)):
-        sum = (w1 * math.exp(-(1/(spectRange[i]/1000)))) + (w2 * math.exp(-(1/minBW[i])))
+        sum = (w1 * math.exp(-(1/(spectRange[i]/100)))) + (w2 * math.exp(-(1/minBW[i])))
         sum_list.append(sum)
 
 
@@ -351,10 +313,11 @@ def get_suitable_spectrum_list(setting):
         S.append(ind)
         sum_list[ind] = 0
 
+    print(setting, S)
     return S
 
 
-def find_node_closest_to_dst(node_list):
+def find_node_closest_to_dst(node_list): # finds node in node list that has the smallest distance
     min_dist = 9999999
 
     for node in node_list:
