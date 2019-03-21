@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-time_epochs = 7
+time_epochs = 3
 runs = 1
 
 geo1 = np.zeros(shape=(time_epochs, runs))
@@ -28,35 +28,63 @@ geoP9 = np.zeros(shape=(time_epochs, runs))
 geoP10 = np.zeros(shape=(time_epochs, runs))
 broadcastP = np.zeros(shape=(time_epochs, runs))
 
-num_mules = 30
+
+num_mules = 92
 num_channels = 6
 num_Pusers = 200
-T = 180
+msg_mean = 15
+ttl = 180
+max_mem = 100
+T = 360
 startTime = 1
-num_messages = 200
-days = ["30"]
+days = "50"
 dataset = "Lexington"
-buffer_types = ["PQ"]
-protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic"]
-# fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
-fwd_strat = "geo_"
+buffer_type = ["PQ", "FIFO"]
+protocols = ["optimistic", "pessimistic", "weighted"]
+#fwd_strat = 1
 metrics_file = "metrics.txt"
+num_replicas = [1, 3]
+sim_round = 5
+
+
+# num_mules = 92
+# num_channels = 6
+# num_Pusers = 200
+# T = 180
+# startTime = 1
+# num_messages = 200
+# days = ["30"]
+# dataset = "Lexington"
+# buffer_types = ["PQ"]
+# protocols = ["Epidemic_Smart_optimistic", "Epidemic_Smart_pessimistic"]
+# # fwd_strat = ["broadcast", "geo_1", "geo_3", "geo_5"]
+# fwd_strat = "geo_"
+# metrics_file = "metrics.txt"
 
 p_id = 4 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
-for i in range(len(days)):
-    for protocol in protocols:
+for i in range(msg_files):
+    for j in range(puser_files):
+        # for protocol in protocols:
         for buffer_type in buffer_types:
-            for num_fwd in [1, 5, 10]:
+            for num_fwd in num_replicas:
                 t = 0
+                path = "./DataMules/" + dataset + "/" + days + "/" + str(sim_round) + "/Link_Exists/LE_" + str(
+                    startTime) + \
+                       "_" + str(T) + "/Epidemic_Smart_" + protocol + "/" + buffer_type[0] + "/geo_" + str(
+                    num_replicas) + "/mules_" + \
+                       str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(
+                    num_Pusers) + "/msgfile_" + str(
+                    i) + "_" + str(msg_mean) + "/puserfile_" + str(j) + "/TTL_" + str(ttl) + "/BuffSize_" + str(
+                    max_mem) + "/"
 
-                path = "DataMules/" + dataset + "/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + buffer_type + "/" + fwd_strat + str(num_fwd) + "/mules_" + str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + "/" + str(num_messages) + "/"
+                #path = "DataMules/" + dataset + "/" + days[i] + "/1/Link_Exists/LE_" + str(startTime) + "_" + str(T) + "/" + protocol + "/" + buffer_type + "/" + fwd_strat + str(num_fwd) + "/mules_" + str(num_mules) + "/channels_" + str(num_channels) + "/P_users_" + str(num_Pusers) + "/" + str(num_messages) + "/"
                 with open(path + metrics_file, "r") as f:
                     lines = f.readlines()[1:]
 
                 for line in lines:
                     line_arr = line.strip().split()
-                    if int(line_arr[0]) % 10 == 0:
+                    if int(line_arr[0]) % 5 == 0:
                         if "optimistic" in protocol:
                             if num_fwd == 1:
                                 geo1[t][i] = float(line_arr[p_id])
@@ -142,50 +170,50 @@ fig_name = "dummy.eps"
 if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-0.05,1.1)
-    fig_name = "Plots/pdr_Time_SER.png"
+    # plt.ylim(-0.05,1.1)
+    fig_name = "Plots/pdr_Time_Geo.png"
 
 if p_id == 2:
-    plt.ylim(-1, 40)
+    # plt.ylim(-1, 40)
     plt.ylabel('Network delay (min)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
 
-    fig_name = "Plots/latency_time_SER.png"
+    fig_name = "Plots/latency_time_Geo.png"
 
 if p_id == 3:
     plt.ylabel('Energy expenditure (KJ)', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-0.01, 22)
-    fig_name = "Plots/energy_time_SER.png"
+    # plt.ylim(-0.01, 22)
+    fig_name = "Plots/energy_time_Geo.png"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
     plt.xlabel('Time (min)', fontsize=25)
-    plt.ylim(-1, 20)
-    fig_name = "Plots/overhead_Time_SER.png"
+    # plt.ylim(-1, 20)
+    fig_name = "Plots/overhead_Time_Geo.png"
 
 
 plt.errorbar(x, geo1, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "red")
 # plt.errorbar(x, geo2, 0, marker='o', markersize=10, linestyle='-', linewidth=3)
-# plt.errorbar(x, geo3, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "blue")
+plt.errorbar(x, geo3, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "blue")
 # plt.errorbar(x, geo4, 0, marker='o', markersize=10, linestyle='-', linewidth=3)
 plt.errorbar(x, geo5, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "blue")
 # plt.errorbar(x, geo6, 0, marker='o', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, geo7, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "black")
 # plt.errorbar(x, geo8, 0, marker='o', markersize=10, linestyle='-', linewidth=3)
 # plt.errorbar(x, geo9, 0, marker='o', markersize=10, linestyle='-', linewidth=3)
-plt.errorbar(x, geo10, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "green")
+# plt.errorbar(x, geo10, 0, marker='o', markersize=10, linestyle='-', linewidth=3, color = "green")
 
 plt.errorbar(x, geoP1, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "red")
 # plt.errorbar(x, geoP2, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
-# plt.errorbar(x, geoP3, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "blue")
+plt.errorbar(x, geoP3, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "blue")
 # plt.errorbar(x, geoP4, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
 plt.errorbar(x, geoP5, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "blue")
 # plt.errorbar(x, geoP6, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
 # plt.errorbar(x, geoP7, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "black")
 # plt.errorbar(x, geoP8, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
 # plt.errorbar(x, geoP9, 0, marker='x', markersize=10, linestyle='--', linewidth=3)
-plt.errorbar(x, geoP10, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "green")
+# plt.errorbar(x, geoP10, 0, marker='x', markersize=10, linestyle='--', linewidth=3, color = "green")
 
 
 if p_id == 1:

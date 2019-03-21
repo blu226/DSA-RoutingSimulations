@@ -80,7 +80,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     # f.write("minBW = [12, 10, 20, 62]\nmaxBW = [12, 10, 20, 62]\nspectRange = [1330, 200, 770, 125]\nspectPower = [1,1,1,1]\nepsilon = 0.5\n")
 
     f.write("t_sd = 0.1\nt_td = 1\nidle_channel_prob = 1\nswitching_energy = 0.0001\nsensing_power = 0.00004\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [60, 600, 1500, 3000]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [120, 1200, 2400, 3600]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
