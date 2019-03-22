@@ -18,11 +18,14 @@ def get_possible_msgs(t, path_lines):
     return msgs
 
 
-num_gen = 3
+num_gen = 10
 
 for i in range(num_gen):
     print(i)
 
+    #We need this, to ensure that the generated messages at a certain source node has a potential path to the destined node.
+    # This becomes crucial because the buses travel on a pre-defined route, and it may so happen that there never exists a path for
+    # a certain message from its source to destination, esp, in case of optimistic approaches.
 
     # with open(path_to_LLC + "LLC_PATH.txt", "r") as fp:
     #     path_lines = fp.readlines()[1:]
@@ -31,8 +34,8 @@ for i in range(num_gen):
     min_burst = 5
     max_burst = 15
 
-    min_wait = 10
-    max_wait = 20
+    min_wait = 40
+    max_wait = 50
 
     msg_file_path = "Generated_Messages/mean" + str(int((min_wait + max_wait)/ 2))
     if not os.path.exists(msg_file_path):
@@ -50,16 +53,25 @@ for i in range(num_gen):
 
         # msgs = get_possible_msgs(t, path_lines)
 
-
         for i in range(num_msg_to_gen):
+            #if len(msgs) > 0:
+            # msg_line = random.choice(msgs)
+            # msgs.remove(msg_line)
+
+            # msg_line_arr = msg_line.strip().split()
+
+            # src = int(msg_line_arr[0])
+            # dst = int(msg_line_arr[1])
+            # genT = int(msg_line_arr[2])
+            # desired_TTL = random.randint(minTTL, TTL)
 
             src = random.randint(0, NoOfSources - 1)
             des = random.randint(NoOfSources, NoOfSources + NoOfDataCenters - 1)
             desired_TTL = random.randint(minTTL, TTL)
             genT = t
             p = random.randint(0, 100)
-            if p < 80:
-                size = random.choice(M[:1])
+            if p < 70:
+                size = random.choice(M[:2])
             else:
                 size = random.choice(M[2:])
 
@@ -74,25 +86,7 @@ for i in range(num_gen):
 
     message_file.close()
 
-            # if len(msgs) > 0:
-            #     msg_line = random.choice(msgs)
-            #     msgs.remove(msg_line)
-            #     p = random.randint(0, 100)
-            #
-            #     msg_line_arr = msg_line.strip().split()
-            #
-            #     src = int(msg_line_arr[0])
-            #     dst = int(msg_line_arr[1])
-            #     genT = int(msg_line_arr[2])
-            #     desired_TTL = random.randint(minTTL, TTL)
-            #
-            #     if p < 80:
-            #         size = random.choice(small_sizes)
-            #     else:
-            #         size = random.choice(large_sizes)
-            #
-            #
-            #
+
 
 
 

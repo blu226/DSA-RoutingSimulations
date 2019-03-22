@@ -5,7 +5,7 @@ from constants import *
 time_epochs = 5
 
 msg_files = 5
-puser_files = 1
+puser_files = 5
 
 # arrays for broadcast
 geo_opt = np.zeros(shape=(time_epochs, msg_files, puser_files))
@@ -24,7 +24,7 @@ Epidemic_ISM = np.zeros(shape=(time_epochs, msg_files, puser_files))
 
 
 #num_mules = [8, 16, 32, 48, 64]
-num_mules = [ 8, 16, 64, 92, 128]
+num_mules = [16, 32, 64, 92, 128]
 num_channels = 6
 num_Pusers = 200
 msg_mean = 15
@@ -34,15 +34,15 @@ T = 360
 startTime = 1
 days = "50"
 dataset = "Lexington"
-buffer_type = ["PQ", "FIFO"]
+buffer_type = ["FIFO", "FIFO"]
 protocols = ["optimistic", "pessimistic", "weighted", "TV", "LTE", "CBRS", "ISM"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
-num_replicas = 1
+num_replicas = 5
 metrics_file = "metrics.txt"
-sim_round = 5
+sim_round = 6
 
-p_id = 3 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
+p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
 for i in range(msg_files):
     for j in range(puser_files):
@@ -248,53 +248,53 @@ if p_id == 1:
     plt.ylabel('Message delivery ratio', fontsize=25)
     plt.ylim(-0.1,1)
 
-    fig_name = "Plots/pdr_nodes_SER.png"
+    fig_name = "Plots/pdr_nodes_SER.eps"
 
 if p_id == 2:
     plt.ylim(0,145)
     plt.ylabel('Network delay (min)', fontsize=25)
-    fig_name = "Plots/latency_nodes_SER.png"
+    fig_name = "Plots/latency_nodes_SER.eps"
 
 if p_id == 3:
     plt.ylabel('Energy per packet (kJ)', fontsize=25)
-    fig_name = "Plots/energy_nodes_SER.png"
+    fig_name = "Plots/energy_nodes_SER.eps"
 
 if p_id == 4:
     plt.ylabel('Message overhead', fontsize=25)
-    fig_name = "Plots/overhead_nodes_SER.png"
+    fig_name = "Plots/overhead_nodes_SER.eps"
 
 if p_id == 3:
     plt.errorbar(x, [y/1000 for y in optB_mean], 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in pesB_mean], 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in weiB_mean], 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in optBro_mean], 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in pesBro_mean], 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in weiBro_mean], 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in TV_mean], 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in LTE_mean], 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in CBRS_mean], 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, [y/1000 for y in ISM_mean], 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-else:
+    plt.errorbar(x, [y/1000 for y in pesB_mean], 0, marker='x', markersize=5, linestyle='--', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in weiB_mean], 0, marker='d', markersize=5, linestyle='-.', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in optBro_mean], 0, marker='o', markersize=5, linestyle='-', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in pesBro_mean], 0, marker='x', markersize=5, linestyle='--', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in weiBro_mean], 0, marker='d', markersize=5, linestyle='-.', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in TV_mean], 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in LTE_mean], 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in CBRS_mean], 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, [y/1000 for y in ISM_mean], 0, marker='*', markersize=5, linestyle=':', linewidth=1)
 
+else: 
     plt.errorbar(x, optB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, pesB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, weiB_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, optBro_mean, 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, pesBro_mean, 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, weiBro_mean, 0, marker='x', markersize=5, linestyle='-', linewidth=1)
-    plt.errorbar(x, TV_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, LTE_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, CBRS_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1)
-    plt.errorbar(x, ISM_mean, 0, marker='o', markersize=5, linestyle='--', linewidth=1)
+    plt.errorbar(x, pesB_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1)
+    plt.errorbar(x, weiB_mean, 0, marker='d', markersize=5, linestyle='-.', linewidth=1)
+    plt.errorbar(x, optBro_mean, 0, marker='o', markersize=5, linestyle='-', linewidth=1)
+    plt.errorbar(x, pesBro_mean, 0, marker='x', markersize=5, linestyle='--', linewidth=1)
+    plt.errorbar(x, weiBro_mean, 0, marker='d', markersize=5, linestyle='-.', linewidth=1)
+    plt.errorbar(x, TV_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, LTE_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, CBRS_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=1)
+    plt.errorbar(x, ISM_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=1)
 
 if p_id == 1:
-    plt.legend(["Geo-opt", "Geo-pes", "Geo-wei", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="lower right", fontsize=10, ncol = 4, frameon=False)
+    plt.legend(["Geo-opt(5)", "Geo-pes(5)", "Geo-wei(5)", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="lower right", fontsize=10, ncol = 4, frameon=False)
 elif p_id == 2:
-    plt.legend(["Geo-opt", "Geo-pes", "Geo-wei", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
+    plt.legend(["Geo-opt(5)", "Geo-pes(5)", "Geo-wei(5)", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
 elif p_id ==3:
-    plt.legend(["Geo-opt", "Geo-pes", "Geo-wei", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
+    plt.legend(["Geo-opt(5))", "Geo-pes(5)", "Geo-wei(5)", "SER-opt(5)", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
 elif p_id ==4:
-    plt.legend(["Geo-opt", "Geo-pes", "Geo-wei", "SER-opt", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
+    plt.legend(["Geo-opt(5)", "Geo-pes(5)", "Geo-wei(5)", "SER-opt(5)", "SER-pes", "SER_wei", "TV", "LTE", "CBRS", "ISM"], loc="upper left", fontsize=10, ncol = 4, frameon=False)
 
 
 plt.tight_layout()

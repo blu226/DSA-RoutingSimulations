@@ -4,7 +4,7 @@ import math
 from STB_help import *
 from constants import *
 
-print("Spectrum bandwidth assigned: ")
+print("Spectrum bandwidth assigned: ", V + NoOfDataCenters + NoOfSources)
 specBW = getSpecBW(V + NoOfDataCenters + NoOfSources, S, T)             # Get the dynamic spectrum bandwidth
 
 specBW_file = open(link_exists_folder + "specBW.pkl", 'wb')
