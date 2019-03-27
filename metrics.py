@@ -41,7 +41,7 @@ def compute_overhead_new(time):
         size = int(msg_arr[4])
         gen_t = int(msg_arr[5])
         if gen_t <= time:
-            num_of_packets = size/packet_size
+            num_of_packets = math.ceil(size/packet_size)
             gen_packets_until_t += num_of_packets
 
     for line in del_lines:
