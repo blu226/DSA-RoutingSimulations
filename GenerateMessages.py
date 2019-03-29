@@ -31,11 +31,11 @@ for i in range(num_gen):
     #     path_lines = fp.readlines()[1:]
     # fp.close()
 
-    min_burst = 5
-    max_burst = 15
+    min_burst = 10
+    max_burst = 30
 
-    min_wait = 40
-    max_wait = 50
+    min_wait = 10
+    max_wait = 20
 
     msg_file_path = "Generated_Messages/mean" + str(int((min_wait + max_wait)/ 2))
     if not os.path.exists(msg_file_path):
@@ -46,7 +46,7 @@ for i in range(num_gen):
     t = 0
     msg_count = 0
 
-    while t < 240:
+    while t < 300:
         # print(t)
         num_msg_to_gen = random.randint(min_burst, max_burst)
         time_to_next_burst = random.randint(min_wait, max_wait)

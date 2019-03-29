@@ -254,12 +254,14 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
 
 
 def default_spec_band(node, net, LINK_EXISTS, t):
+
     chosen_spec = 1 #ISM by default
     nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
 
     #If NOT pessimistic, and no nodes in range or is a pessimistic approach
     # loop through bands until a valid one is chosen
-    for i in range(0, len(S)):
+    for i in range(0, len(S) - 1):
+
         chosen_spec = S[i]
         # check if an open channel exists on band
         if node.is_there_an_open_channel(chosen_spec) == True:
@@ -268,15 +270,24 @@ def default_spec_band(node, net, LINK_EXISTS, t):
             # if there are nodes in range
             if len(nodes_in_range) > 0:
                 # if optimistic, once we find a band with nodes in range return
-                if smart_setting != "pessimistic":
-                    break
+                # if smart_setting != "pessimistic":
+                #     break
                 # if pessimistic, if the current nodes in range are equal to the previous nodes in range, then continue
                 # looping through bands to see if an even better bandwidth band exists with the same nodes in range.
+                # else:
+                #     if i < 3:
+                next_i = i + 1
+                next_nodes_in_range = find_nodes_in_range(node, net, S[next_i], LINK_EXISTS, t)
+
+                if nodes_in_range == next_nodes_in_range and minBW[S[next_i]] > minBW[S[i]]:
+                    # print("Current node", node.ID)
+                    # print("Go for better bandwidth band", "next_i", S[next_i], "i", S[i], minBW[S[next_i]], ">", minBW[S[i]])
+                    # print("Curr-nodes", [node.ID for node in nodes_in_range])
+                    # print("Next-nodes", [node.ID for node in next_nodes_in_range])
+                    continue
+
                 else:
-                    if i < 3:
-                        next_nodes_in_range = find_nodes_in_range(node, net, S[i+1], LINK_EXISTS, t)
-                        if nodes_in_range != next_nodes_in_range:
-                            break
+                    break
 
 
     return chosen_spec, nodes_in_range
@@ -290,18 +301,17 @@ def find_distance(x1, y1, x2, y2): # used to calculate distance whether coordina
 
     return dist
 
-def get_suitable_spectrum_list(setting):
-    w1 = 0
-    w2 = 0
+def get_suitable_spectrum_list(setting, w1, w2):
     sum_list = []
     S = []
-    if "optimistic" in setting:
-        w2 = 1
-    elif "pessimistic" in setting:
-        w1 = 1
-    else:
-        w1 = .2
-        w2 = .8
+    # if "optimistic" in setting:
+    #
+    #     w2 = 1 - w1
+    # elif "pessimistic" in setting:
+    #     w1 = 1
+    # else:
+    #     w1 = .2
+    #     w2 = .8
 
     for i in range(len(spectRange)):
         sum = (w1 * math.exp(-(1/(spectRange[i]/100)))) + (w2 * math.exp(-(1/minBW[i])))
