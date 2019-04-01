@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, generate_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt, wei_param):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, generate_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt, wei_param, num_trans):
 
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
@@ -88,7 +88,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
                      pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access,
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
                      priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
-                     msg_mean, ttl, max_mem, replicas)
+                     msg_mean, ttl, max_mem, replicas, num_trans)
 
     # generate a link exists if needed
     if generate_LE == True and max_nodes == V + NoOfSources + NoOfDataCenters:
@@ -193,6 +193,7 @@ num_replicas = 1       # number of replicas/copies for geographic SnW
 sim_round = 1
 priority_queue_active = True
 compute_spec_BW = False
+num_transceivers = 1
 
 
 if compute_spec_BW == True:
@@ -201,12 +202,12 @@ if compute_spec_BW == True:
 else:
     if generate_LE == False :
 
-        for num_channels in range(2, 10):
+        for num_channels in [10]:
             print("Channels:", num_channels)
             run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                            pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                            "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
-                           priority_queue_active, routing_opt,0)
+                           priority_queue_active, routing_opt,0, num_transceivers)
 
     #Generate Link exists
     else:

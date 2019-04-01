@@ -5,7 +5,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
                      pkl_folder_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access, \
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, \
                      smart_setting, priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_file, puser_file, \
-                     debug_m, metric_int, msg_mean, ttl, mem_size, num_replicas):
+                     debug_m, metric_int, msg_mean, ttl, mem_size, num_replicas, num_trans):
 
     f = open("constants.py", "w")
 
@@ -50,6 +50,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     ttl_line = "TTL = " + str(ttl) + "\n"
     mem_line = "max_packets_in_buffer = " + str(mem_size) + "\n"
     rep_line = "num_replicas = " + str(num_replicas) + "\n"
+    trans_line = "num_transceivers = " + str(num_trans) + "\n"
+    sec_per_tau_line = "num_sec_per_tau = " + str(60) + "\n"
     if perfect_knowledge == True and protocol == "XChant":
         delivered_file = "delivered_messages_opt.txt"
         consumed_energy_file = "energy_metrics_opt.txt"
@@ -80,7 +82,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     # f.write("minBW = [12, 10, 20, 62]\nmaxBW = [12, 10, 20, 62]\nspectRange = [1330, 200, 770, 125]\nspectPower = [1,1,1,1]\nepsilon = 0.5\n")
 
     f.write("t_sd = 0.1\nt_td = 1\nidle_channel_prob = 1\nswitching_energy = 0.0001\nsensing_power = 0.00004\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
-    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [120, 1200, 2400, 3600]\npacket_size = 300\nnum_sec_per_tau = 60\nactive_channel_prob = 1\n")
+    f.write("minTTL=15\nmaxTau = 1\ndefault_num_channels = 10\nM = [120, 1200, 2400, 3600]\npacket_size = 300\nactive_channel_prob = 1\n")
 
     f.write(T_line)
     f.write(V_line)
@@ -114,6 +116,8 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
     f.write(puser_round)
     f.write(ttl_line)
     f.write(mem_line)
+    f.write(trans_line)
+    f.write(sec_per_tau_line)
 
 
     f.write(lef_line)

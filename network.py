@@ -316,11 +316,13 @@ class Network(object):
                             if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
                                 # TODO: get the suitable non-interfered channel
                                 was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
-
+                        else:
+                            was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
 
                         if was_sent == False:
                             # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
                             msg_index += 1
+                            isVisited -= 1
                         else:
                             # the message gets deleted from the current node, and buffer gets shrinked
                             # isVisited is to get to the end of the node buffer even if it is not empty
@@ -395,7 +397,7 @@ class Network(object):
                         # check if there is enough time to broadcast msg
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             # broadcast msg to everyone in range
-                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s)
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s, transfer_time_in_sec)
                             # if a msg wasn't sent then subtract the time it would've taken to send
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
@@ -432,7 +434,7 @@ class Network(object):
                         # check if there is enough time to broadcast msg and enough copies to send
                         if node.mes_fwd_time_limit <= num_sec_per_tau:
                             msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
-                                                                         specBW, self, s)
+                                                                         specBW, self, s, transfer_time_in_sec)
                             # if msg wasn't broadcasted then give transfer time back to node
                             if msg_sent == False:
                                 node.mes_fwd_time_limit -= transfer_time_in_sec
