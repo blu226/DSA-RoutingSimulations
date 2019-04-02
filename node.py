@@ -23,7 +23,7 @@ class Node(object):
         # if the size of the buffer is larger than the mem size and mem size isnt 0 (means infinite buffer)
         if len(self.buf) > mem_size and mem_size > 0:
 
-            if smart_setting != "optimistic" and smart_setting != "pessimistic" and smart_setting != "weighted":
+            if "weighted" not in smart_setting:
                 self.buf.remove(self.buf[0])
 
             else:
