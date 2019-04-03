@@ -384,7 +384,6 @@ class Node(object):
                 message_broadcasted = True
                 # calculate energy consumed
                 consumedEnergy = self.calculate_energy_consumption(mes, next_node.ID, s, ts, specBW)
-                next_node.energy += consumedEnergy
                 # create replica of message
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
@@ -395,24 +394,31 @@ class Node(object):
                     copies_to_keep = mes.num_copies - copies_to_send
                     new_message.set(ts + 1, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
+                if geographical_routing == False and broadcast == False:
+                    copies_to_send = math.floor(mes.num_copies / 2)
+                    copies_to_keep = mes.num_copies - copies_to_send
+                    new_message.set(ts + 1, copies_to_send, next_node.ID)
+                    mes.change_num_copies(copies_to_keep)
 
                 else:
                     new_message.set(ts + 1, mes.replica + 1, next_node.ID)
                 new_message.band_used(s)
                 packets_sent += 1
                 # check if the destination nodes buffer will overflow by receiving this packet, and drop a packet if necessary
-                next_node.handle_buffer_overflow(max_packets_in_buffer)
                 # handle if msg is sent to destination
                 if int(next_node.ID) == (mes.des):
-                    write_delivered_msg_to_file(new_message, new_message.last_sent)
-                    next_node.delivered.append(new_message)
+                    write_delivered_msg_to_file(mes, ts + 1)
+                    next_node.delivered.append(mes)
+                    next_node.energy += consumedEnergy
                     break
 
                 # handle msg if it is being sent to a relay node
-                else:
+                elif copies_to_send > 0:
                     # add new msg to destination nodes buffer
                     next_node.buf.append(new_message)
-                    # if forwarding and not flooding, delete msg from current nodes buffer after sending
+                    next_node.energy += consumedEnergy
+
+                next_node.handle_buffer_overflow(max_packets_in_buffer)
 
                 # if mes in self.buf and num_nodes_to_fwd > 0:
                 if mes in self.buf and geographical_routing and mes.num_copies == 0:

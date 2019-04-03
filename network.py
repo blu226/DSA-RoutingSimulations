@@ -329,7 +329,7 @@ class Network(object):
                             isVisited -= 1
 
         # handles optimistic/pessimistic geo and epidemic along with single band epidemic
-        elif "Epidemic_Smart" in protocol:
+        elif "Epidemic_Smart" in protocol or "Spray" in protocol:
             # add messages to source nodes
             self.other_add_messages(msg_lines, t)
             # variables for checking how many packets are sent per tau and # of parallel communications
@@ -420,7 +420,6 @@ class Network(object):
                             # find the nodes to broadcast to based on how many you are forwarding to
                             node_counter = 0
                             for i in range(len(node_priority_list)):
-                                #TODO: Confirm with Brian
                                 # if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
                                 if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
                                     node_counter += 1
@@ -442,7 +441,36 @@ class Network(object):
                             else:
                                 self.packets_per_tau += num_packet_broadcasted
                                 did_node_transmit = True
-                # if node transmitted at least 1 packet account for it in parallel communications
+                # Spray n Wait
+                elif geographical_routing == False and broadcast == False and len(nodes_in_range) > 0:
+                    # loop through each msg in buffer
+                    for msg in node.buf:
+                        # choose a random node in range to broadcast to
+                        nodes_to_broadcast = [random.choice(nodes_in_range)]
+
+                        # find transfer time
+                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
+                                                                                         nodes_in_range[0].ID, t)
+                        # account for time it takes to send if resources aren't infinite
+                        if limited_time_to_transfer == True:
+                            node.mes_fwd_time_limit += transfer_time_in_sec
+
+                        # check if there is enough time to broadcast msg and enough copies to send
+                        if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
+                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast,
+                                                                                                 msg, t, LINK_EXISTS,
+                                                                                                 specBW, self, s,
+                                                                                                 transfer_time_in_sec)
+                            # if msg wasn't broadcasted then give transfer time back to node
+                            if msg_sent == False:
+                                node.mes_fwd_time_limit -= transfer_time_in_sec
+                            # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                            else:
+                                self.packets_per_tau += num_packet_broadcasted
+                                did_node_transmit = True
+
+
+                                # if node transmitted at least 1 packet account for it in parallel communications
                 if did_node_transmit:
                     self.parallel_coms += 1
                     # account for band chosen by this node in this tau
