@@ -18,16 +18,21 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
     if routing_opt == "Epi":  # if/else statement for epidemic protocol vs forwarding, 0 = broadcast/epidemic
         broadcast = True
         geo_routing = False
+        num_replicas_val = "broadcast"
+
     elif routing_opt == "SnW":
         broadcast = False
         geo_routing = False
+        num_replicas_val = "SnW_" + str(replicas)
+
     else:
         broadcast = False
         geo_routing = True
+        num_replicas_val = "geo_" + str(replicas)
 
     num_nodes_to_fwd = num_fwd      # if forwarding, how many do you want to forward to, 0 = broadcast/epidemic
 
-    num_replicas_val = "broadcast" if broadcast == True else "geo_" + str(replicas) # create part of dynamic file directory for metrics
+    #num_replicas_val = "broadcast" if broadcast == True else "geo_" + str(replicas) # create part of dynamic file directory for metrics
 
     dataset = DataSet                   #UMass or Lexington
     day_or_numMules = Day_Or_NumMules   #date (UMass) or number of mules (Lexington)(for lexington this number really doesn't mean anything it is just needed for the file structure)
@@ -82,12 +87,9 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
 
         path_to_save_LLC = link_exists_path
 
-
     else:
         print("Invalid Dataset")
         return -1
-
-
 
     # creates a list of spectrums based on bands being used and the current smart setting
     if band == "ALL":
@@ -127,31 +129,38 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
             os.system("python3 computeLINKEXISTS_Lex.py")
             os.system("python3 computeSpecBW.py")
 
-    # if protocol == "XChant":
-    # if not os.path.exists(path_to_metrics):
-    #     os.makedirs(path_to_metrics)
-
-    # if generate_LE == True:
-    #     os.system("python3 STB_main_path.py")
-
     # run the simulation and metrics if you are not generating link exists
     if generate_LE == False:
         os.system("python3 main.py")
         os.system("python3 metrics.py")
 
-# function to run simulations for ISC2 paper
-def run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param, num_transceivers):
-    band = "ALL"
-    print("Geo: Msg round", msg_round, "PU round", puser_round, " No. Replica", num_replicas, "Memory", mem_size)
-    priority_queue_active = False
-    for routing_opt in ["Geo"]:
-        print("Routing:", routing_opt, "W", wei_param)
 
-        #print("Weighted")
-        run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
-                       pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                       "weighted" + "_" + str(wei_param), nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size,
-                       num_replicas, priority_queue_active, routing_opt, wei_param, num_transceivers)
+# function to run simulations for ISC2 paper
+def run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
+                         num_replicas, puser_round, wei_param, num_transceivers):
+    for band in bands:
+        print("Geo: Msg round", msg_round, "PU round", puser_round, " No. Replica", num_replicas, "Memory", mem_size)
+
+        if band == "ALL":
+            priority_queue_active = False
+            for routing_opt in ["Geo", "SnW"]:
+                print("Routing:", routing_opt, "W", wei_param)
+
+                # print("Weighted")
+                run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                               "weighted" + "_" + str(wei_param), nodes_tofwd, msg_round, puser_round, msg_mean, ttl,
+                               mem_size, num_replicas, priority_queue_active, routing_opt, wei_param, num_transceivers)
+        else:
+            priority_queue_active = False
+            # For single bands, lets only do basic epidemic routing - 0 stands for epidemic routing
+            for routing_opt in ["Geo"]:
+                print("Band:", band, "Routing:", routing_opt)
+                run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
+                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                               band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
+                               priority_queue_active, routing_opt, wei_param, num_transceivers)
+
 
 # function to run simulations for ISC2 paper
 def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param, num_transceivers):
@@ -177,12 +186,12 @@ def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, 
                     print("Band:", band, "Routing:", routing_opt)
                     run_simulation(data, day, sim_round, proto, band, len_T, start_time, num_mules, generate_LE, max_v,
                                    pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                                   band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt, wei_param, num_transceivers)
+                                   band, nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
+                                   priority_queue_active, routing_opt, wei_param, num_transceivers)
 
 
 # (DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, Gen_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,
 #  src_dst_arr, speed_arr, num messages, num channels, num primary users, smart setting (optional))
-
 
 # RF parameter setting
 # Freq: TV = 600 MHz, LTE = 900 MHz, ISM = 2.4 GHz, and CBRS = 3.5 GHz
@@ -210,7 +219,7 @@ perfect_knowledge = False       #Xchant only
 src_dst = [3, 3]                #num src and dst
 max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of datamules + src + dst
 speed = [135, 400]                  #Lex data only
-proto = "SprayNWait"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
+proto = "Epidemic_Smart"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
 num_Pusers = 200
 num_channels = 6
 nodes_tofwd = -1
@@ -232,69 +241,70 @@ if compute_spec_BW == True:
 else:
     if generate_LE == False :
 
-        for msg_round in range(0,1):
-            for puser_round in range(0,1):
-                run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
-                               pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                               "weighted" + "_" + str(0), nodes_tofwd, msg_round, puser_round, msg_mean, ttl,
-                               mem_size,
-                               num_replicas, priority_queue_active, routing_opt, 0, num_transceivers)
+        for msg_round in range(0, 5):
+            for puser_round in range(0, 5):
 
-
-            # for num_replicas in [1, 5, 10, 15, 20]:
-            # run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
-            #                  num_replicas)
+                for mem_size in [100, 25, 50, 200, -1]:
+                    print("Msg round", msg_round, "Memory", mem_size)
+                    for wei_param in [0.5]:
+                        # For Epidemic Routing
+                        run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                                         mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                        # For Geo and Spray and Wait
+                        for num_replicas in [5]:  # 1, 5
+                            run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                                                 mem_size, num_replicas, puser_round, wei_param, num_transceivers)
 
                 # for num_mules in [92, 8, 16, 32, 64, 128]:
-                #     # print("Msg round", msg_round, "Mules", num_mules)
-                #     for num_replicas in [1, 5]:
-                #         run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
-                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
+                 #     # For Epidemic Routing
+                 #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                 #                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                 #     # For Geo and Spray and Wait
+                 #     for wei_param in [0.5]:
+                 #            for num_replicas in [5]: #1, 5
+                 #                run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round,
+                 #                                     msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param, num_transceivers)
 
+                # for msg_mean in [15, 7, 25, 35, 45]:
+                #     # For Epidemic Routing
+                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                #                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                #     # For Geo and Spray and Wait
+                #     for wei_param in [0.5]:
+                #            for num_replicas in [5]: #1, 5
+                #                run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round,
+                #                                     msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param, num_transceivers)
 
-            # num_mules = 84
-            # # for msg_mean in [5, 10, 15, 20, 25]:
-            # #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas)
-            #
-            # # msg_mean = 15
-            #     for mem_size in [100]:
-            #         print("Msg round", msg_round, "Memory", mem_size)
-            #         for wei_param in [0, 0.2, 0.5, 0.8, 1]:
-            #             for num_replicas in [5]:  # 1, 5
-            #                 run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
-            #                                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
-            #             run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size,
-            #                              num_replicas, puser_round, wei_param, num_transceivers)
+                # for ttl in [180, 30, 60, 90, 240, 360]:
+                # # For Epidemic Routing
+                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                #                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                #     # For Geo and Spray and Wait
+                #     for wei_param in [0.5]:
+                #            for num_replicas in [5]: #1, 5
+                #                run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round,
 
-                # # # #
-            # mem_size = 100
-                # for ttl in [30, 60, 90, 180, 240, 360]:
-                #     # print("Msg round", msg_round, "TTL", ttl)
-                #     for num_replicas in [1, 5]:
-                #         run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
-                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
+                # for num_channels in [6, 2, 4, 8, 10]:
+                # # For Epidemic Routing
+                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                #                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                #     # For Geo and Spray and Wait
+                #     for wei_param in [0.5]:
+                #            for num_replicas in [5]: #1, 5
+                #                run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round,
 
-            #
-            # ttl = 180
-            # # # varying num of channels
-            #     for num_channels in [6, 2, 4, 8, 10]:
-            #         # print("Msg round", msg_round, "Channels", num_channels)
-            #         for wei_param in [0, 0.2, 0.5, 0.8, 1]:
-            #             for num_replicas in [5]: #1, 5
-            #                 run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param)
-            #             run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round, wei_param)
-
-            #
-            # num_channels = 6
-            # # varying num primary users
                 # for num_Pusers in [50, 100, 200, 300, 400, 500]:
-                #     #for Geo
-                #     for num_replicas in [1, 5]:
-                #         run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
-                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl, mem_size, num_replicas, puser_round)
+                # # For Epidemic Routing
+                #     run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, msg_mean, ttl,
+                #                      mem_size, num_replicas, puser_round, wei_param, num_transceivers)
+                #     # For Geo and Spray and Wait
+                #     for wei_param in [0.5]:
+                #            for num_replicas in [5]: #1, 5
+                #                run_various_sims_geo(sim_round, num_mules, num_channels, num_Pusers, msg_round,
 
     #Generate Link exists
     else:
         run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
-                                       pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                                   "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt, 0, num_transceivers)
+                       pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                       "weighted", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
+                       priority_queue_active, routing_opt, 0, num_transceivers)
