@@ -54,7 +54,10 @@ def compute_overhead_new(time):
         if (int(line_arr[4]) <= time):
             packets_not_delivered_until_t += 1
 
-    return round(float(packets_not_delivered_until_t)/gen_packets_until_t, 2)
+    if gen_packets_until_t == 0:
+        return 0
+    else:
+        return round(float(packets_not_delivered_until_t)/gen_packets_until_t, 2)
 
 def compute_overhead(time):
 
@@ -245,7 +248,10 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     count_1, count_2, count_3, count_4, count_above4 = compute_hop_counts(delivery_time)
 
-    pkt_per_tau, parallel_coms = packets_per_taue(delivery_time)
+    # pkt_per_tau, parallel_coms = packets_per_taue(delivery_time)
+
+    pkt_per_tau = 0
+    parallel_coms = 0
 
     # if num_packets > 0:
     #     eng = round(avg_energy/num_packets, 2)

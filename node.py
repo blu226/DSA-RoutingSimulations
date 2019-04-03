@@ -211,17 +211,18 @@ class Node(object):
 
     # finds a common channel between 2 nodes in the case of forwarding to destination
     def is_channel_available(self, des_node, s, ts, net, LINK_EXISTS, num_sec_to_trans):
+        channel_available = -1
+        transceiver = -1
         # check if des_node has an open channel
-        if (des_node.can_receive == np.inf or des_node.can_receive == int(self.ID)):
-            if restrict_channel_access == True:
-                transceiver, channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS, num_sec_to_trans)
-            else:
-                channel_available = 0
-                transceiver = 0
+        for i in range(num_transceivers):
+            if (des_node.can_receive[i][0] == np.inf or des_node.can_receive[i][0] == int(self.ID)):
+                if restrict_channel_access == True:
+                    transceiver, channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS, num_sec_to_trans)
+                else:
+                    channel_available = 0
+                    transceiver = 0
 
-        else:
-            channel_available = -1
-            transceiver = -1
+
 
 
         return transceiver, channel_available
