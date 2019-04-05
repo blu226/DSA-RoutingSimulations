@@ -389,11 +389,17 @@ class Node(object):
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
                                       [0], 0, mes.packet_id, mes.hops)
 
+
+                #TODO: We initialize copies_to_send =1 for epidemic routing, as it always sends one replica to each encountering node
+
+                copies_to_send = 1
+
                 if geographical_routing == True:
                     copies_to_send = math.ceil(mes.num_copies / 2)
                     copies_to_keep = mes.num_copies - copies_to_send
                     new_message.set(ts + 1, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
+
                 if geographical_routing == False and broadcast == False:
                     copies_to_send = math.floor(mes.num_copies / 2)
                     copies_to_keep = mes.num_copies - copies_to_send
@@ -402,8 +408,10 @@ class Node(object):
 
                 else:
                     new_message.set(ts + 1, mes.replica + 1, next_node.ID)
+
                 new_message.band_used(s)
                 packets_sent += 1
+
                 # check if the destination nodes buffer will overflow by receiving this packet, and drop a packet if necessary
                 # handle if msg is sent to destination
                 if int(next_node.ID) == (mes.des):
@@ -423,6 +431,7 @@ class Node(object):
                 # if mes in self.buf and num_nodes_to_fwd > 0:
                 if mes in self.buf and geographical_routing and mes.num_copies == 0:
                     self.buf.remove(mes)
+
         # if a msg was broadcasted, handle energy consumed at the sending nodes end
         if(message_broadcasted == True):
             self.energy += consumedEnergy
