@@ -71,7 +71,7 @@ for i in range(num_gen):
                     size = random.choice(M[2:])
 
                 line = str(msg_count) + "\t" + str(src) + "\t" + str(des) + "\t" + str(TTL) + "\t" \
-                       + str(size) + "\t" + str(t) + "\n"
+                       + str(size) + "\t" + str(genT) + "\n"
 
                 message_file.write(line)
 

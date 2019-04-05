@@ -331,10 +331,9 @@ def getLocationsOfDMs(DMTrajectories, startIndex, endIndex):
         # update wait time dictionary to keep track of buses on same trajectory
         if chosen_trajectory_id in num_mules_on_traj:
             num_mules_on_traj[chosen_trajectory_id] += 1
-            currCoorID = math.floor(len(DMTrajectories[chosen_trajectory_id]) * (
-                        num_mules_on_traj[chosen_trajectory_id] / num_busses_per_traj))
-            if currCoorID == len(DMTrajectories[chosen_trajectory_id]) - 1:
-                currCoorID -= 1
+            currCoorID = math.floor(len(DMTrajectories[chosen_trajectory_id]) * (num_mules_on_traj[chosen_trajectory_id] / num_busses_per_traj))
+            if currCoorID == len(DMTrajectories[chosen_trajectory_id]) - 1 or currCoorID == len(DMTrajectories[chosen_trajectory_id]):
+                currCoorID -= len(DMTrajectories[chosen_trajectory_id]) - 2
             nextCoorID = currCoorID + 1
         else:
             num_mules_on_traj[chosen_trajectory_id] = 0
@@ -493,7 +492,13 @@ if V + NoOfDataCenters + NoOfSources == max_nodes:
         getSourceDesCoordinates(0, NoOfSources, (NoOfSources + NoOfDataCenters))
 
     # Randomly place sources and destination nodes (index from 0 to S -1)
-    getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
+    if pkl_folder == 2 and protocol == "XChant":
+        if not os.path.exists(DataMule_path + "Day2/"):
+            os.makedirs(DataMule_path+ "Day2/")
+        for i in range(NoOfSources + NoOfDataCenters):
+            os.system("cp " + DataMule_path + "Day1/" + str(i) + ".txt " + DataMule_path + "Day2/")
+    else:
+        getLocationsOfSourcesAndDataCenters(0, NoOfSources + NoOfDataCenters)
 
 
     # Place DMs on selected Routes (index from (S - DM)

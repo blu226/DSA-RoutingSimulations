@@ -110,7 +110,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
                      pkl_fold_num, path_to_day1_LLC, perfect_knowledge, speed, limited_time_to_transfer, restrict_band_access,
                      restrict_channel_access, generate_new_primary_users, num_chan, num_puser, path_to_save_LLC, smart_setting,
                      priority_queue_active, broadcast, geo_routing, num_nodes_to_fwd, msg_round, puser_round, debug_mode, metric_interval,
-                     msg_mean, ttl, max_mem, replicas)
+                     msg_mean, ttl, max_mem, replicas, 1)
 
     # generate a link exists if needed
     if generate_LE == True and max_nodes == V + NoOfSources + NoOfDataCenters:

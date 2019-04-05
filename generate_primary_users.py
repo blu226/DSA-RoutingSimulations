@@ -15,7 +15,7 @@ def pu_on_off_arr():
 
 
 max_puser = 500
-rounds = 5
+rounds = 1
 files = findfiles(DataMule_path + "Day1/")
 
 

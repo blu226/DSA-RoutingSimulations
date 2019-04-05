@@ -420,8 +420,8 @@ class Network(object):
                             # find the nodes to broadcast to based on how many you are forwarding to
                             node_counter = 0
                             for i in range(len(node_priority_list)):
-                                # if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
-                                if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
+                                if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
+                                # if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
                                     node_counter += 1
                                     nodes_to_broadcast.append(node_priority_list[i])
                         # find transfer time
@@ -446,7 +446,7 @@ class Network(object):
                     # loop through each msg in buffer
                     for msg in node.buf:
                         # choose a random node in range to broadcast to
-                        nodes_to_broadcast = [random.choice(nodes_in_range)]
+                        nodes_to_broadcast = [random.shuffle(nodes_in_range)]
 
                         # find transfer time
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,

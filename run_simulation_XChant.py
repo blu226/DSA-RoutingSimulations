@@ -172,28 +172,28 @@ day = "50"
 len_T = 360                     #length of simulation
 start_time = 0                #start time (to find Link Exists)
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
-num_mules = 32                  #number of data mules to use
-generate_LE = False             #generate Link Exists
+num_mules = 92                  #number of data mules to use
+generate_LE = True             #generate Link Exists
 pkl_ID = 2                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
 src_dst = [3, 3]                #num src and dst
 max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of datamules + src + dst
 speed = [135, 400]                  #Lex data only
 proto = "XChant"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
-num_Pusers = 100
-num_channels = 10
+num_Pusers = 200
+num_channels = 6
 nodes_tofwd = -1
 routing_opt = "Epi"
 msg_round = 0
 puser_round = 0
 msg_mean = 15
-ttl = 360
-mem_size = -1
+ttl = 180
+mem_size = 100
 num_replicas = 1       # number of replicas/copies for geographic SnW
-sim_round = 1
+sim_round = 2
 priority_queue_active = True
 compute_spec_BW = False
-num_transceivers = 1
+num_transceivers = 2
 
 
 if compute_spec_BW == True:
@@ -202,7 +202,7 @@ if compute_spec_BW == True:
 else:
     if generate_LE == False :
 
-        for num_channels in [10]:
+        for num_transceivers in [2, 3, 4, 5]:
             print("Channels:", num_channels)
             run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                            pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
@@ -213,8 +213,8 @@ else:
     else:
         run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                                        1, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                                   "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt, 0)
+                                   "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas, priority_queue_active, routing_opt, 0, num_transceivers)
         run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                        2, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                        "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
-                       priority_queue_active, routing_opt, 0)
+                       priority_queue_active, routing_opt, 0, num_transceivers)
