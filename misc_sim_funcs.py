@@ -279,7 +279,10 @@ def default_spec_band(node, net, LINK_EXISTS, t):
                 next_i = i + 1
                 next_nodes_in_range = find_nodes_in_range(node, net, S[next_i], LINK_EXISTS, t)
 
-                if nodes_in_range == next_nodes_in_range and minBW[S[next_i]] > minBW[S[i]]:
+                #if nodes_in_range == next_nodes_in_range and minBW[S[next_i]] > minBW[S[i]]:
+                # (all(x in next_nodes_in_range for x in nodes_in_range))
+                if  len(next_nodes_in_range) > len(nodes_in_range) and node.is_there_an_open_channel(
+                        S[next_i]) and minBW[S[next_i]] > minBW[S[i]]:
                     # print("Current node", node.ID)
                     # print("Go for better bandwidth band", "next_i", S[next_i], "i", S[i], minBW[S[next_i]], ">", minBW[S[i]])
                     # print("Curr-nodes", [node.ID for node in nodes_in_range])

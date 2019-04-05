@@ -78,7 +78,7 @@ def create_constants(T, V, S, start_time, dataset, max_nodes, DataMule_dir, path
 
 
     f.write("numSpec = 4\ndt = 1\ntau = 1\n")
-    f.write("minBW = [12, 16, 30, 62]\nmaxBW = [12, 16, 30, 62]\nspectRange = [2224, 204, 1286, 288]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
+    f.write("minBW = [12, 40, 20, 82]\nmaxBW = [12, 40, 20, 82]\nspectRange = [2224, 204, 1286, 288]\nspectPower = [4,1,4,10]\nepsilon = 0.5\n")
     # f.write("minBW = [12, 10, 20, 62]\nmaxBW = [12, 10, 20, 62]\nspectRange = [1330, 200, 770, 125]\nspectPower = [1,1,1,1]\nepsilon = 0.5\n")
 
     f.write("t_sd = 0.1\nt_td = 1\nidle_channel_prob = 1\nswitching_energy = 0.0001\nsensing_power = 0.00004\nlambda_val = 1\nmessageBurst = [2, 5]\n\n")
