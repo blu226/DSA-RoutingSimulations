@@ -422,25 +422,29 @@ class Network(object):
                             for i in range(len(node_priority_list)):
                                 if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
                                 # if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
-                                    node_counter += 1
-                                    nodes_to_broadcast.append(node_priority_list[i])
-                        # find transfer time
-                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
-                        # account for time it takes to send if resources aren't infinite
-                        if limited_time_to_transfer == True:
-                            node.mes_fwd_time_limit += transfer_time_in_sec
+                                    # node_counter += 1
 
-                        # check if there is enough time to broadcast msg and enough copies to send
-                        if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
-                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
-                                                                         specBW, self, s, transfer_time_in_sec)
-                            # if msg wasn't broadcasted then give transfer time back to node
-                            if msg_sent == False:
-                                node.mes_fwd_time_limit -= transfer_time_in_sec
-                            # if msg was sent adjust variables for counting packets per tau and # of parallel communications
-                            else:
-                                self.packets_per_tau += num_packet_broadcasted
-                                did_node_transmit = True
+                                    nodes_to_broadcast.append(node_priority_list[i])
+
+                                    # find transfer time
+                                    transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
+                                    # account for time it takes to send if resources aren't infinite
+                                    if limited_time_to_transfer == True:
+                                        node.mes_fwd_time_limit += transfer_time_in_sec
+
+                                    # check if there is enough time to broadcast msg and enough copies to send
+                                    if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
+                                        msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
+                                                                                     specBW, self, s, transfer_time_in_sec)
+                                        # if msg wasn't broadcasted then give transfer time back to node
+                                        if msg_sent == False:
+                                            node.mes_fwd_time_limit -= transfer_time_in_sec
+                                            nodes_to_broadcast.remove(node_priority_list[i])
+                                        # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                                        else:
+                                            self.packets_per_tau += num_packet_broadcasted
+                                            did_node_transmit = True
+                                            node_counter += 1
                 # Spray n Wait
                 elif geographical_routing == False and broadcast == False and len(nodes_in_range) > 0:
                     # loop through each msg in buffer

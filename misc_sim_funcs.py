@@ -253,7 +253,28 @@ def choose_spectrum(node, net, LINK_EXISTS, t):
     return chosen_spec, nodes_in_range
 
 
+#Updated code for selecting a suitable spectrum band, irrespective of the weighted, optimistic or pessimistic approach
 def default_spec_band(node, net, LINK_EXISTS, t):
+
+    chosen_spec = 1 #ISM by default
+    nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)
+
+    is_first_band = True
+    for new_chosen_spec in S:
+        new_nodes_in_range = find_nodes_in_range(node, net, new_chosen_spec, LINK_EXISTS, t)
+
+        if is_first_band and node.is_there_an_open_channel(new_chosen_spec):
+            chosen_spec = new_chosen_spec
+            nodes_in_range = new_nodes_in_range
+
+        if len(new_nodes_in_range) >= len(nodes_in_range) and node.is_there_an_open_channel(
+                new_chosen_spec) and minBW[new_chosen_spec] > minBW[chosen_spec]:
+            chosen_spec = new_chosen_spec
+            nodes_in_range = new_nodes_in_range
+
+    return chosen_spec, nodes_in_range
+
+def default_spec_band_old(node, net, LINK_EXISTS, t):
 
     chosen_spec = 1 #ISM by default
     nodes_in_range = find_nodes_in_range(node, net, chosen_spec, LINK_EXISTS, t)

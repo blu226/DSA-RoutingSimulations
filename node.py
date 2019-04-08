@@ -367,16 +367,19 @@ class Node(object):
         packets_sent = 0
 
         # try to find an open channel, and if you don't just give up broadcasting message on the chosen band and leave this module
-        for next_node in nodes_in_range:
-            temp_transceiver, temp_channel = self.is_channel_available(next_node, s, ts, net, LINK_EXISTS, sec_to_transfer)
-            if  temp_channel >= 0:
-                channel_to_use = temp_channel
-                break
+        # for next_node in nodes_in_range:
+        #     temp_transceiver, temp_channel = self.is_channel_available(next_node, s, ts, net, LINK_EXISTS, sec_to_transfer)
+        #     if  temp_channel >= 0:
+        #         channel_to_use = temp_channel
+        #         break
 
         # try sending msg over found channel to every node in range
         for next_node in nodes_in_range:
              # check if node has the available channel
-            transceiver, channel_available = self.check_if_channel_available(self, next_node, ts, net, s, LINK_EXISTS, channel_to_use, sec_to_transfer)
+
+            transceiver, channel_available = self.check_for_available_channel(self, next_node, ts, net, s, LINK_EXISTS, sec_to_transfer)
+            # transceiver, channel_available = self.check_if_channel_available(self, next_node, ts, net, s, LINK_EXISTS, channel_to_use, sec_to_transfer)
+
             # if node has the chosen channel available send him the msg
             if channel_available >= 0 and to_send(mes, next_node, ts) == True and mes in self.buf:
                 self.update_channel_occupancy(self, next_node, ts, net, s, channel_available, LINK_EXISTS, sec_to_transfer, transceiver)
@@ -388,7 +391,6 @@ class Node(object):
                 new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
                                       [0], 0, mes.packet_id, mes.hops)
-
 
                 #TODO: We initialize copies_to_send =1 for epidemic routing, as it always sends one replica to each encountering node
 
