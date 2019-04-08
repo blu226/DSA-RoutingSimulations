@@ -37,6 +37,7 @@ class Node(object):
                 # find smallest message size packet to delete
                 for mes in self.buf:
                     if mes.genT == min_gen_t:
+                        write_not_delivered_msg_to_file(mes)
                         self.buf.remove(mes)
                         return
                 # Possible code to delete the smallest msg sized packet in buffer
@@ -94,6 +95,7 @@ class Node(object):
         dist1 = 99999
         dist2 = 99999
 
+
         for i in range(num_transceivers):
             # make sure receiver is not already receiving from anyone else
             if (np.inf in node2.can_receive[i] or int(node1.ID) in node2.can_receive[i]) and (node2.can_receive[i][1] - sec_to_transfer) >= 0:
@@ -111,27 +113,9 @@ class Node(object):
                                 if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
                                     available = False
 
-                        # interference due to primary users
-                        for p_user in net.primary_users:
-                            if p_user.active == True and s == int(p_user.band) and j == int(p_user.channel):
-                                if dataset == "UMass":
-                                    dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
-                                                         float(p_user.y), float(p_user.x))
-                                    dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
-                                                         float(p_user.y), float(p_user.x))
-                                elif dataset == "Lexington":
-                                    dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
-                                                              float(p_user.x), float(p_user.y))
-                                    dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
-                                                              float(p_user.x), float(p_user.y))
-                                if (dist1 < spectRange[s] or dist2 < spectRange[s]):
-                                    node1.channels[s][j] = -1
-                                    node2.channels[s][j] = -1
-                                    available = False
-                                    # print("Primary User using channel")
+
 
                     if available == True: # if channel is available then update the network
-                        # self.update_channel_occupancy(node1,node2,ts,net,s,j, LINK_EXISTS, sec_to_transfer)
                         # return channel index of available channel
                         return i, j
         # return -1 if no channel available
@@ -139,61 +123,61 @@ class Node(object):
 
     # same as above but for when a channel has already been decided and you are transmitting to someone new, check if they
     # also have that channel available
-    def check_if_channel_available(self, node1, node2, ts, net, s, LINK_EXISTS, channel, sec_to_transfer):
-        available = False
-        dist1 = 99999
-        dist2 = 99999
-        j = channel
-
-        # print("Node1.ID:", node1.ID, "Node2.ID:", node2.ID, "Can_receive:", node2.can_receive)
-        for i in range(num_transceivers):
-
-        #make sure receiver is not already receiving from anyone else
-            if (np.inf in node2.can_receive[i] or int(node1.ID) in node2.can_receive[i]) and (
-                    node2.can_receive[i][1] - sec_to_transfer) >= 0:
-                #check if a common channel is available between both nodes
-                if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
-                        or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)) \
-                        or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == np.inf) \
-                        or (node1.channels[s][j] == np.inf and node2.channels[s][j] == int(node1.ID)):
-                    available = True
-
-                    #interference due to secondary users
-                    for other_node in net.nodes:
-                        #no one in range is transmitting on the same channel
-                        if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID ):
-
-                            print("Secondary User using same channel.")
-
-                            if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
-                                # print("Secondary User in range")
-                                available = False
-
-                    #interference due to primary users
-                    for p_user in net.primary_users:
-                        if p_user.active == True and s == p_user.band and j == p_user.channel:
-                            if dataset == "UMass":
-                                dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
-                                                     float(p_user.y), float(p_user.x))
-                                dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
-                                                     float(p_user.y), float(p_user.x))
-                            elif dataset == "Lexington":
-                                dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
-                                                          float(p_user.x), float(p_user.y))
-                                dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
-                                                          float(p_user.x), float(p_user.y))
-                            if (dist1 < spectRange[s] or dist2 < spectRange[s]):
-                                node1.channels[s][j] = -1
-                                node2.channels[s][j] = -1
-                                available = False
-                                # print("Primary User using channel")
-
-                if available == True:
-                    # self.update_channel_occupancy(node1,node2,ts,net,s,j, LINK_EXISTS)
-                    return i, j
-
-        # print("No Channel Available")
-        return -1, -1
+    # def check_if_channel_available(self, node1, node2, ts, net, s, LINK_EXISTS, channel, sec_to_transfer):
+    #     available = False
+    #     dist1 = 99999
+    #     dist2 = 99999
+    #     j = channel
+    #
+    #     # print("Node1.ID:", node1.ID, "Node2.ID:", node2.ID, "Can_receive:", node2.can_receive)
+    #     for i in range(num_transceivers):
+    #
+    #     #make sure receiver is not already receiving from anyone else
+    #         if (np.inf in node2.can_receive[i] or int(node1.ID) in node2.can_receive[i]) and (
+    #                 node2.can_receive[i][1] - sec_to_transfer) >= 0:
+    #             #check if a common channel is available between both nodes
+    #             if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
+    #                     or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)) \
+    #                     or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == np.inf) \
+    #                     or (node1.channels[s][j] == np.inf and node2.channels[s][j] == int(node1.ID)):
+    #                 available = True
+    #
+    #                 #interference due to secondary users
+    #                 for other_node in net.nodes:
+    #                     #no one in range is transmitting on the same channel
+    #                     if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID ):
+    #
+    #                         print("Secondary User using same channel.")
+    #
+    #                         if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
+    #                             # print("Secondary User in range")
+    #                             available = False
+    #
+    #                 #interference due to primary users
+    #                 for p_user in net.primary_users:
+    #                     if p_user.active == True and s == p_user.band and j == p_user.channel:
+    #                         if dataset == "UMass":
+    #                             dist1 = funHaversine(float(node1.coord[ts][1]), float(node1.coord[ts][0]),
+    #                                                  float(p_user.y), float(p_user.x))
+    #                             dist2 = funHaversine(float(node2.coord[ts][1]), float(node2.coord[ts][0]),
+    #                                                  float(p_user.y), float(p_user.x))
+    #                         elif dataset == "Lexington":
+    #                             dist1 = euclideanDistance(float(node1.coord[ts][0]), float(node1.coord[ts][1]),
+    #                                                       float(p_user.x), float(p_user.y))
+    #                             dist2 = euclideanDistance(float(node2.coord[ts][0]), float(node2.coord[ts][1]),
+    #                                                       float(p_user.x), float(p_user.y))
+    #                         if (dist1 < spectRange[s] or dist2 < spectRange[s]):
+    #                             node1.channels[s][j] = -1
+    #                             node2.channels[s][j] = -1
+    #                             available = False
+    #                             # print("Primary User using channel")
+    #
+    #             if available == True:
+    #                 # self.update_channel_occupancy(node1,node2,ts,net,s,j, LINK_EXISTS)
+    #                 return i, j
+    #
+    #     # print("No Channel Available")
+    #     return -1, -1
 
     def clear_channels(self):   # clears channels at the beginning of a tau
         self.channels = np.full(shape=(len(S), num_channels),fill_value=np.inf)
@@ -210,22 +194,18 @@ class Node(object):
             print("Message ID: " + str(message))
 
     # finds a common channel between 2 nodes in the case of forwarding to destination
-    def is_channel_available(self, des_node, s, ts, net, LINK_EXISTS, num_sec_to_trans):
-        channel_available = -1
-        transceiver = -1
-        # check if des_node has an open channel
-        for i in range(num_transceivers):
-            if (des_node.can_receive[i][0] == np.inf or des_node.can_receive[i][0] == int(self.ID)):
-                if restrict_channel_access == True:
-                    transceiver, channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS, num_sec_to_trans)
-                else:
-                    channel_available = 0
-                    transceiver = 0
-
-
-
-
-        return transceiver, channel_available
+    # def is_channel_available(self, des_node, s, ts, net, LINK_EXISTS, num_sec_to_trans):
+    #     channel_available = -1
+    #     transceiver = -1
+    #     # check if des_node has an open channel
+    #     for i in range(num_transceivers):
+    #         if (des_node.can_receive[i][0] == np.inf or des_node.can_receive[i][0] == int(self.ID)):
+    #             if restrict_channel_access == True:
+    #                 transceiver, channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS, num_sec_to_trans)
+    #             else:
+    #                 channel_available = 0
+    #                 transceiver = 0
+        # return transceiver, channel_available
 
     # quickly check if there exists an open channel on a spectrum
     def is_there_an_open_channel(self, s):
@@ -284,7 +264,7 @@ class Node(object):
             transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, s, specBW, mes.curr, des_node.ID, ts)
 
             # Check if des_node has already received a msg from another node and has an available channel in the current tau
-            transceiver, channel_available = self.is_channel_available(des_node, s, ts, net, LINK_EXISTS,transfer_time_in_sec)
+            transceiver, channel_available = self.check_for_available_channel(self, des_node, s, ts, net, LINK_EXISTS,transfer_time_in_sec)
             if channel_available >= 0:
                 # update who the des_node can receive from
 

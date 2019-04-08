@@ -66,6 +66,15 @@ def write_delivered_msg_to_file(message, te):
         output_file.write(output_msg)
         output_file.close()
 
+
+def write_not_delivered_msg_to_file(mes):
+    f = open(path_to_metrics + not_delivered_file, "a")
+    line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
+        mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
+        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
+    f.write(line)
+    f.close()
+
 def find_nodes_in_range(src_node, net, s, LINK_EXISTS, ts):
 
     if ts == T - 1:
@@ -262,13 +271,18 @@ def default_spec_band(node, net, LINK_EXISTS, t):
     is_first_band = True
     for new_chosen_spec in S:
         new_nodes_in_range = find_nodes_in_range(node, net, new_chosen_spec, LINK_EXISTS, t)
+        channel_available = -1
+        for next_node in new_nodes_in_range:
+            transceiver, channel_available = node.check_for_available_channel(node, next_node, t, net, new_chosen_spec, LINK_EXISTS, 0)
+            if channel_available >= 0:
+                break
 
-        if is_first_band and node.is_there_an_open_channel(new_chosen_spec):
+        if is_first_band and channel_available >= 0:
             chosen_spec = new_chosen_spec
             nodes_in_range = new_nodes_in_range
+            is_first_band = False
 
-        if len(new_nodes_in_range) >= len(nodes_in_range) and node.is_there_an_open_channel(
-                new_chosen_spec) and minBW[new_chosen_spec] > minBW[chosen_spec]:
+        elif len(new_nodes_in_range) >= len(nodes_in_range) and channel_available >= 0 and minBW[new_chosen_spec] > minBW[chosen_spec]:
             chosen_spec = new_chosen_spec
             nodes_in_range = new_nodes_in_range
 

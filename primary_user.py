@@ -45,3 +45,12 @@ class PrimaryUser(object):
             self.active = False
         else:
             self.active = True
+
+    def is_active(self):
+        return self.active
+
+    def get_channel(self):
+        return self.channel
+
+    def get_band(self):
+        return self.band

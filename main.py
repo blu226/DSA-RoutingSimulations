@@ -26,7 +26,7 @@ net.not_delivered_messages()
 net.messages_delivered()
 # saves packets per tau and parallel communications
 # net.save_packets_per_tau()
-# net.print_bandusage()
+net.print_bandusage()
 
 
 

@@ -52,6 +52,25 @@ class Network(object):
             else:
                 p_user.on_off[0] = p_user.on_off[0] - 1
 
+    def handle_primary_user_interference(self, ts):
+        for p_user in self.primary_users:
+            if p_user.is_active():
+                for node in self.nodes:
+
+                    dist1 = np.inf
+                    s = p_user.get_band()
+                    channel = p_user.get_channel()
+
+                    if dataset == "UMass":
+                        dist1 = funHaversine(float(node.coord[ts][1]), float(node.coord[ts][0]),
+                                             float(p_user.y), float(p_user.x))
+                    elif dataset == "Lexington":
+                        dist1 = euclideanDistance(float(node.coord[ts][0]), float(node.coord[ts][1]),
+                                                  float(p_user.x), float(p_user.y))
+
+                    if dist1 < spectRange[s]:
+                        node.channels[s][channel] = -1
+
     def create_primary_users(self, num_C):  # creates primary users based on current simulation settings
             for x in range(num_primary_users):
                 p_user = PrimaryUser(num_C)
@@ -287,6 +306,7 @@ class Network(object):
         self.clear_all_channels()
         # activate/deactivate primary users
         self.activate_primary_users()
+        self.handle_primary_user_interference(t)
         # clear out old msgs that are past TTL
         self.clear_old_msgs(t)
         #Calculate energy consumption
@@ -344,6 +364,8 @@ class Network(object):
                 if "weighted" in smart_setting:
                     # chooses spectrum and returns nodes in range for optimistic or pessimistic approaches
                     s, nodes_in_range = choose_spectrum(node, self, LINK_EXISTS, t)
+                    if debug_mode == int(node.ID):
+                        print("S:", s, "Nodes in Range:", [int(node.ID) for node in nodes_in_range])
                 # if not optimistic or pessimistic then a single band, epidemic protocol is being used so just find nodes
                 # in range of that band
                 else:
@@ -450,8 +472,8 @@ class Network(object):
                     # loop through each msg in buffer
                     for msg in node.buf:
                         # choose a random node in range to broadcast to
-                        nodes_to_broadcast = [random.shuffle(nodes_in_range)]
-
+                        # nodes_to_broadcast = [random.shuffle(nodes_in_range)]
+                        nodes_to_broadcast = nodes_in_range
                         # find transfer time
                         transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
                                                                                          nodes_in_range[0].ID, t)
