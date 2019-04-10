@@ -141,7 +141,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
 
     # run the simulation and metrics if you are not generating link exists
     if generate_LE == False:
-        os.system("python3 main.py")
+        # os.system("python3 main.py")
         os.system("python3 metrics.py")
 
 
