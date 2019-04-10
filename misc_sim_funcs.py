@@ -31,7 +31,7 @@ def initialize_output_files():
         os.makedirs(path_to_metrics)
 
     output_file = open(path_to_metrics + delivered_file, "w")
-    output_file.write("ID\ts\td\tts\tte\tLLC\tPid\tsize\tband usage\n")
+    output_file.write("ID\ts\td\tts\tte\tLLC\tsize\thops\tband usage\n")
     output_file.write("----------------------------------------------------\n")
     output_file.close()
 
@@ -40,7 +40,7 @@ def initialize_output_files():
     output_file2.close()
 
     output_file3 = open(path_to_metrics + not_delivered_file, "w")
-    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tcurr node\tpacketID\tcopies\n")
+    output_file3.write("ID\ts\td\tts\tte\tLLC\tsize\tcurr node\tpacketID\tcopies\tband usage\n")
     output_file3.write("----------------------------------------------------\n")
     output_file3.close()
 
@@ -71,7 +71,8 @@ def write_not_delivered_msg_to_file(mes):
     f = open(path_to_metrics + not_delivered_file, "a")
     line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
         mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
-        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
+        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\t" + str(mes.band_usage[0]) + "\t" + \
+        str(mes.band_usage[1]) + "\t" + str(mes.band_usage[2]) + "\t" + str(mes.band_usage[3]) + "\n"
     f.write(line)
     f.close()
 

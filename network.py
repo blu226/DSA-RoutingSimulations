@@ -161,19 +161,34 @@ class Network(object):
             num_packets_recieved = 0
             num_packets = math.ceil(int(msg_size) / int(packet_size))
             packetIDs = [x for x in range(num_packets)]
+            bands_used = [0, 0, 0, 0]
 
             for line in lines:
                 line_arr = line.strip().split()
 
                 if line_arr[0] == msg_id and int(line_arr[6]) in packetIDs:
                     num_packets_recieved += 1
+                    bands_used[0] += int(line_arr[9])
+                    bands_used[1] += int(line_arr[10])
+                    bands_used[2] += int(line_arr[11])
+                    bands_used[3] += int(line_arr[12])
+
                     packetIDs.remove(int(line_arr[6]))
 
                 if num_packets_recieved == num_packets and len(packetIDs) == 0:
+                    delivered_line = line_arr[0] + "\t" + line_arr[1] + "\t" + line_arr[2] + "\t" + line_arr[3] + "\t" + \
+                                     line_arr[4] + "\t" + \
+                                     line_arr[5] + "\t" + line_arr[7] + "\t" + str(bands_used[0]) + "\t" + str(
+                        bands_used[1]) + "\t" + str(bands_used[2]) \
+                                     + "\t" + str(bands_used[3]) + "\n"
+
                     f = open(path_to_metrics + delivered_file, "a")
-                    f.write(line)
+                    f.write(delivered_line)
                     f.close()
+
                     break
+
+
 
     def save_packets_per_tau(self):     # creates file for metrics
         with open(path_to_metrics + "packets_per_tau.txt", "w") as f:
@@ -198,12 +213,9 @@ class Network(object):
                     self.nodes[src].buf.append(new_mes)
 
     def not_delivered_messages(self):   # creates file for metrics of packets that are in the network that haven't been delivered
-        f = open(path_to_metrics + not_delivered_file, "a")
         for node in self.nodes:
             for mes in node.buf:
-                line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
-                f.write(line)
-        f.close()
+                write_not_delivered_msg_to_file(mes)
 
     def find_delay(self, size, s, specBW, i, j, t): # finds delay of a packet based on size and bandwidth
         bw = specBW[int(i), int(j), int(s), int(t)]
@@ -239,19 +251,13 @@ class Network(object):
                         print("Message generated with no path.")
 
     def clear_old_msgs(self, t):                    # clears msgs that have expired their TTL
-        f = open(path_to_metrics + not_delivered_file, "a")
 
         for node in self.nodes:
             for mes in node.buf:
                 if t - mes.genT > TTL:
-                    # print("MSG:", mes.ID, "curr:", mes.curr, "t:", t, "TTL expired")
-                    line = str(mes.ID) + "\t" + str(mes.src) + "\t" + str(mes.des) + "\t" + str(mes.genT) + "\t" + str(
-                        mes.last_sent) + "\t" + str(mes.last_sent - mes.genT) + "\t" + str(mes.size) + "\t" + str(
-                        mes.curr) + "\t" + str(mes.packet_id) + "\t" + str(mes.num_copies) + "\n"
-                    f.write(line)
+                    write_not_delivered_msg_to_file(mes)
                     node.buf.remove(mes)
 
-        f.close()
 
     def get_node_fwd_priority(self, nodes_in_range, msg, t): # finds which nodes should be prioritized in geographic routing
         #nodes_in_range.append(self.)

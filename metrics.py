@@ -6,6 +6,35 @@ time_window = T
 print_metrics = True
 
 
+def compute_total_band_usage():
+    bands_used = [0, 0, 0, 0]
+
+    with open(path_to_metrics + delivered_file, "r") as f:
+        lines = f.readlines()[2:]
+        for line in lines:
+            line_arr = line.strip().split()
+            bands_used[0] += int(line_arr[7])
+            bands_used[1] += int(line_arr[8])
+            bands_used[2] += int(line_arr[9])
+            bands_used[3] += int(line_arr[10])
+
+    with open(path_to_metrics + not_delivered_file, "r") as f:
+        lines = f.readlines()[2:]
+        for line in lines:
+            line_arr = line.strip().split()
+            bands_used[0] += int(line_arr[10])
+            bands_used[1] += int(line_arr[11])
+            bands_used[2] += int(line_arr[12])
+            bands_used[3] += int(line_arr[13])
+
+    total = bands_used[0] + bands_used[1] + bands_used[2] + bands_used[3]
+    print([band/total for band in bands_used] )
+    with open(path_to_metrics + "band_usage.txt", "w") as f:
+        for band in bands_used:
+            f.write(str(band/total) + "\n")
+
+
+
 def create_new_delivered_file():
     output_file = open(path_to_metrics + delivered_file, "w")
     output_file.write("ID\ts\td\tts\tte\tLLC\tsize\tband usage\n")
@@ -44,7 +73,7 @@ def create_new_delivered_file():
             if num_packets_recieved == num_packets and len(packetIDs) == 0:
                 delivered_line = line_arr[0] + "\t" + line_arr[1] + "\t" + line_arr[2] + "\t" + line_arr[3] + "\t" + line_arr[4] + "\t" + \
                                  line_arr[5] + "\t" + line_arr[7] + "\t" + str(bands_used[0]) + "\t" + str(bands_used[1]) + "\t" + str(bands_used[2]) \
-                                 + "\t" + str(bands_used[3])
+                                 + "\t" + str(bands_used[3]) + "\n"
                 output_file.write(delivered_line)
                 break
 
@@ -265,10 +294,10 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
             # energy += float(line_arr[7])
             unique_messages.append(line_arr)
             mes_IDs.append(int(line_arr[0]))
-            band_usage[0] += int(line_arr[8])
-            band_usage[1] += int(line_arr[9])
-            band_usage[2] += int(line_arr[10])
-            band_usage[3] += int(line_arr[11])
+            band_usage[0] += int(line_arr[7])
+            band_usage[1] += int(line_arr[8])
+            band_usage[2] += int(line_arr[9])
+            band_usage[3] += int(line_arr[10])
 
     total = band_usage[0] + band_usage[1] + band_usage[2] + band_usage[3]
     if total > 0:
@@ -306,7 +335,7 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
         print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
               avg_energy, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms)
-        print("band usage:", band_usage[0], band_usage[1], band_usage[2], band_usage[3])
+        # print("band usage:", band_usage[0], band_usage[1], band_usage[2], band_usage[3])
 
     return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms
 
@@ -356,6 +385,8 @@ for t in delivery_times:
 
 metric_file.close()
 # print("Delivered messages", sorted(mes_IDs))
+
+compute_total_band_usage()
 
 with open(path_to_metrics + "unique_messages.txt", "w") as f:
     f.write("ID\ts\td\tts\tte\tLLC\tsize\n")
