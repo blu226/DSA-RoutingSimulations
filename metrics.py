@@ -6,6 +6,49 @@ time_window = T
 print_metrics = True
 
 
+def create_new_delivered_file():
+    output_file = open(path_to_metrics + delivered_file, "w")
+    output_file.write("ID\ts\td\tts\tte\tLLC\tsize\tband usage\n")
+    output_file.write("----------------------------------------------------\n")
+
+
+
+    with open(generated_messages_file, "r") as f:
+        msg_lines = f.readlines()[1:]
+
+    with open(path_to_metrics + packet_delivered_file, 'r') as f:
+        lines = f.readlines()
+
+    for msg_line in msg_lines:
+        msg_arr = msg_line.strip().split()
+        msg_id = msg_arr[0]
+        msg_size = msg_arr[4]
+        num_packets_recieved = 0
+        num_packets = math.ceil(int(msg_size) / int(packet_size))
+        packetIDs = [x for x in range(num_packets)]
+        bands_used = [0, 0, 0, 0]
+
+
+        for line in lines:
+            line_arr = line.strip().split()
+
+            if line_arr[0] == msg_id and int(line_arr[6]) in packetIDs:
+                num_packets_recieved += 1
+                bands_used[0] += int(line_arr[9])
+                bands_used[1] += int(line_arr[10])
+                bands_used[2] += int(line_arr[11])
+                bands_used[3] += int(line_arr[12])
+
+                packetIDs.remove(int(line_arr[6]))
+
+            if num_packets_recieved == num_packets and len(packetIDs) == 0:
+                delivered_line = line_arr[0] + "\t" + line_arr[1] + "\t" + line_arr[2] + "\t" + line_arr[3] + "\t" + line_arr[4] + "\t" + \
+                                 line_arr[5] + "\t" + line_arr[7] + "\t" + str(bands_used[0]) + "\t" + str(bands_used[1]) + "\t" + str(bands_used[2]) \
+                                 + "\t" + str(bands_used[3])
+                output_file.write(delivered_line)
+                break
+
+
 def find_num_msg_gen(t):
     with open(generated_messages_file, "r") as f:
         msg_lines = f.readlines()[1:]
@@ -204,6 +247,7 @@ def compute_hop_counts(t):
     return count_1, count_2, count_3, count_4, count_above4
 
 def compute_metrics(lines, total_messages, delivery_time, spec_lines):
+
     delivered = 0
     latency = 0
     energy = 0
@@ -262,10 +306,15 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
         print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
               avg_energy, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms)
+        print("band usage:", band_usage[0], band_usage[1], band_usage[2], band_usage[3])
 
     return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms
 
 #Main starts here
+
+create_new_delivered_file()
+
+
 with open(generated_messages_file, "r") as f:
     msg_lines = f.readlines()[1:]
 
