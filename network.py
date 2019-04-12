@@ -18,6 +18,7 @@ class Network(object):
         self.packets_per_tau_list = []  # keep track of how many packets per tau are sent
         self.parallel_coms_list = []    # keep track of how many parallel communications are happening per tau
 
+
     def add_node(self, node):  # add node to network
         self.nodes.append(node)
 
@@ -410,96 +411,97 @@ class Network(object):
                 if broadcast == True and len(nodes_in_range) > 0:
                     # loop through each msg in buffer
                     for msg in node.buf:
-                        # get list of nodes in range that do not currently have the msg that is going to be broadcasted
-                        nodes_to_broadcast = []
-                        for i in range(len(nodes_in_range)):
-                            if to_send(msg, nodes_in_range[i], t) == True:
-                                nodes_to_broadcast.append(nodes_in_range[i])
-                        # calculate time to transfer the msg based on size and band
-                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
-                                                                                         nodes_in_range[0].ID, t)
-                        # account for time it takes to send if resources aren't infinite
-                        if limited_time_to_transfer == True:
-                            node.mes_fwd_time_limit += transfer_time_in_sec
+                        if msg.last_sent < t:
+                            # get list of nodes in range that do not currently have the msg that is going to be broadcasted
+                            nodes_to_broadcast = []
+                            for i in range(len(nodes_in_range)):
+                                if to_send(msg, nodes_in_range[i], t) == True:
+                                    nodes_to_broadcast.append(nodes_in_range[i])
+                            # calculate time to transfer the msg based on size and band
+                            transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
+                                                                                             nodes_in_range[0].ID, t)
+                            # account for time it takes to send if resources aren't infinite
+                            if limited_time_to_transfer == True:
+                                node.mes_fwd_time_limit += transfer_time_in_sec
 
-                        # check if there is enough time to broadcast msg
-                        if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
-                            # broadcast msg to everyone in range
-                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s, transfer_time_in_sec)
-                            # if a msg wasn't sent then subtract the time it would've taken to send
-                            if msg_sent == False:
-                                node.mes_fwd_time_limit -= transfer_time_in_sec
-                            # if msg was sent add the amount of packets sent set flag of a node transmitting to true
-                            else:
-                                self.packets_per_tau += num_packet_broadcasted
-                                did_node_transmit = True
+                            # check if there is enough time to broadcast msg
+                            if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
+                                # broadcast msg to everyone in range
+                                msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS, specBW, self, s, transfer_time_in_sec)
+                                # if a msg wasn't sent then subtract the time it would've taken to send
+                                if msg_sent == False:
+                                    node.mes_fwd_time_limit -= transfer_time_in_sec
+                                # if msg was sent add the amount of packets sent set flag of a node transmitting to true
+                                else:
+                                    self.packets_per_tau += num_packet_broadcasted
+                                    did_node_transmit = True
                 # if geographical forwarding, and nodes are in range
                 elif geographical_routing == True and len(nodes_in_range) > 0: #geographical paradigm
                     # loop through each msg in buffer
                     for msg in node.buf:
-                        # get a priority list of nodes that are in range that should get the msg first, if number of nodes
-                        # to forward to this is used to see which k nodes will receive the forwarded packet
-                        nodes_to_broadcast = []
-                        #add the node in
-                        nodes_in_range.append(node)
-                        node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
-                        # if there are nodes in range and the best node is not the node that currently is trying to forward it
-                        if node_priority_list != -1 and node_priority_list[0] != node:
-                            # find the nodes to broadcast to based on how many you are forwarding to
-                            node_counter = 0
-                            for i in range(len(node_priority_list)):
-                                if to_send(msg, node_priority_list[i], t) == True and node_counter < num_nodes_to_fwd:
-                                # if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
-                                    # node_counter += 1
+                        if msg.last_sent < t:
 
-                                    nodes_to_broadcast.append(node_priority_list[i])
+                            # get a priority list of nodes that are in range that should get the msg first, if number of nodes
+                            # to forward to this is used to see which k nodes will receive the forwarded packet
+                            nodes_to_broadcast = []
+                            #add the node in
+                            nodes_in_range.append(node)
+                            node_priority_list = self.get_node_fwd_priority(nodes_in_range, msg, t)
+                            # if there are nodes in range and the best node is not the node that currently is trying to forward it
+                            if node_priority_list != -1 and node_priority_list[0] != node:
+                                # find the nodes to broadcast to based on how many you are forwarding to
+                                node_counter = 0
+                                    # if to_send(msg, node_priority_list[i], t) == True and node_counter < 1:
+                                        # node_counter += 1
 
-                                    # find transfer time
-                                    transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
-                                    # account for time it takes to send if resources aren't infinite
-                                    if limited_time_to_transfer == True:
-                                        node.mes_fwd_time_limit += transfer_time_in_sec
+                                nodes_to_broadcast = node_priority_list
 
-                                    # check if there is enough time to broadcast msg and enough copies to send
-                                    if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
-                                        msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
-                                                                                     specBW, self, s, transfer_time_in_sec)
-                                        # if msg wasn't broadcasted then give transfer time back to node
-                                        if msg_sent == False:
-                                            node.mes_fwd_time_limit -= transfer_time_in_sec
-                                            nodes_to_broadcast.remove(node_priority_list[i])
-                                        # if msg was sent adjust variables for counting packets per tau and # of parallel communications
-                                        else:
-                                            self.packets_per_tau += num_packet_broadcasted
-                                            did_node_transmit = True
-                                            node_counter += 1
+                                # find transfer time
+                                transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,msg.curr, nodes_in_range[0].ID, t)
+                                # account for time it takes to send if resources aren't infinite
+                                if limited_time_to_transfer == True:
+                                    node.mes_fwd_time_limit += transfer_time_in_sec
+
+                                # check if there is enough time to broadcast msg and enough copies to send
+                                if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
+                                    msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast, msg, t, LINK_EXISTS,
+                                                                                 specBW, self, s, transfer_time_in_sec)
+                                    # if msg wasn't broadcasted then give transfer time back to node
+                                    if msg_sent == False:
+                                        node.mes_fwd_time_limit -= transfer_time_in_sec
+                                    # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                                    else:
+                                        self.packets_per_tau += num_packet_broadcasted
+                                        did_node_transmit = True
+
                 # Spray n Wait
                 elif geographical_routing == False and broadcast == False and len(nodes_in_range) > 0:
                     # loop through each msg in buffer
                     for msg in node.buf:
-                        # choose a random node in range to broadcast to
-                        # nodes_to_broadcast = [random.shuffle(nodes_in_range)]
-                        nodes_to_broadcast = nodes_in_range
-                        # find transfer time
-                        transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
-                                                                                         nodes_in_range[0].ID, t)
-                        # account for time it takes to send if resources aren't infinite
-                        if limited_time_to_transfer == True:
-                            node.mes_fwd_time_limit += transfer_time_in_sec
+                        if msg.last_sent < t:
+                            # choose a random node in range to broadcast to
+                            # nodes_to_broadcast = [random.shuffle(nodes_in_range)]
+                            nodes_to_broadcast = nodes_in_range
+                            # find transfer time
+                            transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW, msg.curr,
+                                                                                             nodes_in_range[0].ID, t)
+                            # account for time it takes to send if resources aren't infinite
+                            if limited_time_to_transfer == True:
+                                node.mes_fwd_time_limit += transfer_time_in_sec
 
-                        # check if there is enough time to broadcast msg and enough copies to send
-                        if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
-                            msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast,
-                                                                                                 msg, t, LINK_EXISTS,
-                                                                                                 specBW, self, s,
-                                                                                                 transfer_time_in_sec)
-                            # if msg wasn't broadcasted then give transfer time back to node
-                            if msg_sent == False:
-                                node.mes_fwd_time_limit -= transfer_time_in_sec
-                            # if msg was sent adjust variables for counting packets per tau and # of parallel communications
-                            else:
-                                self.packets_per_tau += num_packet_broadcasted
-                                did_node_transmit = True
+                            # check if there is enough time to broadcast msg and enough copies to send
+                            if node.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
+                                msg_sent, num_packet_broadcasted = node.try_broadcasting_message_epi(nodes_to_broadcast,
+                                                                                                     msg, t, LINK_EXISTS,
+                                                                                                     specBW, self, s,
+                                                                                                     transfer_time_in_sec)
+                                # if msg wasn't broadcasted then give transfer time back to node
+                                if msg_sent == 0:
+                                    node.mes_fwd_time_limit -= transfer_time_in_sec
+                                # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                                else:
+                                    self.packets_per_tau += num_packet_broadcasted
+                                    did_node_transmit = True
 
 
                                 # if node transmitted at least 1 packet account for it in parallel communications

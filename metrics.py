@@ -193,9 +193,9 @@ def packets_per_taue(t):
                 packets += int(line_arr[1])
                 parallel_coms += int(line_arr[2])
     if t > 0:
-        return round(packets/t, 2), round(parallel_coms/t, 2)
+        return round(packets/t, 2), round(parallel_coms/t, 2), packets
     else:
-        return 0, 0
+        return 0, 0, 0
 
 def compute_ave_hop_count(t):
 
@@ -330,10 +330,8 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
     count_1, count_2, count_3, count_4, count_above4 = compute_hop_counts(delivery_time)
 
-    # pkt_per_tau, parallel_coms = packets_per_taue(delivery_time)
+    pkt_per_tau, parallel_coms, num_transmissions = packets_per_taue(delivery_time)
 
-    pkt_per_tau = 0
-    parallel_coms = 0
 
     # if num_packets > 0:
     #     eng = round(avg_energy/num_packets, 2)
@@ -343,10 +341,10 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
     if print_metrics == True:
 
         print("t: ", t, " msg: ", total_messages, " del: ", delivered, "lat: ", latency, " Overhead: ", overhead, "Energy: ",\
-              avg_energy, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms)
+              avg_energy, "AVG hops:", avg_hops_per_packet, "#hops [2,3,4,5+]: [", count_2, count_3, count_4, count_above4, "], PPT: ", pkt_per_tau, "PC:", parallel_coms, "num trans:", num_transmissions)
         # print("band usage:", band_usage[0], band_usage[1], band_usage[2], band_usage[3])
 
-    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms
+    return delivered, latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, avg_hops_per_packet, pkt_per_tau, parallel_coms, num_transmissions
 
 #Main starts here
 
@@ -381,15 +379,15 @@ fsorted.close()
 
 delivery_times = [i for i in range(0, T + 10, metric_interval)]
 
-metric_file.write("#t\tPDR\tLatency\tEnergy\tOverhead\tHops\tBand Usage\t\t\t\tPacket per tau\tParallel Communications\n")
+metric_file.write("#t\tPDR\tLatency\tEnergy\tOverhead\tHops\tBand Usage\t\t\t\tPacket per tau\tParallel Communications\t Num Transmissions\n")
 for t in delivery_times:
 
     num_msgs_gen = find_num_msg_gen(t)
 
-    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, hops, pkt_per_tau, parallel_coms = compute_metrics(lines, num_msgs_gen, t, spec_lines)
+    avg_pdr, avg_latency, avg_energy, mes_IDs, unique_messages, overhead, band_usage, hops, pkt_per_tau, parallel_coms, num_trans = compute_metrics(lines, num_msgs_gen, t, spec_lines)
     metric_file.write(
         str(t) + "\t" + str(avg_pdr) + "\t" + str(avg_latency) + "\t" + str(avg_energy) + "\t" + str(overhead) + "\t" + str(hops) + "\t" +
-        str(round(band_usage[0],3)) + "\t" + str(round(band_usage[1], 3)) + "\t" + str(round(band_usage[2], 3)) + "\t" + str(round(band_usage[3], 3)) + "\t" + str(pkt_per_tau) + "\t" + str(parallel_coms) +"\n")
+        str(round(band_usage[0],3)) + "\t" + str(round(band_usage[1], 3)) + "\t" + str(round(band_usage[2], 3)) + "\t" + str(round(band_usage[3], 3)) + "\t" + str(pkt_per_tau) + "\t" + str(parallel_coms) + "\t" + str(num_trans) +"\n")
 
 metric_file.close()
 # print("Delivered messages", sorted(mes_IDs))
