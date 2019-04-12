@@ -28,10 +28,12 @@ def compute_total_band_usage():
             bands_used[3] += int(line_arr[13])
 
     total = bands_used[0] + bands_used[1] + bands_used[2] + bands_used[3]
-    print([band/total for band in bands_used] )
+    if total > 0:
+        print([band/total for band in bands_used] )
     with open(path_to_metrics + "band_usage.txt", "w") as f:
         for band in bands_used:
-            f.write(str(band/total) + "\n")
+            if total > 0:
+                f.write(str(band/total) + "\n")
 
 
 
@@ -341,7 +343,7 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
 
 #Main starts here
 
-create_new_delivered_file()
+# create_new_delivered_file()
 
 
 with open(generated_messages_file, "r") as f:

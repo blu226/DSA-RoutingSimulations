@@ -141,7 +141,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
 
     # run the simulation and metrics if you are not generating link exists
     if generate_LE == False:
-        # os.system("python3 main.py")
+        os.system("python3 main.py")
         os.system("python3 metrics.py")
 
 
@@ -260,7 +260,7 @@ speed = [135, 400]  # Lex data only
 proto = "Epidemic_Smart"  # [Epidemic_Smart, XChant, SprayNWait (in progress)]
 num_Pusers = 200
 num_channels = 6
-nodes_tofwd = -1
+nodes_tofwd = 1
 routing_opt = "SnW"
 msg_round = 0
 puser_round = 0
