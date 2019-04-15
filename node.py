@@ -264,11 +264,8 @@ class Node(object):
             transfer_time, transfer_time_in_sec = self.compute_transfer_time(mes, s, specBW, mes.curr, des_node.ID, ts)
 
             # Check if des_node has already received a msg from another node and has an available channel in the current tau
-            transceiver, channel_available = self.check_for_available_channel(self, des_node, s, ts, net, LINK_EXISTS,transfer_time_in_sec)
+            transceiver, channel_available = self.check_for_available_channel(self, des_node, ts, net, s, LINK_EXISTS,transfer_time_in_sec)
             if channel_available >= 0:
-                # update who the des_node can receive from
-
-                # calculate transfer time
 
                 # account for time it takes to send if resources aren't infinite
                 if limited_time_to_transfer == True:
@@ -280,49 +277,26 @@ class Node(object):
                     self.handle_energy(mes, des_node, s, ts, specBW)
                     self.update_channel_occupancy(self, des_node, ts, net, s, channel_available, LINK_EXISTS, transfer_time_in_sec, transceiver)
 
-                    if geographical_routing == True or broadcast == True:
-                        if int(des_node.ID) == (mes.des):
-                            new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
-                                                  [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],
-                                                   mes.band_usage[3]], [0],
-                                                  [0], 0, mes.packet_id, mes.hops)
-                            new_message.set(ts + 1, mes.replica + 1, des_node.ID)
-                            new_message.band_used(s)
-                            # mes.hops += 1
-                            write_delivered_msg_to_file(new_message, mes.last_sent + 1)
-                            des_node.delivered.append(new_message)
-                            des_node.handle_buffer_overflow(max_packets_in_buffer)
+                    # if geographical_routing == True or broadcast == True:
+                    if int(des_node.ID) == (mes.des):
+                        new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
+                                              [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2],
+                                               mes.band_usage[3]], [0],
+                                              [0], 0, mes.packet_id, mes.hops)
+                        new_message.set(ts + 1, mes.num_copies, des_node.ID)
+                        new_message.band_used(s)
+                        # mes.hops += 1
+                        write_delivered_msg_to_file(new_message, mes.last_sent)
+                        des_node.delivered.append(new_message)
+                        des_node.handle_buffer_overflow(max_packets_in_buffer)
 
-                            #if geographical_routing:
-                            self.buf.remove(mes)
-                            return True
+                        #if geographical_routing:
+                        self.buf.remove(mes)
+                        return True
 
-                        else:
-                            print("Try sending message directly to next hop should never be called", des_node.ID, mes.des)
-                            # mes.hops += 1
-                            # mes.last_sent = ts
-                            # mes.curr = des_node.ID
-                            # des_node.buf.append(mes)
-                            # self.buf.remove(mes)
+                    else:
+                        print("Try sending message directly to next hop should never be called", des_node.ID, mes.des)
 
-                    # else:
-                    #     # create replica of message
-                    #     new_message = Message(mes.ID, mes.src, mes.des, mes.genT, mes.size,
-                    #                           [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
-                    #                           [0], 0, mes.packet_id, mes.hops)
-                    #     new_message.set(ts + 1, mes.replica + 1, des_node.ID)
-                    #     new_message.band_used(s)
-                    #     # handle msg if it is being sent to its destination
-                    #     if int(des_node.ID) == (mes.des):
-                    #         write_delivered_msg_to_file(new_message, new_message.last_sent)
-                    #         des_node.delivered.append(new_message)
-                    #         # remove msg from buffer if sent to dst
-                    #         # self.buf.remove(mes)
-                    #
-                    #     # handle msg if it is being sent to a relay node
-                    #     else:
-                    #         print("Try sending message directly to next hop should never be called")
-                    #         des_node.buf.append(new_message)
 
                 else:
                     if mes.ID == debug_message:
@@ -364,8 +338,6 @@ class Node(object):
             if channel_available >= 0 and to_send(mes, next_node, ts) == True and mes in self.buf:
                 self.update_channel_occupancy(self, next_node, ts, net, s, channel_available, LINK_EXISTS, sec_to_transfer, transceiver)
 
-                # msg was broadcasted to at least 1 node
-                message_broadcasted = True
                 # calculate energy consumed
                 consumedEnergy = self.calculate_energy_consumption(mes, next_node.ID, s, ts, specBW)
                 # create replica of message
@@ -394,6 +366,8 @@ class Node(object):
                 # handle if msg is sent to destination
                 if mes.des in [int(node.ID) for node in nodes_in_range]:
                 # if int(next_node.ID) == (mes.des):
+                    # msg was broadcasted to at least 1 node
+                    message_broadcasted = True
                     packets_sent += 1
                     write_delivered_msg_to_file(mes, ts + 1)
                     next_node.delivered.append(mes)
@@ -402,6 +376,8 @@ class Node(object):
 
                 # handle msg if it is being sent to a relay node
                 elif new_message.num_copies > 0:
+                    # msg was broadcasted to at least 1 node
+                    message_broadcasted = True
                     # add new msg to destination nodes buffer
                     packets_sent += 1
                     next_node.buf.append(new_message)
