@@ -23,23 +23,23 @@ class Node(object):
         # if the size of the buffer is larger than the mem size and mem size isnt 0 (means infinite buffer)
         if len(self.buf) > mem_size and mem_size > 0:
 
-            if "weighted" not in smart_setting:
-                self.buf.remove(self.buf[0])
+            # if "weighted" not in smart_setting:
+            #     self.buf.remove(self.buf[0])
+            #
+            # else:
+            min_gen_t = T
 
-            else:
-                min_gen_t = T
+            # find smallest generation time
+            for mes in self.buf:
+                if mes.genT < min_gen_t:
+                    min_gen_t = mes.genT
 
-                # find smallest generation time
-                for mes in self.buf:
-                    if mes.genT < min_gen_t:
-                        min_gen_t = mes.genT
-
-                # find smallest message size packet to delete
-                for mes in self.buf:
-                    if mes.genT == min_gen_t:
-                        write_not_delivered_msg_to_file(mes)
-                        self.buf.remove(mes)
-                        return
+            # find smallest message size packet to delete
+            for mes in self.buf:
+                if mes.genT == min_gen_t:
+                    write_not_delivered_msg_to_file(mes)
+                    self.buf.remove(mes)
+                    return
                 # Possible code to delete the smallest msg sized packet in buffer
                 # for mes in self.buf:
                 #     if mes.genT == min_gen_t and mes.size == M[1]:
@@ -356,9 +356,6 @@ class Node(object):
         # try sending msg over found channel to every node in range
         for next_node in nodes_in_range:
 
-            if mes.num_copies == 0 and broadcast == False:
-                break
-
             # check if node has the available channel
             transceiver, channel_available = self.check_for_available_channel(self, next_node, ts, net, s, LINK_EXISTS, sec_to_transfer)
             # transceiver, channel_available = self.check_if_channel_available(self, next_node, ts, net, s, LINK_EXISTS, channel_to_use, sec_to_transfer)
@@ -366,7 +363,7 @@ class Node(object):
             # if node has the chosen channel available send him the msg
             if channel_available >= 0 and to_send(mes, next_node, ts) == True and mes in self.buf:
                 self.update_channel_occupancy(self, next_node, ts, net, s, channel_available, LINK_EXISTS, sec_to_transfer, transceiver)
-                packets_sent += 1
+
                 # msg was broadcasted to at least 1 node
                 message_broadcasted = True
                 # calculate energy consumed
@@ -376,47 +373,45 @@ class Node(object):
                                       [mes.band_usage[0], mes.band_usage[1], mes.band_usage[2], mes.band_usage[3]], [0],
                                       [0], 0, mes.packet_id, mes.hops)
 
-                #TODO: We initialize copies_to_send =1 for epidemic routing, as it always sends one replica to each encountering node
-
-                copies_to_send = 1
-
                 if geographical_routing == True:
                     copies_to_send = math.ceil(mes.num_copies / 2)
                     copies_to_keep = mes.num_copies - copies_to_send
                     new_message.set(ts, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
 
-                if geographical_routing == False and broadcast == False:
+                elif geographical_routing == False and broadcast == False:
                     copies_to_send = math.floor(mes.num_copies / 2)
                     copies_to_keep = mes.num_copies - copies_to_send
                     new_message.set(ts, copies_to_send, next_node.ID)
                     mes.change_num_copies(copies_to_keep)
 
                 else:
-                    new_message.set(ts, mes.replica + 1, next_node.ID)
+                    new_message.set(ts, 1, next_node.ID)
 
                 new_message.band_used(s)
 
                 # check if the destination nodes buffer will overflow by receiving this packet, and drop a packet if necessary
                 # handle if msg is sent to destination
-                if int(next_node.ID) == (mes.des):
+                if mes.des in [int(node.ID) for node in nodes_in_range]:
+                # if int(next_node.ID) == (mes.des):
+                    packets_sent += 1
                     write_delivered_msg_to_file(mes, ts + 1)
                     next_node.delivered.append(mes)
                     next_node.energy += consumedEnergy
                     break
 
                 # handle msg if it is being sent to a relay node
-                elif copies_to_send > 0:
+                elif new_message.num_copies > 0:
                     # add new msg to destination nodes buffer
+                    packets_sent += 1
                     next_node.buf.append(new_message)
                     next_node.energy += consumedEnergy
 
                 next_node.handle_buffer_overflow(max_packets_in_buffer)
 
                 # if mes in self.buf and num_nodes_to_fwd > 0:
-                if mes in self.buf and geographical_routing and mes.num_copies == 0:
+                if mes in self.buf and mes.num_copies == 0 and broadcast == False:
                     self.buf.remove(mes)
-
 
         # if a msg was broadcasted, handle energy consumed at the sending nodes end
         if(message_broadcasted == True):
