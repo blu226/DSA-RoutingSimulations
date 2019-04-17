@@ -384,27 +384,27 @@ class Network(object):
                     # order the msg buffer based on genT and if its in range of des
                     node.order_priority_queue(nodes_in_range)
                     # loop until msg at top of buffer can't be sent to its destination
-                    msg_index = 0
-                    for i in range(len(node.buf)):
-                        # get msg to be sent
-                        msg = node.buf[msg_index]
-                        # get destination node of msg
-                        des_node = self.nodes[int(msg.des)]
-                        # check if msg has already reached its destination
-                        if to_send(msg, des_node, t) == True:
-                            # if not at destination try sending
-                            if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
-                                # if msg can't be sent to destination, then no other nodes in the buffer will be able to
-                                # based on how the buffer is ordered in node.order_priority_queue
-                                break
-                            else:
-                                # if msg was sent adjust variables for counting packets per tau and # of parallel communications
-                                self.packets_per_tau += 1
-                                did_node_transmit = True
-                        # if a packet in range of its destination has already been sent to its destination, then increment
-                        # the index of the buffer to choose the next msg from
-                        else:
-                            msg_index += 1
+                    # msg_index = 0
+                    # for i in range(len(node.buf)):
+                    #     # get msg to be sent
+                    #     msg = node.buf[msg_index]
+                    #     # get destination node of msg
+                    #     des_node = self.nodes[int(msg.des)]
+                    #     # check if msg has already reached its destination
+                    #     if to_send(msg, des_node, t) == True:
+                    #         # if not at destination try sending
+                    #         if node.try_sending_message_epi(des_node, msg, t, LINK_EXISTS, specBW, self, s) == False:
+                    #             # if msg can't be sent to destination, then no other nodes in the buffer will be able to
+                    #             # based on how the buffer is ordered in node.order_priority_queue
+                    #             break
+                    #         else:
+                    #             # if msg was sent adjust variables for counting packets per tau and # of parallel communications
+                    #             self.packets_per_tau += 1
+                    #             did_node_transmit = True
+                    #     # if a packet in range of its destination has already been sent to its destination, then increment
+                    #     # the index of the buffer to choose the next msg from
+                    #     else:
+                    #         msg_index += 1
                 # continue to flood messages that are not in range of their destinations
 
                 # broadcast message to everyone in range, if there are nodes in range
@@ -496,7 +496,7 @@ class Network(object):
                                                                                                      specBW, self, s,
                                                                                                      transfer_time_in_sec)
                                 # if msg wasn't broadcasted then give transfer time back to node
-                                if msg_sent == 0:
+                                if msg_sent == False:
                                     node.mes_fwd_time_limit -= transfer_time_in_sec
                                 # if msg was sent adjust variables for counting packets per tau and # of parallel communications
                                 else:
