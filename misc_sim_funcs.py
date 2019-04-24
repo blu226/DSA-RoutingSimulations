@@ -284,6 +284,7 @@ def default_spec_band(node, net, LINK_EXISTS, t):
             is_first_band = False
 
         elif len(new_nodes_in_range) >= len(nodes_in_range) and channel_available >= 0 and minBW[new_chosen_spec] > minBW[chosen_spec]:
+        # elif (all(x in new_nodes_in_range for x in nodes_in_range)) and channel_available >= 0 and minBW[new_chosen_spec] > minBW[chosen_spec]:
             chosen_spec = new_chosen_spec
             nodes_in_range = new_nodes_in_range
 

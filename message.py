@@ -13,7 +13,7 @@ class Message(object):                                                          
         self.totalEnergy = 0
         self.replica = replica
         self.packet_id = packet_id
-        self.num_copies = -1
+        self.num_copies = 1
         self.hops = hops
 
     def set(self, lastSent, copies, curr):
