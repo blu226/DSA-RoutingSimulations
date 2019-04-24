@@ -131,7 +131,7 @@ def compute_overhead(time):
         return round(float(packets_not_delivered/packets_delivered), 2)
 
 
-def find_avg_energy(time):
+def find_avg_energy(num_delivered_messages, time):
 
     with open(path_to_metrics + consumed_energy_file, 'r') as f:
         lines = f.readlines()[1:]
@@ -139,10 +139,11 @@ def find_avg_energy(time):
     for line in lines:
         line_arr = line.strip().split()
         if (int(line_arr[0]) == int(time) or int(line_arr[0]) == T - 1):
-            if(float(line_arr[2]) == 0):
+            # float(line_arr[2]) == 0 ||
+            if(num_delivered_messages == 0):
                 return 0
             else:
-                return round(float(line_arr[1])/float(line_arr[2]), 2)
+                return round(float(line_arr[1])/num_delivered_messages, 2)
 
 def message_info(mes_list):
     with open(link_exists_folder + generated_messages_file, 'r') as f:
@@ -319,10 +320,10 @@ def compute_metrics(lines, total_messages, delivery_time, spec_lines):
         latency = round(float(latency)/delivered, 2)
         # energy = float(energy)/delivered
 
+    avg_energy = find_avg_energy(delivered, delivery_time)
+
     if total_messages > 0:
         delivered = round(float(delivered) / total_messages, 2)
-
-    avg_energy = find_avg_energy(delivery_time)
 
     overhead = compute_overhead_new(delivery_time)
 
