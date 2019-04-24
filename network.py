@@ -345,7 +345,7 @@ class Network(object):
 
                 # Checks to see what spectrum to use for tau
                 if len(node.buf) > 0:
-                    # spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
+                    spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
 
                     while len(node.buf) > 0 and isVisited > 0:
                         msg = node.buf[msg_index]

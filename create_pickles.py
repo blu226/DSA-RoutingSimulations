@@ -49,7 +49,7 @@ startTime = [StartTime, StartTime + T]
 
 
 for j in range(len(days)):
-    dataMules = findfiles(DataMule_path)
+    dataMules = findfiles(DataMule_path + "Day" + str(j + 1) + "/")
     dataMules.sort()
     print(dataMules)
 
@@ -60,7 +60,7 @@ for j in range(len(days)):
 
         coord_at_time = []
 
-        with open(DataMule_path + bus, 'r') as f:
+        with open(DataMule_path + "Day" + str(j + 1) + "/" + bus, 'r') as f:
             lines = f.readlines()
         f.close()
 

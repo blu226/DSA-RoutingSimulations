@@ -16,13 +16,12 @@ class Node(object):
         self.energy = 0                                                             # energy consumed
         self.buf_size = 0                                                           # current size of buffer
         self.mes_fwd_time_limit = 0                                                 # amount of time spent transmitting in a tau
-        self.can_receive = [[np.inf, num_sec_per_tau] for i in range(num_transceivers)]                                                   # current ID of node you can receive data from in a given tau, inf if any can still
+        self.can_receive = [[np.inf, num_sec_per_tau, [-1, -1]] for i in range(num_transceivers)]                                                   # current ID of node you can receive data from in a given tau, inf if any can still
         self.channels = np.full(shape=(len(S), num_channels), fill_value=np.inf)    # matrix of bands and channels in the band
 
     def handle_buffer_overflow(self, mem_size):     # handle a buffer overflow
         # if the size of the buffer is larger than the mem size and mem size isnt 0 (means infinite buffer)
         if len(self.buf) > mem_size and mem_size > 0:
-
             # if "weighted" not in smart_setting:
             #     self.buf.remove(self.buf[0])
             #
@@ -66,6 +65,7 @@ class Node(object):
             # node 1 is transmitting to node 2, so make it so node2 can only receive msgs from node1 for the remainder of this tau
             node2.can_receive[transceiver][0] = int(node1.ID)
             node2.can_receive[transceiver][1] -= sec_to_transfer
+            node2.can_receive[transceiver][2] = [s, channel]
 
             # change this channel in node1 to node1's ID so node1 knows it is the only person allowed to transmit on this channel
             node1.channels[s, channel] = int(node1.ID)
@@ -104,15 +104,13 @@ class Node(object):
                     if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
                             or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == int(node1.ID)) \
                             or (node1.channels[s][j] == int(node1.ID) and node2.channels[s][j] == np.inf):
+
                         available = True
 
-                        # interference due to secondary users
-                        for other_node in net.nodes:
-                            # check to make sure no one in range is transmitting on the same channel
-                            if other_node != node1 and other_node != node2 and (other_node.channels[s][j] == other_node.ID ):
-                                if LINK_EXISTS[int(node1.ID), int(other_node.ID), s, ts] == 1 or LINK_EXISTS[int(node2.ID), int(other_node.ID), s, ts] == 1:
-                                    available = False
-
+                        # check if another transceiver is using this spectrum and channel
+                        for transceiver in range(num_transceivers):
+                            if node2.can_receive[transceiver][2] == [s, j]:
+                                available = False
 
 
                     if available == True: # if channel is available then update the network
@@ -181,7 +179,7 @@ class Node(object):
 
     def clear_channels(self):   # clears channels at the beginning of a tau
         self.channels = np.full(shape=(len(S), num_channels),fill_value=np.inf)
-        self.can_receive = [[np.inf, num_sec_per_tau] for i in range(num_transceivers)]
+        self.can_receive = [[np.inf, num_sec_per_tau, [-1, -1]] for i in range(num_transceivers)]
         self.mes_fwd_time_limit = 0
 
     def print_buf(self):        # debugging function
@@ -471,7 +469,6 @@ class Node(object):
 
     def send_message_xchant(self, net, message, ts, specBW, LINK_EXISTS): # xchants only
         nodes = net.nodes
-
         if len(message.path) > 0 and '' not in message.path:  # if the message still has a valid path
             next = int(message.path[len(message.path) - 1])  # get next node in path
 
@@ -491,6 +488,8 @@ class Node(object):
                     channel_available = 0
                     transceiver = 0
 
+                # print("node:", self.ID, "Transceiver:", transceiver, "Channel:", channel_available)
+
                 if channel_available >= 0:
 
                     if limited_time_to_transfer == True:
@@ -506,15 +505,15 @@ class Node(object):
 
                         message.path.pop()
                         message.bands.pop()
-                        message.last_sent = ts + transfer_time
+                        message.last_sent = ts + 1
                         message.band_used(s)
 
                         self.buf.remove(message)  # remove message from current node buffer
-                        self.buf_size -= 1  # update current nodes buffer
 
                         if message.des == next:
                             #message is delivered, write to file
                             write_delivered_msg_to_file(message, ts)
+                            nodes[next].delivered.append(message)
 
                         else:
                             # handle message transferred
@@ -522,29 +521,21 @@ class Node(object):
                             message.curr = next  # update messages current node
                             nodes[next].handle_buffer_overflow(max_packets_in_buffer)
 
+                        # print("message", message.ID, "packet:", message.packet_id, "sent to", next)
                         return True
 
                     else:
-                        if message.ID == debug_message:
+                        if int(message.ID) == debug_message:
                             print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
                         self.mes_fwd_time_limit -= transfer_time_in_secs
                         return False
                 else:
-                    if message.ID == debug_message:
+                    if int(message.ID) == debug_message:
                         print("channel unavailable")
 
             else:
-                if message.ID == debug_message:
-                    print("out of range, node - packetID:", self.ID, message.packet_id)
+                if int(message.ID) == debug_message:
+                    print("out of range, node - packetID - time:", self.ID, message.packet_id, ts)
                 return False
 
         return False
-            #This is to empty the message.path so that the source node knows that the message has been delivered
-            # elif int(message.des) == int(next):
-            #     message.path.pop()
-            #     message.bands.pop()
-            #     # message.last_sent += 1
-
-
-        # This is else to the len(message.path) > 0
-        # else:  # Message has been delivered

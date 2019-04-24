@@ -15,10 +15,10 @@ path_lines, spec_lines, msg_lines, specBW, LINK_EXISTS = get_data_structs()
 
 #loop thru each tau
 for t in range(0, T, tau):
-
+    # print("TIME:", t)
+    # net.network_status()
     # does all routing and sending of packets in the tau = t
     net.network_GO(t, specBW, path_lines, spec_lines, msg_lines, LINK_EXISTS)
-
 
 #creates not_delivered.txt for overhead computation
 net.not_delivered_messages()

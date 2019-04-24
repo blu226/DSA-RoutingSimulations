@@ -18,22 +18,21 @@ def getIndex(ts, currTimeInFile1, currTimeInFile2, currIndexInFile1, currIndexIn
     return currIndexInFile1, currIndexInFile2
 
 
-def CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts, te):
+def CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts):
 
-    for time in range(ts, te):
 
-        dataMule1_X = float(file1_pkl[time][0])
-        dataMule1_Y = float(file1_pkl[time][1])
-        dataMule2_X = float(file2_pkl[time][0])
-        dataMule2_Y = float(file2_pkl[time][1])
+    dataMule1_X = float(file1_pkl[ts][0])
+    dataMule1_Y = float(file1_pkl[ts][1])
+    dataMule2_X = float(file2_pkl[ts][0])
+    dataMule2_Y = float(file2_pkl[ts][1])
 
-        if dataMule1_X == -1 or dataMule2_X == -1 or dataMule1_X == '0' or dataMule2_X == '0' or dataMule1_X == ' ' or dataMule2_X == ' ':
-            return False
+    if dataMule1_X == -1 or dataMule2_X == -1 or dataMule1_X == '0' or dataMule2_X == '0' or dataMule1_X == ' ' or dataMule2_X == ' ':
+        return False
 
-        dist = funHaversine(dataMule1_Y, dataMule1_X, dataMule2_Y, dataMule2_X)
+    dist = funHaversine(dataMule1_Y, dataMule1_X, dataMule2_Y, dataMule2_X)
 
-        if dist > spectRange[s]:
-            return False
+    if dist > spectRange[s]:
+        return False
 
     return True
 
@@ -55,42 +54,40 @@ def createLinkExistenceADJ():
     #print("#ts te i j s \n")
 
     for ts in range(0, T - dt, dt):
-        for te in range(ts + dt, ts + maxTau, dt):
-            for file1 in fileList:
-                file1_pkl = pickle.load(open(DataMule_path + pkl_folder + file1, "rb"))
+        for file1 in fileList:
+            file1_pkl = pickle.load(open(DataMule_path + pkl_folder + file1, "rb"))
 
-                for file2 in fileList:
-                    file2_pkl = pickle.load(open(DataMule_path + pkl_folder + file2, "rb"))
+            for file2 in fileList:
+                file2_pkl = pickle.load(open(DataMule_path + pkl_folder + file2, "rb"))
 
-                    for s in S:
-                        if te < T:
-                            ts_dt = int(ts / dt)
-                            te_dt = int(te / dt)
+                for s in S:
+                    if ts < T:
+                        ts_dt = int(ts / dt)
 
-                            file1_id = file1.split(".")[0]
-                            file2_id = file2.split(".")[0]
+                        file1_id = file1.split(".")[0]
+                        file2_id = file2.split(".")[0]
 
-                            if int(file1_id) < NoOfSources + NoOfDataCenters and int(file2_id) < NoOfSources  + NoOfDataCenters:
-                                break
+                        if int(file1_id) < NoOfSources + NoOfDataCenters and int(file2_id) < NoOfSources  + NoOfDataCenters:
+                            break
 
+                        else:
+                            # print(file1_id, file2_id)
+                            if file1_id == file2_id:
+                                LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt] = 1
                             else:
-                                # print(file1_id, file2_id)
-                                if file1_id == file2_id:
-                                    LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt] = 1
-                                else:
-                                    # filepath1 = lex_data_directory_day + file1
-                                    # filepath2 = lex_data_directory_day + file2
+                                # filepath1 = lex_data_directory_day + file1
+                                # filepath2 = lex_data_directory_day + file2
 
-                                    # print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s))
-                                    if CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts, te) == True:
-                                        LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt] = 1
+                                # print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s))
+                                if CHECK_IF_LINK_EXISTS(file1_pkl, file2_pkl, s, ts) == True:
+                                    LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt] = 1
 
-                                      #  print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s) + " ts: " + str(ts_dt) + " te: " + str(te_dt) + " = " + str(LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt]))
+                                  #  print("i: " + str(file1_id) + " j: " + str(file2_id) + " s: " + str(s) + " ts: " + str(ts_dt) + " te: " + str(te_dt) + " = " + str(LINK_EXISTS[int(file1_id), int(file2_id), s, ts_dt, te_dt]))
 
 # Main starts here
 
 # This function is independent of tau
-LINK_EXISTS = numpy.empty(shape=(V + NoOfDataCenters + NoOfSources, V+ NoOfDataCenters + NoOfSources, numSpec, int(T/dt), int(T/dt)))
+LINK_EXISTS = numpy.empty(shape=(V + NoOfDataCenters + NoOfSources, V+ NoOfDataCenters + NoOfSources, numSpec, int(T/dt)))
 LINK_EXISTS.fill(math.inf)
 
 # if not os.path.exists(lex_data_directory):
