@@ -144,6 +144,8 @@ class Network(object):
 
                 path = path_line_arr[5: len(path_line_arr) - 1]
                 band = spec_line_arr[5:]
+                return path, band
+
         return path, band
 
 
@@ -236,10 +238,18 @@ class Network(object):
                 size = msg_line_arr[4]
 
                 num_packets = math.ceil(int(size) / int(packet_size))
-                for packet_id in range(num_packets):
-                    band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
+                band, path = self.get_message_info(path_lines, spec_lines, src, des, t, size)
 
-                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path, band, 0, packet_id, 0)  # create the message
+                for packet_id in range(num_packets):
+
+                    band_list = []
+                    path_list = []
+
+                    for i in range(len(path)):
+                        band_list.append(band[i])
+                        path_list.append(path[i])
+
+                    message = Message(id, src, des, t, size, [0, 0, 0, 0], path_list, band_list, 0, packet_id, 0)  # create the message
                     curr = int(message.curr)
 
                     # If a path exists for this message
@@ -249,7 +259,8 @@ class Network(object):
                         self.message_num += 1
 
                     else:
-                        print("Message generated with no path.")
+                        print("Message generated with no path. Path:", path, "src:", src, "dst:", des, "t:", t, size)
+
 
     def clear_old_msgs(self, t):                    # clears msgs that have expired their TTL
 
@@ -333,11 +344,15 @@ class Network(object):
                 was_sent = False            # init variable to check if a message could send
 
                 # Checks to see what spectrum to use for tau
-                if len(node.buf) > 0 and len(node.buf[msg_index].bands) > 0:
-                    spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
+                if len(node.buf) > 0:
+                    # spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
 
                     while len(node.buf) > 0 and isVisited > 0:
                         msg = node.buf[msg_index]
+
+                        if int(msg.ID) == debug_message:
+                            print("time:", t, "path:", msg.path)
+
                         #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
                         if restrict_band_access == True:
                             if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
@@ -353,7 +368,14 @@ class Network(object):
                         else:
                             # the message gets deleted from the current node, and buffer gets shrinked
                             # isVisited is to get to the end of the node buffer even if it is not empty
+                            self.packets_per_tau += 1
                             isVisited -= 1
+                            was_sent = True
+                if was_sent:
+                    self.parallel_coms += 1
+                        # keep data for how many packets per tau and parallel coms there were per tau in a list to show change in time
+            self.packets_per_tau_list.append(self.packets_per_tau)
+            self.parallel_coms_list.append(self.parallel_coms)
 
         # handles optimistic/pessimistic geo and epidemic along with single band epidemic
         elif "Epidemic_Smart" in protocol or "Spray" in protocol:
