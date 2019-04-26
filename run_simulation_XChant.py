@@ -8,7 +8,7 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
     num_messages = num_mes          # not needed anymore
-    debug_message = 3              # if a certain msg # needs to be debugged put it here and include if statement in area to debug
+    debug_message = -1              # if a certain msg # needs to be debugged put it here and include if statement in area to debug
     debug_mode = -1                 # same as above but for more general debug purposes
     metric_interval = 30            # interval in which metrics should be generated: every "metric interval" tau
     limited_time_to_transfer = True        # finite resources enabled
@@ -178,6 +178,7 @@ def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, 
 # Computed Range = TV : 1452 meter, LTE = 840 meter, ISM = 133 meter, and CBRS = 188 meter
 # Resultant Bit rate = TV: 12 Mbps, LTE = 41 Mbps, ISM = 16 Mbps, and CBRS = 82 Mbps
 
+#Change start_time to 840, and pkl_ID = 2 #for day 2
 data = "UMass"
 day = "2007-11-07"
 len_T = 180                     #length of simulation
@@ -192,7 +193,7 @@ max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of d
 speed = [135, 400]                  #Lex data only
 proto = "XChant"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
 num_Pusers = 0
-num_channels = 10
+num_channels = 20
 nodes_tofwd = -1
 routing_opt = "Epi"
 msg_round = 1
@@ -204,7 +205,7 @@ num_replicas = 1       # number of replicas/copies for geographic SnW
 sim_round = 1
 priority_queue_active = False
 compute_spec_BW = False
-num_transceivers = 1
+num_transceivers = 20
 
 
 if compute_spec_BW == True:

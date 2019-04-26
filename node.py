@@ -60,6 +60,7 @@ class Node(object):
             te = ts
         else:
             te = ts + 1
+
         # ISM does not have channel restrictions
         if s != 1:
             # node 1 is transmitting to node 2, so make it so node2 can only receive msgs from node1 for the remainder of this tau
@@ -92,13 +93,12 @@ class Node(object):
 
     def check_for_available_channel(self, node1, node2, ts, net, s, LINK_EXISTS, sec_to_transfer): # check if a channel is available between 2 nodes
         available = False
-        dist1 = 99999
-        dist2 = 99999
-
 
         for i in range(num_transceivers):
             # make sure receiver is not already receiving from anyone else
             if (np.inf in node2.can_receive[i] or int(node1.ID) in node2.can_receive[i]) and (node2.can_receive[i][1] - sec_to_transfer) >= 0:
+            # if (node2.can_receive[i][0] == np.inf or node2.can_receive[i][0] == int(node1.ID)):
+                    # and (node2.can_receive[i][1] - sec_to_transfer) >= 0:
                 for j in range(num_channels):
                     # check if a common channel is available between both nodes
                     if (node1.channels[s][j] == np.inf and node2.channels[s][j] == np.inf) \
@@ -109,13 +109,13 @@ class Node(object):
 
                         # check if another transceiver is using this spectrum and channel
                         for transceiver in range(num_transceivers):
-                            if node2.can_receive[transceiver][2] == [s, j]:
+                            if node2.can_receive[transceiver][2] == [s, j] and i != transceiver:
                                 available = False
-
 
                     if available == True: # if channel is available then update the network
                         # return channel index of available channel
                         return i, j
+
         # return -1 if no channel available
         return -1, -1
 
@@ -467,75 +467,55 @@ class Node(object):
 
 
 
-    def send_message_xchant(self, net, message, ts, specBW, LINK_EXISTS): # xchants only
+    def send_message_xchant(self, net, message, ts, specBW, LINK_EXISTS, next, s, transfer_time_in_sec): # xchants only
         nodes = net.nodes
-        if len(message.path) > 0 and '' not in message.path:  # if the message still has a valid path
-            next = int(message.path[len(message.path) - 1])  # get next node in path
 
-            s = int(message.bands[len(message.bands) - 1])  # get band to use
+        # print("curr:", message.curr, "next:", next, "S:", s, "T:", ts)
+        if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts] == 1:
+            if restrict_channel_access == True:
+                transceiver, channel_available = self.check_for_available_channel(self, nodes[next], ts, net, s, LINK_EXISTS, transfer_time_in_sec)
+            else:
+                channel_available = 0
+                transceiver = 0
 
-            # Change s in between 0 and S
-            if s > 9:
-                s = s % 10
-            s = s - 1
+            # print("node:", self.ID, "Transceiver:", transceiver, "Channel:", channel_available)
 
-            transfer_time, transfer_time_in_secs = self.compute_transfer_time(message, s, specBW, message.curr, next, ts)
-            # print("curr:", message.curr, "next:", next, "S:", s, "T:", ts)
-            if LINK_EXISTS[int(nodes[message.curr].ID), int(nodes[next].ID), s, ts] == 1:
-                if restrict_channel_access == True:
-                    transceiver, channel_available = self.check_for_available_channel(self, nodes[next], ts, net, s, LINK_EXISTS, transfer_time_in_secs)
+            if channel_available >= 0:
+                self.update_channel_occupancy(self, nodes[next], ts, net, s, channel_available, LINK_EXISTS, transfer_time_in_sec, transceiver)
+
+                # calculate energy consumed
+                consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
+                self.energy += consumedEnergy
+                net.nodes[next].energy += consumedEnergy
+
+                message.path.pop()
+                message.bands.pop()
+                message.last_sent = ts + 1
+                message.band_used(s)
+
+                self.buf.remove(message)  # remove message from current node buffer
+
+                if message.des == next:
+                    #message is delivered, write to file
+                    write_delivered_msg_to_file(message, ts)
+                    nodes[next].delivered.append(message)
+
                 else:
-                    channel_available = 0
-                    transceiver = 0
+                    # handle message transferred
+                    nodes[next].buf.append(message)  # add message to next node buffer
+                    message.curr = next  # update messages current node
+                    nodes[next].handle_buffer_overflow(max_packets_in_buffer)
 
-                # print("node:", self.ID, "Transceiver:", transceiver, "Channel:", channel_available)
-
-                if channel_available >= 0:
-
-                    if limited_time_to_transfer == True:
-                        self.mes_fwd_time_limit += transfer_time_in_secs
-
-                    if self.mes_fwd_time_limit <= (num_sec_per_tau * num_transceivers):
-                        self.update_channel_occupancy(self, nodes[next],ts,net,s,channel_available, LINK_EXISTS, transfer_time_in_secs, transceiver)
-
-                        # calculate energy consumed
-                        consumedEnergy = self.calculate_energy_consumption(message, next, s, ts, specBW)
-                        self.energy += consumedEnergy
-                        net.nodes[next].energy += consumedEnergy
-
-                        message.path.pop()
-                        message.bands.pop()
-                        message.last_sent = ts + 1
-                        message.band_used(s)
-
-                        self.buf.remove(message)  # remove message from current node buffer
-
-                        if message.des == next:
-                            #message is delivered, write to file
-                            write_delivered_msg_to_file(message, ts)
-                            nodes[next].delivered.append(message)
-
-                        else:
-                            # handle message transferred
-                            nodes[next].buf.append(message)  # add message to next node buffer
-                            message.curr = next  # update messages current node
-                            nodes[next].handle_buffer_overflow(max_packets_in_buffer)
-
-                        # print("message", message.ID, "packet:", message.packet_id, "sent to", next)
-                        return True
-
-                    else:
-                        if int(message.ID) == debug_message:
-                            print("Out of time to transfer, node - packetID:",  self.ID, message.packet_id)
-                        self.mes_fwd_time_limit -= transfer_time_in_secs
-                        return False
-                else:
-                    if int(message.ID) == debug_message:
-                        print("channel unavailable")
+                # print("message", message.ID, "packet:", message.packet_id, "sent to", next)
+                return True
 
             else:
                 if int(message.ID) == debug_message:
-                    print("out of range, node - packetID - time:", self.ID, message.packet_id, ts)
-                return False
+                    print("channel unavailable")
+
+        else:
+            if int(message.ID) == debug_message:
+                print("out of range, node - packetID - time:", self.ID, message.packet_id, ts)
+            return False
 
         return False

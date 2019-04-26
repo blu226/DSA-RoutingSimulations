@@ -81,7 +81,7 @@ class Network(object):
     def load_primary_users(self):           # loads a pre generated file of primary users and how they should operate
         # read in primary user
         if dataset == "UMass":
-            with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_users_" + str(num_channels) + ".txt", "r") as f:
+            with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_usersUMass_" + str(num_channels) + ".txt", "r") as f:
                 lines = f.readlines()
         elif dataset == "Lexington":
             with open("Primary_Users/" + dataset + "/" + str(puser_round) + "/primary_usersLEX_" + str(num_channels) + ".txt", "r") as f:
@@ -339,41 +339,47 @@ class Network(object):
 
             for node in self.nodes:  # send all messages to their next hop
 
-                isVisited = len(node.buf)   # Get the initial buffer size
-                msg_index = 0               # init index of msg buffer
-                was_sent = False            # init variable to check if a message could send
+                did_node_transmit = False
+                for msg in node.buf:
 
-                # Checks to see what spectrum to use for tau
-                if len(node.buf) > 0:
-                    spec_to_use = node.buf[msg_index].bands[len(node.buf[msg_index].bands) - 1]
-
-                    while len(node.buf) > 0 and isVisited > 0:
-                        msg = node.buf[msg_index]
-
+                    if msg.last_sent < t:
                         if int(msg.ID) == debug_message:
                             print("time:", t, "path:", msg.path)
 
-                        #The band is restricted for a given time slot (i.e., 1 tau) and can not be changed
-                        if restrict_band_access == True:
-                            if len(msg.bands) > 0 and msg.bands[len(msg.bands) - 1] == spec_to_use:
-                                # TODO: get the suitable non-interfered channel
-                                was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
-                        else:
-                            was_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS)
+                        if len(msg.path) > 0 and '' not in msg.path:  # if the message still has a valid path
+                            next = int(msg.path[len(msg.path) - 1])  # get next node in path
+                            s = int(msg.bands[len(msg.bands) - 1])  # get band to use
 
-                        if was_sent == False:
-                            # print("node:", node.ID, "msg ID:", msg.ID, "pckt ID:", msg.packet_id, "t:", t)
-                            msg_index += 1
-                            isVisited -= 1
-                        else:
-                            # the message gets deleted from the current node, and buffer gets shrinked
-                            # isVisited is to get to the end of the node buffer even if it is not empty
-                            self.packets_per_tau += 1
-                            isVisited -= 1
-                            was_sent = True
-                if was_sent:
+                            # Change s in between 0 and S
+                            if s > 9:
+                                s = s % 10
+                            s = s - 1
+
+                            transfer_time, transfer_time_in_sec = node.compute_transfer_time(msg, s, specBW,
+                                                                                              msg.curr, next, t)
+
+                            # check if there is enough time to send message packet
+                            if limited_time_to_transfer == True:
+                                if node.mes_fwd_time_limit + transfer_time_in_sec <= (num_sec_per_tau * num_transceivers):
+                                    msg_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS, next, s, transfer_time_in_sec)
+
+                                    # if msg was sent add the amount of packets sent set flag of a node transmitting to true
+                                    if msg_sent == True:
+                                        node.mes_fwd_time_limit += transfer_time_in_sec
+                                        self.packets_per_tau += 1
+                                        did_node_transmit = True
+
+                            else:
+                                msg_sent = node.send_message_xchant(self, msg, t, specBW, LINK_EXISTS, next, s, transfer_time_in_sec)
+
+                                # if msg was sent add the amount of packets sent set flag of a node transmitting to true
+                                if msg_sent == True:
+                                    self.packets_per_tau += 1
+                                    did_node_transmit = True
+
+                if did_node_transmit:
                     self.parallel_coms += 1
-                        # keep data for how many packets per tau and parallel coms there were per tau in a list to show change in time
+                    # keep data for how many packets per tau and parallel coms there were per tau in a list to show change in time
             self.packets_per_tau_list.append(self.packets_per_tau)
             self.parallel_coms_list.append(self.parallel_coms)
 
@@ -457,6 +463,10 @@ class Network(object):
                                 else:
                                     self.packets_per_tau += num_packet_broadcasted
                                     did_node_transmit = True
+
+                            else:
+                                break
+
                 # if geographical forwarding, and nodes are in range
                 elif geographical_routing == True and len(nodes_in_range) > 0: #geographical paradigm
                     # loop through each msg in buffer
@@ -496,6 +506,9 @@ class Network(object):
                                         self.packets_per_tau += num_packet_broadcasted
                                         did_node_transmit = True
 
+                                else:
+                                    break
+
                 # Spray n Wait
                 elif geographical_routing == False and broadcast == False and len(nodes_in_range) > 0:
                     # loop through each msg in buffer
@@ -525,8 +538,10 @@ class Network(object):
                                     self.packets_per_tau += num_packet_broadcasted
                                     did_node_transmit = True
 
+                            else:
+                                break
 
-                                # if node transmitted at least 1 packet account for it in parallel communications
+                # if node transmitted at least 1 packet account for it in parallel communications
                 if did_node_transmit:
                     self.parallel_coms += 1
                     # account for band chosen by this node in this tau
