@@ -2,9 +2,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from constants import *
 
-time_epochs = 5
+time_epochs = 6
 
-msg_files = 5
+msg_files = 3
 puser_files = 5
 
 Geo_TV = np.zeros(shape=(time_epochs, msg_files, puser_files))
@@ -18,21 +18,21 @@ num_Pusers = 200
 msg_mean = 15
 T = 360
 channels = 6
-ttl = 180
-max_memory = [25, 50, 100, 200, -1]
+ttl = 90
+max_memory = [25, 50, 100, 200, 300, -1]
 startTime = 1
 days = "50"
 dataset = "Lexington"
-buffer_type = ["FIFO", "FIFO"]
+buffer_type = ["PQ", "PQ"]
 weighted_approach = "weighted_0.5"
 smart_settings = [weighted_approach]
 protocols = ["geo"]
 # protocols = ["Epidemic_Smart_optimistic"]
 # fwd_strat = ["geo_3"]
 num_replicas = 1
-num_replicas_snw = 20
+num_replicas_snw = 25
 metrics_file = "metrics.txt"
-sim_round = 6
+sim_round = 7
 
 p_id = 1 # p_id = 1 for PDR, = 2 for latency, and 3 for Energy, and 4 for overhead
 
@@ -49,8 +49,8 @@ for i in range(msg_files):
                         if protocol in ["geo"]:
                             protocol = protocol + "_" + str(num_replicas)
 
-                        # if protocol in ["SnW"]:
-                        #     protocol = protocol + "_" + str(num_replicas_snw)
+                        if protocol in ["SnW"]:
+                            protocol = protocol + "_" + str(num_replicas_snw)
 
                         path_exists = True
 
@@ -121,24 +121,30 @@ for i in range(len(Geo_TV_temp)):
     Geo_ISM_sd.append(np.std(Geo_ISM_temp[i]))
 
 print(len(Geo_TV_mean))
-x = [25, 50, 100, 200, 300]
 
+x = [25, 50, 100, 200, 300, 500]
+plt.figure(figsize=(8,4.5))
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
-plt.xticks(x, ["25", "50", "100", "200", "Unlimited"])
+plt.xticks(x, ["25", "50", "100", "200", "300", "Unlimited"])
 
-plt.xlabel('Max buffer size', fontsize=25)
-plt.ylabel('Perc. of band usage', fontsize=25)
+plt.xlabel('Memory buffer size', fontsize=15)
+plt.ylabel('Perc. of band usage', fontsize=15)
 
-fig_name = "Plots/mem_bandusage.eps"
+if "geo" in protocols:
+    fig_name = "Plots/msgmean_bandusage_geo.eps"
+elif "broadcast" in protocols:
+    fig_name = "Plots/msgmean_bandusage_SER.eps"
+else:
+    fig_name = "Plots/msgmean_bandusage_SnW.eps"
 
-plt.errorbar(x, Geo_TV_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=2)
+plt.errorbar(x, Geo_TV_mean, 0, marker='*', markersize=5, linestyle='-', linewidth=2)
 plt.errorbar(x, Geo_LTE_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=2)
-plt.errorbar(x, Geo_CBRS_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=2)
-plt.errorbar(x, Geo_ISM_mean, 0, marker='*', markersize=5, linestyle=':', linewidth=2)
+plt.errorbar(x, Geo_CBRS_mean, 0, marker='*', markersize=5, linestyle='-', linewidth=2)
+plt.errorbar(x, Geo_ISM_mean, 0, marker='*', markersize=5, linestyle='--', linewidth=2)
 
-routing_name_list = ["GR(TV)", "GR(LTE)", "GR(CBRS)", "GR(ISM)"]
-plt.legend(routing_name_list, loc="upper left",  bbox_to_anchor=(0.01, 0.65), fontsize=12, ncol = 3, frameon=False)
+routing_name_list = ["TV", "LTE", "CBRS", "ISM"]
+plt.legend(routing_name_list, loc="upper left",  bbox_to_anchor=(0.01, 0.65), fontsize=12, ncol = 4, frameon=False)
 
 plt.tight_layout()
 plt.savefig(fig_name)
