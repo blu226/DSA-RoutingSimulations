@@ -3,7 +3,7 @@ from constants import *
 from misc_sim_funcs import *
 import os
 
-def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, generate_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt, wei_param, num_trans):
+def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, generate_LE, Max_Nodes, pkl_fold_num, perfect_knowledge,src_dst,speed, num_mes, num_chan, num_puser, smart_setting, num_fwd, msg_round, puser_round, msg_mean, ttl, max_mem, replicas, priority_queue_active, routing_opt, wei_param, num_trans, is_boot_round):
 
     # a bunch of variables for the constant file
     dir = "DataMules/"              #Starting Directory
@@ -29,7 +29,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
     broadcast = False
     num_nodes_to_fwd = -1
 
-    dataMule_path = dir + dataset + "/" + day_or_numMules + "/" + str(round) + "/"
+    #dataset is the "LEX" or "UMass", day_or_numMules is the "2007-11-01", and round is the simulation round.
+    dataMule_path = dir + dataset + "/" + str(day_or_numMules) + "/" + str(round) + "/"
 
     # creates multiple file paths based on the dataset and the variables assigned above
     if dataset == "UMass":
@@ -40,10 +41,13 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
                            + str(puser_round) + "/TTL_" + str(ttl) + "/BuffSize_" + str(mem_size) +"/" + "numTransceivers_"\
                             + str(num_trans) + "/"
         path_to_save_LLC = link_exists_path
+
         if pkl_fold_num == 1:
             path_to_day1_LLC = link_exists_path
+
         else:
-            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - T) + "_" + str(T) + "/"
+            boot_round_length = 180
+            path_to_day1_LLC = dataMule_path + "Link_Exists/LE_" + str(start_time - boot_round_length) + "_" + str(boot_round_length) + "/"
 
     elif dataset == "Lexington":
         if pkl_fold_num == 1:
@@ -69,8 +73,6 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
     else:
         print("Invalid Dataset")
         return -1
-
-
 
     # creates a list of spectrums based on bands being used and the current smart setting
     if protocol == "XChant":
@@ -106,6 +108,8 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
             # os.system("python3 create_pickles.py")
             os.system("python3 computeLINKEXISTS_UMass.py")
             os.system("python3 STB_main_path.py")
+            if is_boot_round == True:
+                os.system("python3 GenerateMessagesFromLLC.py")
 
 
         elif dataset == "Lexington":
@@ -118,6 +122,11 @@ def run_simulation(DataSet, Day_Or_NumMules, Round, Protocol, Band, t, ts, v, ge
 
     # run the simulation and metrics if you are not generating link exists
     if generate_LE == False:
+        if dataset == "UMass" and is_boot_round == False:
+            print("Compute round 2 link exists\n")
+            os.system("python3 computeLINKEXISTS_UMass.py")
+            os.system("python3 STB_main_path.py")
+
         os.system("python3 main.py")
         os.system("python3 metrics.py")
 
@@ -166,7 +175,7 @@ def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, 
 
 # RF parameter setting
 # Freq: TV = 600 MHz, LTE = 900 MHz, ISM = 2.4 GHz, and CBRS = 3.5 GHz
-# Path loss factor = 2.8 (sub-urban)
+# Path loss factor = 2.8 (sub-urban, LEXINGTON) and 2.5 (rural UMass)
 # Receiver Sensitivity = -95 dBm
 # White noise = -100 dB
 # SNR = 5 dB
@@ -178,34 +187,42 @@ def run_various_sims(sim_round, num_mules, num_channels, num_Pusers, msg_round, 
 # Computed Range = TV : 1452 meter, LTE = 840 meter, ISM = 133 meter, and CBRS = 188 meter
 # Resultant Bit rate = TV: 12 Mbps, LTE = 41 Mbps, ISM = 16 Mbps, and CBRS = 82 Mbps
 
-#Change start_time to 840, and pkl_ID = 2 #for day 2
-data = "UMass"
-day = "2007-11-07"
-len_T = 180                     #length of simulation
+#### For Day 2
+#1. start_time = 840,
+#2. pkl_ID = 2
+#3. is_boot_round = False
+#4. len_T = 240
+
 start_time = 660                #start time (to find Link Exists)
+is_boot_round = False           #which day or round
+pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
+len_T = 240
+generate_LE = False             #generate Link Exists
+
+data = "UMass"
+day = "2007-11-01"
+                   #length of simulation
 bands = ["ALL", "LTE", "TV", "CBRS", "ISM"]  #which bands to use
 num_mules = 10                  #number of data mules to use
-generate_LE = False             #generate Link Exists
-pkl_ID = 1                      #pkl folder ID if Link Exists is being generated
 perfect_knowledge = False       #Xchant only
 src_dst = [5, 4]                #num src and dst
 max_v = num_mules + src_dst[0] + src_dst[1]                     #max number of datamules + src + dst
 speed = [135, 400]                  #Lex data only
 proto = "XChant"        #[Epidemic_Smart, XChant, SprayNWait (in progress)]
 num_Pusers = 0
-num_channels = 20
+num_channels = 10
 nodes_tofwd = -1
 routing_opt = "Epi"
 msg_round = 1
 puser_round = 0
-msg_mean = 15
-ttl = 180
+msg_mean = 7
+ttl = 90
 mem_size = -1
 num_replicas = 1       # number of replicas/copies for geographic SnW
 sim_round = 1
 priority_queue_active = False
 compute_spec_BW = False
-num_transceivers = 20
+num_transceivers = 1
 
 
 if compute_spec_BW == True:
@@ -214,12 +231,12 @@ if compute_spec_BW == True:
 else:
     if generate_LE == False :
 
-        # for num_transceivers in [1, 2, 3, 4, 5]:
-        #     print("Num Transceivers:", num_transceivers)
-        run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
-                       pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
-                       "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
-                       priority_queue_active, routing_opt,0, num_transceivers)
+        for num_transceivers in [1, 8]:
+            print("Num Transceivers:", num_transceivers)
+            run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
+                           pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
+                           "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
+                           priority_queue_active, routing_opt,0, num_transceivers, is_boot_round)
 
     #Generate Link exists
     else:
@@ -230,9 +247,9 @@ else:
             run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                            2, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                            "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
-                           priority_queue_active, routing_opt, 0, num_transceivers)
+                           priority_queue_active, routing_opt, 0, num_transceivers, is_boot_round)
         else:
             run_simulation(data, day, sim_round, proto, "ALL", len_T, start_time, num_mules, generate_LE, max_v,
                            pkl_ID, perfect_knowledge, src_dst, speed, num_messages, num_channels, num_Pusers,
                            "optimistic", nodes_tofwd, msg_round, puser_round, msg_mean, ttl, mem_size, num_replicas,
-                           priority_queue_active, routing_opt, 0, num_transceivers)
+                           priority_queue_active, routing_opt, 0, num_transceivers, is_boot_round)
